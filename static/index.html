@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>TimeIt - Time Tracker</title>
+        <link rel="stylesheet" type="text/css" href="style.css?1">
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script type="text/javascript" src="site.js?1"></script>
+    </head>
+    <body>
+        <div id="control">
+            <div id="current_activity">
+                <div id="current_activity_name">Loading...</div>
+                <div id="timer"></div>
+            </div>
+            <div id="activity_form">
+                <input id="activity_form_stop" type="button" value="Stop activity">
+                <input id="activity_form_name" type="text">
+                <input id="activity_form_button" type="button" value="Set">
+                <input id="activity_form_cancel" type="button" value="Cancel">
+            </div>
+        </div>
+        <div>
+            <a id="toggle_notify" href="#"></a>
+        </div>
+        <div>
+            <form action="login" method="get">
+                <input type="text" name="openid">
+                <input type="submit" value="login">
+                <a href="login?openid=https://www.google.com/accounts/o8/id">Google</a>
+            </form>
+        </div>
+    </body>
+</html>
