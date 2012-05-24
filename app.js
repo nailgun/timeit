@@ -125,21 +125,25 @@ function logout(req, res) {
     res.end();
 }
 
-function route(req, res, next) {
-    if (req._parsedUrl.pathname == '/set-activity') {
-        set_activity(req, res);
-    } else if (req._parsedUrl.pathname == '/stop-activity') {
-        stop_activity(req, res);
-    } else if (req._parsedUrl.pathname == '/current-activity') {
-        current_activity(req, res);
-    } else if (req._parsedUrl.pathname == '/login') {
-        login(req, res);
-    } else if (req._parsedUrl.pathname == '/openid-callback') {
-        openid_callback(req, res);
-    } else if (req._parsedUrl.pathname == '/login-status') {
-        login_status(req, res);
-    } else if (req._parsedUrl.pathname == '/logout') {
-        logout(req, res);
+function route(routes) {
+    return function(req, res, next) {
+        var view = routes[req._parsedUrl.pathname];
+        if (typeof(view) == 'function') {
+            view(req, res);
+        } else {
+            next();
+        }
+    }
+}
+
+function login_required_ajax(view) {
+    return function(req, res, next) {
+        if (req.user) {
+            view(req, res, next);
+        } else {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end();
+        }
     }
 }
 
@@ -153,7 +157,16 @@ db.open(function(err, db) {
         .use(connect.query())
         .use(connect.cookieParser())
         .use(get_user)
-        .use(route);
+        .use(route({
+            '/set-activity': login_required_ajax(set_activity),
+            '/current-activity': login_required_ajax(current_activity),
+            '/stop-activity': login_required_ajax(stop_activity),
+
+            '/login': login,
+            '/openid-callback': openid_callback,
+            '/login-status': login_status,
+            '/logout': logout,
+        }));
 
     console.log('Listening...');
     app.listen(config.port);
