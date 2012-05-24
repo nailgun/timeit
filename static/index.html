@@ -6,7 +6,7 @@
         <script type="text/javascript" src="site.js?1"></script>
     </head>
     <body>
-        <div id="control">
+        <div id="control" class="logged_in">
             <div id="current_activity">
                 <div id="current_activity_name">Loading...</div>
                 <div id="timer"></div>
@@ -18,15 +18,18 @@
                 <input id="activity_form_cancel" type="button" value="Cancel">
             </div>
         </div>
-        <div>
+        <div class="logged_in">
             <a id="toggle_notify" href="#"></a>
         </div>
-        <div>
+        <div class="not_logged_in">
             <form action="login" method="get">
                 <input type="text" name="openid">
                 <input type="submit" value="login">
                 <a href="login?openid=https://www.google.com/accounts/o8/id">Google</a>
             </form>
+        </div>
+        <div class="logged_in">
+            <a href="logout">Logout</a>
         </div>
     </body>
 </html>

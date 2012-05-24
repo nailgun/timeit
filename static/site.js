@@ -91,6 +91,25 @@ function update_notifications(value) {
     timeit.notifications = enabled;
 }
 
+function logged_in() {
+    $('.logged_in').show();
+
+    $.getJSON('current-activity', function(data) {
+        if (data.length) {
+            var activity = data[0];
+
+            $('#current_activity_name').text(activity.name);
+            timeit.current_activity = activity.name;
+            timeit.start_time = new Date(activity.start_time);
+            update_timer();
+        } else {
+            $('#current_activity_name').text('No activity');
+        }
+
+        enableControls();
+    });
+}
+
 $(function() {
     if (window.webkitNotifications) {
         update_notifications(true);
@@ -118,18 +137,11 @@ $(function() {
         $('#toggle_notify').remove();
     }
 
-    $.getJSON('current-activity', function(data) {
-        if (data.length) {
-            var activity = data[0];
-
-            $('#current_activity_name').text(activity.name);
-            timeit.current_activity = activity.name;
-            timeit.start_time = new Date(activity.start_time);
-            update_timer();
+    $.getJSON('login-status', function(data) {
+        if (data['logged_in']) {
+            logged_in();
         } else {
-            $('#current_activity_name').text('No activity');
+            $('.not_logged_in').show();
         }
-
-        enableControls();
     });
 });

@@ -2,6 +2,7 @@ var connect = require('connect');
 var mongo = require('mongodb');
 var openid = require('openid');
 var config = require('./config');
+var BSON = mongo.BSONPure;
 
 var db = mongo.Db(
         config.mongo_db,
@@ -58,12 +59,15 @@ function login(req, res) {
 }
 
 function openid_success(req, res, sid) {
+    res.writeHead(302, {
+        Location: '/',
+        'Set-Cookie': connect.utils.serializeCookie('sid', sid)
+    });
+    res.end();
 }
 
 function openid_callback(req, res) {
     openid.verifyAssertion(req, function(err, result) {
-        console.dir(result);
-
         if (!err && result.authenticated) {
             var openid = result.claimedIdentifier;
             db.collection('accounts', function(err, accounts) {
@@ -71,21 +75,54 @@ function openid_callback(req, res) {
                     if (doc) {
                         openid_success(req, res, doc._id);
                     } else {
-                        accounts.insert({openid: openid}, function(doc) {
+                        accounts.insert({openid: openid}, function(err, doc) {
                             openid_success(req, res, doc._id);
                         });
                     }
                 });
             });
+        } else {
+            res.writeHead(302, { Location: '/login-failed.html' });
+            res.end();
         }
-
-        //res.end(!err && result.authenticated ? 'Success :)' : 'Failure :(');
     });
 }
 
-function session_id(req, res, next) {
+function login_status(req, res) {
+    res.end(JSON.stringify({logged_in: (req.user ? true : false)}));
+}
+
+function get_user(req, res, next) {
     req.sid = req.cookies['sid'];
-    next();
+    if (!req.sid) {
+        req.user = null;
+        next();
+        return;
+    }
+
+    db.collection('accounts', function(err, accounts) {
+        var ob_id = null;
+        try {
+            ob_id = new BSON.ObjectID(req.sid);
+        } catch(err) {
+            req.user = null;
+            next();
+            return;
+        }
+
+        accounts.findOne({_id: ob_id}, function(err, doc) {
+            req.user = doc;
+            next();
+        });
+    });
+}
+
+function logout(req, res) {
+    res.writeHead(302, {
+        Location: '/',
+        'Set-Cookie': connect.utils.serializeCookie('sid', '')
+    });
+    res.end();
 }
 
 function route(req, res, next) {
@@ -99,6 +136,10 @@ function route(req, res, next) {
         login(req, res);
     } else if (req._parsedUrl.pathname == '/openid-callback') {
         openid_callback(req, res);
+    } else if (req._parsedUrl.pathname == '/login-status') {
+        login_status(req, res);
+    } else if (req._parsedUrl.pathname == '/logout') {
+        logout(req, res);
     }
 }
 
@@ -111,7 +152,7 @@ db.open(function(err, db) {
         .use(connect.static('static'))
         .use(connect.query())
         .use(connect.cookieParser())
-        .use(session_id)
+        .use(get_user)
         .use(route);
 
     console.log('Listening...');

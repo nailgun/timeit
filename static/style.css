@@ -37,3 +37,8 @@
 #activity_form {
     display: none;
 }
+
+.logged_in,
+.not_logged_in {
+    display: none;
+}
