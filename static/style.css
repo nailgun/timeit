@@ -42,3 +42,16 @@
 .not_logged_in {
     display: none;
 }
+
+.row-template {
+    display: none;
+}
+
+#today_activities {
+    cursor: default;
+}
+
+#today_activities tr.selected {
+    background-color: red;
+    color: white;
+}

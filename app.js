@@ -169,6 +169,25 @@ function login_required_ajax(view) {
     }
 }
 
+// FIXME: respect user timezone
+function today(req, res) {
+    db.collection('activities', function(err, activities) {
+        var end = new Date();
+        end.setHours(23);
+        end.setMinutes(59);
+        end.setSeconds(59);
+        end.setMilliseconds(999);
+        var start = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+        activities.find({
+            account: req.user._id,
+            end_time: {$gte: start, $lte: end},
+        }, ['name', 'start_time', 'end_time', 'tags']).toArray(function(err, docs) {
+            res.end(JSON.stringify(docs));
+        });
+    });
+}
+
 console.log('Connecting to database...');
 db.open(function(err, db) {
     console.log('Connected to database.');
@@ -183,6 +202,7 @@ db.open(function(err, db) {
             '/set-activity': login_required_ajax(set_activity),
             '/current-activity': login_required_ajax(current_activity),
             '/stop-activity': login_required_ajax(stop_activity),
+            '/today': login_required_ajax(today),
 
             '/login': login,
             '/openid-callback': openid_callback,
