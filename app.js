@@ -11,6 +11,8 @@ var db = mongo.Db(
 
 function set_activity(req, res) {
     var activity_name = req.query['name'];
+    var tags_string = req.query['tags'];
+    var tags = tags_string.split(/\s*,\s*/);
 
     db.collection('activities', function(err, collection) {
         collection.update({
@@ -25,6 +27,7 @@ function set_activity(req, res) {
             collection.insert({
                 account: req.user._id,
                 name: activity_name,
+                tags: tags,
                 start_time: new Date(),
                 end_time: null
             }, function(docs) {

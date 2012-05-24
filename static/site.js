@@ -7,8 +7,11 @@ window.timeit = {
     }
 };
 
-function set_activity(name) {
-    $.getJSON('set-activity', { name: name }, function(data) {
+function set_activity(name, tags) {
+    $.getJSON('set-activity', {
+        name: name,
+        tags: tags
+    }, function(data) {
         $('#current_activity_name').text(name);
         timeit.current_activity = name;
         timeit.start_time = new Date();
@@ -65,7 +68,8 @@ function enableControls() {
 
     $('#activity_form_button').click(function() {
         var name = $('#activity_form_name').val();
-        set_activity(name);
+        var tags = $('#activity_form_tags').val();
+        set_activity(name, tags);
         $('#activity_form').hide();
     });
 
