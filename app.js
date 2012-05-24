@@ -111,7 +111,7 @@ function openid_callback(req, res) {
 }
 
 function login_status(req, res) {
-    res.end(JSON.stringify({logged_in: (req.user ? true : false)}));
+    res.end(JSON.stringify({logged_in: !!req.user}));
 }
 
 function get_user(req, res, next) {
