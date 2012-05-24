@@ -2,10 +2,33 @@ window.timeit = {
     current_activity: null,
     start_time: null,
     notifications: false,
+    activity_num: 0,
+    notification_interval: 10 * 60 * 1000,
     time_elapsed_ms: function() {
         return new Date().getTime() - timeit.start_time.getTime();
     }
 };
+
+function start_notification() {
+    timeit.activity_num++;
+    var activity_num = timeit.activity_num;
+    var notify = function() {
+        if (!timeit.current_activity || activity_num != timeit.activity_num) {
+            return;
+        }
+
+        if (timeit.notifications) {
+            var popup = window.webkitNotifications.createNotification('', 'TimeIt', timeit.current_activity);
+            popup.show();
+            setTimeout(function() {
+                popup.cancel();
+            }, 2000);
+        }
+
+        setTimeout(notify, timeit.notification_interval);
+    }
+    setTimeout(notify, timeit.notification_interval);
+}
 
 function set_activity(name, tags) {
     $.getJSON('set-activity', {
@@ -16,6 +39,7 @@ function set_activity(name, tags) {
         timeit.current_activity = name;
         timeit.start_time = new Date();
         update_timer();
+        start_notification();
     });
 }
 
@@ -123,18 +147,6 @@ Date.prototype.format = function(format) {
 function update_timer() {
     if (timeit.start_time) {
         var total_ms = timeit.time_elapsed_ms();
-
-        if (timeit.notifications) {
-            var minutes = Math.floor(total_ms / (1000 * 60));
-            if (minutes % 27 == 0) {
-                var popup = window.webkitNotifications.createNotification('', 'TimeIt', timeit.current_activity);
-                popup.show();
-                setTimeout(function() {
-                    popup.cancel();
-                }, 2000);
-            }
-        }
-
         $('#timer').text(new TimeDelta(total_ms).format('%H:%0M:%0S')[0]);
         setTimeout(update_timer, 1000);
     }
@@ -235,6 +247,7 @@ function logged_in() {
             timeit.current_activity = activity.name;
             timeit.start_time = new Date(activity.start_time);
             update_timer();
+            start_notification();
         } else {
             $('#current_activity_name').text('No activity');
         }
