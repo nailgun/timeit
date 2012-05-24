@@ -1,0 +1,22 @@
+{
+  "author": "Dmitry Bashkatov <dbashkatov@gmail.com>",
+  "name": "timeit",
+  "description": "Time tracking web application",
+  "version": "0.0.0",
+  "homepage": "https://github.com/nailgun/timeit",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nailgun/timeit.git"
+  },
+  "main": "app",
+  "dependencies": {
+      "connect": ">=2.3.0",
+      "mongodb": ">=1.0.0",
+      "openid": ">=0.4.0"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
