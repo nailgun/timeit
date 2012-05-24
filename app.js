@@ -13,8 +13,17 @@ function set_activity(req, res) {
     var activity_name = req.query['name'];
 
     db.collection('activities', function(err, collection) {
-        collection.update({end_time: null}, {$set: {end_time: new Date()}}, {safe: true, multi: true}, function(err) {
+        collection.update({
+            account: req.user._id,
+            end_time: null,
+        }, {
+            $set: {end_time: new Date()}
+        }, {
+            safe: true,
+            multi: true
+        }, function(err) {
             collection.insert({
+                account: req.user._id,
                 name: activity_name,
                 start_time: new Date(),
                 end_time: null
@@ -27,7 +36,14 @@ function set_activity(req, res) {
 
 function stop_activity(req, res) {
     db.collection('activities', function(err, collection) {
-        collection.update({end_time: null}, {$set: {end_time: new Date()}}, {safe: true, multi: true}, function(err) {
+        collection.update({
+            account: req.user._id,
+            end_time: null,
+        }, {
+            $set: {end_time: new Date()}
+        }, {
+            safe: true, multi: true
+        }, function(err) {
             res.end(JSON.stringify({result: 'done'}));
         });
     });
@@ -35,7 +51,10 @@ function stop_activity(req, res) {
 
 function current_activity(req, res) {
     db.collection('activities', function(err, activities) {
-        activities.find({end_time: null}, ['name', 'start_time']).toArray(function(err, docs) {
+        activities.find({
+            account: req.user._id,
+            end_time: null,
+        }, ['name', 'start_time']).toArray(function(err, docs) {
             res.end(JSON.stringify(docs));
         });
     });
@@ -75,8 +94,8 @@ function openid_callback(req, res) {
                     if (doc) {
                         openid_success(req, res, doc._id);
                     } else {
-                        accounts.insert({openid: openid}, function(err, doc) {
-                            openid_success(req, res, doc._id);
+                        accounts.insert({openid: openid}, function(err, docs) {
+                            openid_success(req, res, docs[0]._id);
                         });
                     }
                 });
