@@ -44,9 +44,35 @@ function set_activity(req, res) {
                 tags: tags,
                 start_time: new Date(),
                 end_time: null
-            }, function(docs) {
+            }, function(err, docs) {
                 res.end(JSON.stringify({result: 'done'}));
             });
+        });
+    });
+}
+
+function add_activity(req, res) {
+    try {
+        var activity_name = req.body['name'];
+        var tags_string = req.body['tags'];
+        var tags = tags_string.split(/\s*,\s*/);
+        var start_time = new Date(req.body['start_time']);
+        var end_time = new Date(req.body['end_time']);
+    } catch(err) {
+        res.writeHead(400);
+        res.end(JSON.stringify({result: 'error', message: 'Bad data'}));
+        return;
+    }
+
+    db.collection('activities', function(err, collection) {
+        collection.insert({
+            account: req.user._id,
+            name: activity_name,
+            tags: tags,
+            start_time: start_time,
+            end_time: end_time,
+        }, function(err, docs) {
+            res.end(JSON.stringify({result: 'done', id: docs[0]._id}));
         });
     });
 }
@@ -60,7 +86,7 @@ function stop_activity(req, res) {
             $set: {end_time: new Date()}
         }, {
             safe: true, multi: true
-        }, function(err) {
+        }, function(err, docs) {
             res.end(JSON.stringify({result: 'done'}));
         });
     });
@@ -231,10 +257,12 @@ db.open(function(err, db) {
     app.use(redirect_root)
        .use(connect.static('static'))
        .use(connect.query())
+       .use(connect.bodyParser())
        .use(connect.cookieParser())
        .use(get_user)
        .use(route({
            '/set-activity': login_required_ajax(set_activity),
+           '/add-activity': login_required_ajax(add_activity),
            '/current-activity': login_required_ajax(current_activity),
            '/stop-activity': login_required_ajax(stop_activity),
            '/today': login_required_ajax(today),
