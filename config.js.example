@@ -1,0 +1,11 @@
+var config = {};
+
+config.install_url = 'http://time.it:3000/'
+
+config.log_format = 'dev';
+
+config.mongo_db = 'timeit';
+config.mongo_host = 'localhost';
+config.mongo_port = require('mongodb').Connection.DEFAULT_PORT;
+
+module.exports = config;

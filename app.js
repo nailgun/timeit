@@ -1,13 +1,27 @@
 var connect = require('connect');
 var mongo = require('mongodb');
 var openid = require('openid');
+var url = require('url');
 var config = require('./config');
 var BSON = mongo.BSONPure;
 
+if (config.install_url.slice(-1) != '/') {
+    config.install_url += '/';
+}
+config.installation = url.parse(config.install_url);
+
+function install_url(internal_url) {
+    if (internal_url[0] == '/') {
+        internal_url = internal_url.slice(1);
+    }
+    return config.installation.pathname + internal_url;
+}
+
 var db = mongo.Db(
-        config.mongo_db,
-        new mongo.Server(config.mongo_host, config.mongo_port, {}),
-        {});
+    config.mongo_db,
+    new mongo.Server(config.mongo_host, config.mongo_port, {}),
+    {}
+);
 
 function set_activity(req, res) {
     var activity_name = req.query['name'];
@@ -63,7 +77,7 @@ function current_activity(req, res) {
     });
 }
 
-var relying_party = new openid.RelyingParty('http://time.it:3000/openid-callback');
+var relying_party = new openid.RelyingParty(config.installation.href+'openid-callback');
 
 function login(req, res) {
     var identifier = req.query['openid'];
@@ -82,7 +96,7 @@ function login(req, res) {
 
 function openid_success(req, res, sid) {
     res.writeHead(302, {
-        Location: '/',
+        Location: install_url('/'),
         'Set-Cookie': connect.utils.serializeCookie('sid', sid)
     });
     res.end();
@@ -104,7 +118,7 @@ function openid_callback(req, res) {
                 });
             });
         } else {
-            res.writeHead(302, { Location: '/login-failed.html' });
+            res.writeHead(302, { Location: install_url('/login-failed.html') });
             res.end();
         }
     });
@@ -141,7 +155,7 @@ function get_user(req, res, next) {
 
 function logout(req, res) {
     res.writeHead(302, {
-        Location: '/',
+        Location: install_url('/'),
         'Set-Cookie': connect.utils.serializeCookie('sid', '')
     });
     res.end();
@@ -149,7 +163,7 @@ function logout(req, res) {
 
 function route(routes) {
     return function(req, res, next) {
-        var view = routes[req._parsedUrl.pathname];
+        var view = routes[url.parse(req.url).pathname];
         if (typeof(view) == 'function') {
             view(req, res);
         } else {
@@ -188,28 +202,51 @@ function today(req, res) {
     });
 }
 
-console.log('Connecting to database...');
+function redirect_root(req, res, next) {
+    if (url.parse(req.url).pathname == '/' && req.originalUrl.slice(-1) != '/') {
+        res.writeHead(301, { Location: install_url('/') });
+        res.end();
+    } else {
+        next();
+    }
+}
+
+if (config.log_format) {
+    console.log('Connecting to database...');
+}
 db.open(function(err, db) {
-    console.log('Connected to database.');
+    if (config.log_format) {
+        console.log('Connected to database.');
+    }
 
-    var app = connect()
-        .use(connect.logger('dev'))
-        .use(connect.static('static'))
-        .use(connect.query())
-        .use(connect.cookieParser())
-        .use(get_user)
-        .use(route({
-            '/set-activity': login_required_ajax(set_activity),
-            '/current-activity': login_required_ajax(current_activity),
-            '/stop-activity': login_required_ajax(stop_activity),
-            '/today': login_required_ajax(today),
+    var app = connect();
+    app._use = app.use;
+    app.use = function(fn) {
+        return app._use(config.installation.pathname, fn);
+    }
 
-            '/login': login,
-            '/openid-callback': openid_callback,
-            '/login-status': login_status,
-            '/logout': logout,
-        }));
+    if (config.log_format) {
+        app.use(connect.logger('dev'));
+    }
+    app.use(redirect_root)
+       .use(connect.static('static'))
+       .use(connect.query())
+       .use(connect.cookieParser())
+       .use(get_user)
+       .use(route({
+           '/set-activity': login_required_ajax(set_activity),
+           '/current-activity': login_required_ajax(current_activity),
+           '/stop-activity': login_required_ajax(stop_activity),
+           '/today': login_required_ajax(today),
 
-    console.log('Listening...');
-    app.listen(config.port);
+           '/login': login,
+           '/openid-callback': openid_callback,
+           '/login-status': login_status,
+           '/logout': logout,
+       }));
+
+    if (config.log_format) {
+        console.log('TimeIt is running on '+config.installation.href);
+    }
+    app.listen(config.installation.port);
 });
