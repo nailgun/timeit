@@ -24,8 +24,8 @@ var db = mongo.Db(
 );
 
 function set_activity(req, res) {
-    var activity_name = req.query['name'];
-    var tags_string = req.query['tags'];
+    var activity_name = req.body['name'];
+    var tags_string = req.body['tags'];
     var tags = tags_string.split(/\s*,\s*/);
 
     db.collection('activities', function(err, collection) {
@@ -45,6 +45,7 @@ function set_activity(req, res) {
                 start_time: new Date(),
                 end_time: null
             }, function(err, docs) {
+                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({result: 'done'}));
             });
         });
@@ -59,7 +60,8 @@ function add_activity(req, res) {
         var start_time = new Date(req.body['start_time']);
         var end_time = new Date(req.body['end_time']);
     } catch(err) {
-        res.writeHead(400);
+        res.statusCode = 400;
+        res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({result: 'error', message: 'Bad data'}));
         return;
     }
@@ -72,6 +74,7 @@ function add_activity(req, res) {
             start_time: start_time,
             end_time: end_time,
         }, function(err, docs) {
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({result: 'done', id: docs[0]._id}));
         });
     });
@@ -87,6 +90,7 @@ function stop_activity(req, res) {
         }, {
             safe: true, multi: true
         }, function(err, docs) {
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({result: 'done'}));
         });
     });
@@ -98,6 +102,7 @@ function current_activity(req, res) {
             account: req.user._id,
             end_time: null,
         }, ['name', 'start_time']).toArray(function(err, docs) {
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(docs));
         });
     });
@@ -114,17 +119,17 @@ function login(req, res) {
         } else if (!auth_url) {
             res.end('Authentication failed');
         } else {
-            res.writeHead(302, { Location: auth_url });
+            res.statusCode = 302;
+            res.setHeader('Location', auth_url);
             res.end();
         }
     });
 }
 
 function openid_success(req, res, sid) {
-    res.writeHead(302, {
-        Location: install_url('/'),
-        'Set-Cookie': connect.utils.serializeCookie('sid', sid)
-    });
+    res.statusCode = 302;
+    res.setHeader('Location', install_url('/'));
+    res.setCookie('sid', sid);
     res.end();
 }
 
@@ -144,18 +149,20 @@ function openid_callback(req, res) {
                 });
             });
         } else {
-            res.writeHead(302, { Location: install_url('/login-failed.html') });
+            res.statusCode = 302;
+            res.setHeader('Location', install_url('/login-failed.html'));
             res.end();
         }
     });
 }
 
 function login_status(req, res) {
+    res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({logged_in: !!req.user}));
 }
 
 function get_user(req, res, next) {
-    req.sid = req.cookies['sid'];
+    req.sid = req.cookies.sid;
     if (!req.sid) {
         req.user = null;
         next();
@@ -180,10 +187,9 @@ function get_user(req, res, next) {
 }
 
 function logout(req, res) {
-    res.writeHead(302, {
-        Location: install_url('/'),
-        'Set-Cookie': connect.utils.serializeCookie('sid', '')
-    });
+    res.statusCode = 302;
+    res.setHeader('Location', install_url('/'));
+    res.setCookie('sid', '');
     res.end();
 }
 
@@ -203,8 +209,9 @@ function login_required_ajax(view) {
         if (req.user) {
             view(req, res, next);
         } else {
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end();
+            res.statusCode = 401;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({error: 'login_required'}));
         }
     }
 }
@@ -223,6 +230,7 @@ function today(req, res) {
             account: req.user._id,
             end_time: {$gte: start, $lte: end},
         }, ['name', 'start_time', 'end_time', 'tags']).toArray(function(err, docs) {
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(docs));
         });
     });
@@ -230,10 +238,83 @@ function today(req, res) {
 
 function redirect_root(req, res, next) {
     if (url.parse(req.url).pathname == '/' && req.originalUrl.slice(-1) != '/') {
-        res.writeHead(301, { Location: install_url('/') });
+        res.statusCode = 301;
+        res.setHeader('Location', install_url('/'));
         res.end();
     } else {
         next();
+    }
+}
+
+function cookieWriter(req, res, next) {
+    var _write = res.write;
+    var _end = res.end;
+    res.cookies = {};
+    function setHeaders() {
+        if (!res.headerSent) {
+            var cookies = [];
+            for (name in res.cookies) {
+                cookies.push(res.cookies[name]);
+            }
+            var oldCookies = res.getHeader('Set-Cookie');
+            // FIXME: oldCookies
+            res.setHeader('Set-Cookie', cookies);
+        }
+    }
+    res.setCookie = function(name, val, obj) {
+        res.cookies[name] = connect.utils.serializeCookie(name, val, obj);
+    }
+    res.write = function() {
+        setHeaders();
+        _write.apply(res, arguments);
+    }
+    res.end = function() {
+        setHeaders();
+        _end.apply(res, arguments);
+    }
+
+    next();
+}
+
+function csrf(options) {
+    function defaultValue(req) {
+        return (req.body && req.body._csrf)
+            || (req.query && req.query._csrf)
+            || (req.headers['x-csrf-token']);
+    }
+
+    function defaultSafeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    var options = options || {},
+        value = options.value || defaultValue,
+        safeMethod = options.safeMethod || defaultSafeMethod;
+
+    return function(req, res, next) {
+        var token = req.cookies._csrf || (req.cookies._csrf = connect.utils.uid(24));
+        res.setCookie('_csrf', token);
+
+        if (safeMethod(req.method)) {
+            return next();
+        }
+
+        var val = value(req);
+        if (val != token) {
+            return next(connect.utils.error(403));
+        }
+
+        next();
+    }
+}
+
+function post_only(view) {
+    return function(req, res, next) {
+        if (req.method == 'POST') {
+            view(req, res, next);
+        } else {
+            next(connect.utils.error(403));
+        }
     }
 }
 
@@ -255,17 +336,20 @@ db.open(function(err, db) {
         app.use(connect.logger('dev'));
     }
     app.use(redirect_root)
-       .use(connect.static('static'))
        .use(connect.query())
        .use(connect.bodyParser())
-       .use(connect.cookieParser())
+       .use(connect.cookieParser(config.secret))
+       .use(cookieWriter)
+       .use(csrf())
+       .use(connect.static('static'))
        .use(get_user)
        .use(route({
-           '/set-activity': login_required_ajax(set_activity),
-           '/add-activity': login_required_ajax(add_activity),
            '/current-activity': login_required_ajax(current_activity),
-           '/stop-activity': login_required_ajax(stop_activity),
            '/today': login_required_ajax(today),
+
+           '/set-activity': post_only(login_required_ajax(set_activity)),
+           '/add-activity': post_only(login_required_ajax(add_activity)),
+           '/stop-activity': post_only(login_required_ajax(stop_activity)),
 
            '/login': login,
            '/openid-callback': openid_callback,

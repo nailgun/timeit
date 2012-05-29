@@ -1,6 +1,8 @@
 var config = {};
 
-config.install_url = 'http://time.it:3000/'
+config.install_url = 'http://time.it:3000/';
+
+config.secret = 'DO NOT FORGET YOUR SECRET HERE!!!';
 
 config.log_format = 'dev';
 
