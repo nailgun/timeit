@@ -28,7 +28,7 @@
 
         <span class="control"></span><div class="control well">
 
-            <div class="not_logged_in hide">
+            <div id="login_form" class="hide">
                 <h1>TimeIt time tracker</h1>
                 <h2>Login with OpenID</h2>
 
@@ -41,8 +41,18 @@
                 </form>
             </div>
 
-            <div class="logged_in hide">
+            <div id="username_form" class="hide">
+                <h2>Enter your name</h2>
 
+                <form class="form-inline">
+                    <div class="control-group">
+                        <input type="text" name="username">
+                        <button type="submit" class="btn">Continue</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="tracker" class="hide">
                 <div id="current_activity">
                     <div id="system_message">TimeIt now tracking</div>
                     <h1><span id="current_activity_name">Loading...</span></h1>
@@ -107,12 +117,12 @@
             </div>
         </div> <!-- /set_activity_form -->
 
-        <div id="login_widget" class="btn-toolbar">
+        <div id="login_widget" class="btn-toolbar hide">
             <div class="btn-group">
                 <a id="toggle_notify" class="btn">Notifications</a>
             </div>
             <div class="btn-group">
-                <a class="btn disabled btn-info">nailgun</a>
+                <a id="username" class="btn disabled btn-info"></a>
                 <a class="btn btn-danger" href="logout">Logout</a>
             </div>
         </div>

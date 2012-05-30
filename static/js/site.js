@@ -1,11 +1,15 @@
 window.timeit = {
     current_activity: null,
     start_time: null,
-    notifications: false,
+    notifications_requested: false,
     activity_num: 0,
     notification_interval: 10 * 60 * 1000,
     time_elapsed_ms: function() {
         return new Date().getTime() - timeit.start_time.getTime();
+    },
+    notifications_allowed: function() {
+        return timeit.notifications_requested
+            && window.webkitNotifications.checkPermission() == 0;
     }
 };
 
@@ -54,7 +58,7 @@ function start_notification() {
             return;
         }
 
-        if (timeit.notifications) {
+        if (timeit.notifications_allowed()) {
             var popup = window.webkitNotifications.createNotification('', 'TimeIt', timeit.current_activity);
             popup.show();
             setTimeout(function() {
@@ -276,21 +280,17 @@ function enableControls() {
         set_activity(name, tags);
         $('#set_activity_form').modal('hide');
     });
+
+    $('#toggle_notify').click(function() {
+        setNotifications(!$(this).hasClass('active'));
+    });
 }
 
-function update_notifications(value) {
-    var enabled = window.webkitNotifications.checkPermission() == 0 && value;
-    if (!enabled) {
-        $('#toggle_notify').removeClass('active');
-    } else {
-        $('#toggle_notify').addClass('active');
-    }
-
-    timeit.notifications = enabled;
-}
-
-function logged_in() {
-    $('.logged_in').show();
+function show_tracker() {
+    $('#login_form').hide();
+    $('#username_form').hide();
+    $('#tracker').show();
+    $('#login_widget').show();
 
     $.get('current-activity').done(function(data) {
         if (data.length) {
@@ -311,39 +311,76 @@ function logged_in() {
     });
 }
 
-$(function() {
-    $('#set_activity_form').modal({show: false});
+function setNotifications(requested, dontUpdateSettings) {
+    timeit.notifications_requested = requested;
+
+    if (!dontUpdateSettings) {
+        $.post('settings', {notifications: requested ? 1 : 0});
+    }
 
     if (window.webkitNotifications) {
-        update_notifications(true);
-
-        $('#toggle_notify').click(function() {
-            var enable = !timeit.notifications;
-            if (enable && window.webkitNotifications.checkPermission() != 0) {
-                window.webkitNotifications.requestPermission(function() {
-                    update_notifications(enable);
-                });
+        function update_toggle() {
+            if (timeit.notifications_allowed()) {
+                $('#toggle_notify').addClass('active');
             } else {
-                update_notifications(enable);
+                $('#toggle_notify').removeClass('active');
             }
-        });
-
-        if (window.webkitNotifications.checkPermission() != 0) {
-            window.webkitNotifications.requestPermission(function() {
-                timeit.notifications = window.webkitNotifications.checkPermission() == 0;
-            });
-        } else {
-            timeit.notifications = true;
         }
+
+        update_toggle();
+        window.webkitNotifications.requestPermission(update_toggle);
+
     } else {
         $('#toggle_notify').remove();
     }
+}
+
+function logged_in() {
+    $.get('settings').done(function(settings) {
+        if (settings.username) {
+            $('#username').text(settings.username);
+            show_tracker();
+            if (settings.notifications || settings.notifications === undefined) {
+                setNotifications(true, settings.notifications);
+            } else {
+                setNotifications(false);
+            }
+        } else {
+            $('#username_form').show();
+
+            var $username = $('#username_form input[name="username"]');
+            $username.focus();
+            $username.on('keypress', function() {
+                $(this).parents('.control-group').removeClass('error');
+            });
+
+            $('#username_form form').on('submit', function(e) {
+                var username = $username.val();
+                if (!username) {
+                    $username.parents('.control-group').addClass('error');
+                } else {
+                    $.post('settings', { username: username }).done(function(data) {
+                        $('#username').text(username);
+                        show_tracker();
+                        setNotifications(true);
+                    });
+                }
+
+                e.preventDefault();
+            });
+        }
+    });
+}
+
+$(function() {
+    $('#set_activity_form').modal({show: false});
 
     $.get('login-status').done(function(data) {
         if (data['logged_in']) {
             logged_in();
         } else {
-            $('.not_logged_in').show();
+            $('#login_form').show();
+            $('#login_form input[name="openid"]').focus();
         }
     });
 });

@@ -103,6 +103,54 @@ function stop_activity(req, res) {
     });
 }
 
+function settings(req, res) {
+    if (req.method == 'POST') {
+        try {
+            var username = req.body['username'];
+            var notifications = req.body['notifications'];
+            if (username !== undefined && !username) {
+                throw 'no username';
+            }
+        } catch(err) {
+            res.statusCode = 400;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({result: 'error', message: 'invalid_request'}));
+            return;
+        }
+
+        var dataset = {};
+        if (username) {
+            dataset['settings.username'] = username;
+        }
+        if (notifications !== undefined) {
+            dataset['settings.notifications'] = parseInt(notifications) ? true : false;
+        }
+
+        db.collection('accounts', function(err, accounts) {
+            accounts.update({
+                _id: req.user._id,
+            }, {
+                $set: dataset
+            }, {
+                safe: true
+            }, function(err) {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({result: 'done'}));
+            });
+        });
+    } else {
+        db.collection('accounts', function(err, accounts) {
+            accounts.find({
+                _id: req.user._id,
+            }, ['settings']).toArray(function(err, docs) {
+                var settings = docs ? docs[0].settings || {} : {};
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(settings));
+            });
+        });
+    }
+}
+
 function current_activity(req, res) {
     db.collection('activities', function(err, activities) {
         activities.find({
@@ -343,16 +391,17 @@ db.open(function(err, db) {
         app.use(connect.logger('dev'));
     }
     app.use(redirect_root)
+       .use(connect.static('static'))
        .use(connect.query())
        .use(connect.bodyParser())
        .use(connect.cookieParser(config.secret))
        .use(cookieWriter)
        .use(csrf())
-       .use(connect.static('static'))
        .use(get_user)
        .use(route({
            '/current-activity': login_required_ajax(current_activity),
            '/today': login_required_ajax(today),
+           '/settings': login_required_ajax(settings),
 
            '/set-activity': post_only(login_required_ajax(set_activity)),
            '/add-activity': post_only(login_required_ajax(add_activity)),
