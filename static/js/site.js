@@ -210,8 +210,12 @@ function enableControls() {
         $('#set_activity_form').modal('toggle');
     });
 
-    $('#set_activity_form').on('show', function() {
+    $('#set_activity_form').on('shown', function() {
         $('#today_activities tr:not(.row-template)').remove();
+        $('#set_activity_form_name').val('');
+        $('#set_activity_form_tags').val('');
+        $('#set_activity_form_name').focus();
+
         $.get('today').done(function(data) {
             var $table = $('#today_activities');
             var $tpl = $table.find('tr.row-template');
@@ -220,8 +224,10 @@ function enableControls() {
                 $row.removeClass('row-template');
                 var start = new Date(activity.start_time);
                 var end = new Date(activity.end_time);
-                var time = start.format('%H:%M')+' - '+end.format('%H:%M')
-                $row.children('.time').text(time);
+                if (sameDay(start, end)) {
+                    $row.children('.start_time').text(start.format('%H:%M'));
+                }
+                $row.children('.end_time').text(end.format('%H:%M'));
                 $row.children('.activity').text(activity.name);
                 if (activity.tags) {
                     $row.children('.tags').text(activity.tags.join(', '));
@@ -232,38 +238,52 @@ function enableControls() {
         });
     });
 
-    $('#set_activity_form_ok').click(function() {
-        var name = $('#activity_form_name').val();
-        var tags = $('#activity_form_tags').val();
+    $('#set_activity_form form').on('submit', function() {
+        var name = $('#set_activity_form_name').val();
+        var tags = $('#set_activity_form_tags').val();
         set_activity(name, tags);
         $('#set_activity_form').modal('hide');
+    });
+
+    $('#set_activity_form form input[type="text"]').on('keypress', function(e) {
+        if (e.which == 13) {
+            $('#set_activity_form form').submit();
+        }
+    });
+
+    $('#set_activity_form_ok').click(function() {
+        $('#set_activity_form form').submit();
     });
 
     $('#stop_activity').click(stop_activity);
 
-    $('#add_earlier_activity').click(function(e) {
-        e.preventDefault();
+    $('#add_earlier_activity').click(function() {
     });
 
-    $('#show_overview').click(function(e) {
-        e.preventDefault();
+    $('#show_overview').click(function() {
     });
 
-    $('#today_activities tr').live('dblclick', function(e) {
+    $('#today_activities tr').live('click', function() {
+        var name = $(this).find('.activity').text();
+        var tags = $(this).find('.tags').text();
+        $('#set_activity_form_name').val(name);
+        $('#set_activity_form_tags').val(tags);
+    });
+
+    $('#today_activities tr').live('dblclick', function() {
         var name = $(this).find('.activity').text();
         var tags = $(this).find('.tags').text();
         set_activity(name, tags);
         $('#set_activity_form').modal('hide');
-        e.preventDefault();
     });
 }
 
 function update_notifications(value) {
     var enabled = window.webkitNotifications.checkPermission() == 0 && value;
     if (!enabled) {
-        $('#toggle_notify').text('Enable notifications');
+        $('#toggle_notify').removeClass('active');
     } else {
-        $('#toggle_notify').text('Disable notifications');
+        $('#toggle_notify').addClass('active');
     }
 
     timeit.notifications = enabled;
@@ -297,7 +317,7 @@ $(function() {
     if (window.webkitNotifications) {
         update_notifications(true);
 
-        $('#toggle_notify').click(function(e) {
+        $('#toggle_notify').click(function() {
             var enable = !timeit.notifications;
             if (enable && window.webkitNotifications.checkPermission() != 0) {
                 window.webkitNotifications.requestPermission(function() {
@@ -306,7 +326,6 @@ $(function() {
             } else {
                 update_notifications(enable);
             }
-            e.preventDefault();
         });
 
         if (window.webkitNotifications.checkPermission() != 0) {

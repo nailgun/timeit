@@ -28,6 +28,13 @@ function set_activity(req, res) {
     var tags_string = req.body['tags'];
     var tags = tags_string.split(/\s*,\s*/);
 
+    if (!activity_name) {
+        res.statusCode = 400;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({result: 'error', message: 'activity_name'}));
+        return;
+    }
+
     db.collection('activities', function(err, collection) {
         collection.update({
             account: req.user._id,
@@ -62,7 +69,7 @@ function add_activity(req, res) {
     } catch(err) {
         res.statusCode = 400;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({result: 'error', message: 'Bad data'}));
+        res.end(JSON.stringify({result: 'error', message: 'invalid_request'}));
         return;
     }
 
@@ -229,7 +236,7 @@ function today(req, res) {
         activities.find({
             account: req.user._id,
             end_time: {$gte: start, $lte: end},
-        }, ['name', 'start_time', 'end_time', 'tags']).toArray(function(err, docs) {
+        }, ['name', 'start_time', 'end_time', 'tags']).sort({end_time: -1}).toArray(function(err, docs) {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(docs));
         });

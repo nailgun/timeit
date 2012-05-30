@@ -52,3 +52,7 @@ div.normal {
     top: 30px;
     margin: 0;
 }
+
+#today_activities .dash {
+    width: 1em;
+}
