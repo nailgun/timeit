@@ -1,0 +1,54 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+span.control {
+    height: 100%;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+div.control {
+    vertical-align: middle;
+    display: inline-block;
+    text-align: left;
+}
+
+div.normal {
+    text-align: left;
+}
+
+.row-template {
+    display: none;
+}
+
+#today_activities {
+    cursor: default;
+}
+
+#current_activity {
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+}
+
+#system_message {
+    position: absolute;
+    top: -50px;
+    width: 100%;
+    font-size: 150%;
+}
+
+#timer {
+    font-size: 150%;
+}
+
+#login_widget {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    margin: 0;
+}

@@ -1,48 +1,123 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <title>TimeIt - Time Tracker</title>
-        <link rel="stylesheet" type="text/css" href="style.css?1">
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-        <script type="text/javascript" src="site.js?1"></script>
+        <meta charset="utf-8">
+        <title>TimeIt</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- Le styles -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/site.css?1" rel="stylesheet">
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <!-- Le fav and touch icons -->
+        <link rel="shortcut icon" href="ico/favicon.ico">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
     </head>
+
     <body>
-        <div id="control" class="logged_in">
-            <div id="current_activity">
-                <div id="current_activity_name">Loading...</div>
-                <div id="timer"></div>
+
+        <span class="control"></span><div class="control well">
+
+            <div class="not_logged_in hide">
+                <h1>TimeIt time tracker</h1>
+                <h2>Login with OpenID</h2>
+
+                <form class="form-inline" action="login" method="get">
+                    <input type="text" name="openid" placeholder="OpenID identifier">
+                    <button type="submit" class="btn">Login</button>
+
+                    <a class="btn" href="login?openid=https://www.google.com/accounts/o8/id"><img src="http://www.google.com/favicon.ico"></a>
+                    <a class="btn" href="login?openid=http://www.myopenid.com/server"><img src="http://www.myopenid.com/favicon.ico"></a>
+                </form>
+            </div>
+
+            <div class="logged_in hide">
+
+                <div id="current_activity">
+                    <div id="system_message">TimeIt now tracking</div>
+                    <h1><span id="current_activity_name">Loading...</span></h1>
+                    <div id="activity_supporting_text">Please take a while</div>
+                    <div id="timer"></div>
+                </div>
+
+                <hr>
+
+                <div class="btn-toolbar">
+                    <a class="btn" id="add_earlier_activity">Add Earlier Activity</a>
+                    <a class="btn" id="show_overview">Overview</a>
+                </div>
+            </div>
+
+        </div> <!-- /control -->
+
+        <div id="set_activity_form" class="normal modal hide">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">×</button>
+                <h3>Set activity</h3>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label" for="activity_form_name">Activity</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" id="activity_form_name">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="activity_form_tags">Tags</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" id="activity_form_tags">
+                            <p class="help-block">Add tags, separated by comma</p>
+                        </div>
+                    </div>
+
+                    <h4>Today</h4>
+
+                    <table class="table" id="today_activities">
+                        <tbody>
+                            <tr class="row-template">
+                                <td class="time"></td>
+                                <td class="activity"></td>
+                                <td class="tags"></td>
+                                <td class="duration"></td>
+                                <td><a class="edit" href="#">Edit</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div id="today_stats"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger pull-left" id="stop_activity">Stop activity</a>
+                <a class="btn" data-dismiss="modal">Cancel</a>
+                <a class="btn btn-primary" id="set_activity_form_ok">Set activity</a>
+            </div>
+        </div> <!-- /set_activity_form -->
+
+        <div id="login_widget" class="btn-toolbar">
+            <div class="btn-group">
+                <a class="btn disabled btn-info">nailgun</a>
+                <a class="btn btn-danger" href="logout">Logout</a>
             </div>
         </div>
-        <div class="logged_in">
-            <div id="activity_form">
-                <input id="activity_form_stop" type="button" value="Stop activity">
-                Activity: <input id="activity_form_name" type="text">
-                Tags: <input id="activity_form_tags" type="text">
-                <input id="activity_form_button" type="button" value="Set">
-                <input id="activity_form_cancel" type="button" value="Cancel">
 
-                <table cellspacing="0" id="today_activities"><tbody>
-                    <tr class="row-template">
-                        <td class="time"></td>
-                        <td class="activity"></td>
-                        <td class="tags"></td>
-                        <td class="duration"></td>
-                        <td><a class="edit" href="#">Edit</a></td>
-                    </tr>
-                </tbody></table>
+        <!-- Le javascript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script src="js/bootstrap-modal.js"></script>
+        <script src="js/site.js?1"></script>
 
-                <div id="today_stats"></div>
-            </div>
-            <a id="toggle_notify" href="#"></a><br>
-            <a id="add_earlier_activity" href="#">Add Earlier Activity</a><br>
-            <a id="show_overview" href="#">Overview</a><br>
-            <a href="logout">Logout</a><br>
-        </div>
-        <div class="not_logged_in">
-            <form action="login" method="get">
-                <input type="text" name="openid">
-                <input type="submit" value="login">
-                <a href="login?openid=https://www.google.com/accounts/o8/id">Google</a>
-            </form>
-        </div>
     </body>
 </html>
