@@ -117,6 +117,48 @@
             </div>
         </div> <!-- /set_activity_form -->
 
+        <div id="add_earlier_activity_form" class="normal modal hide">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">×</button>
+                <h3>Add Earlier Activity</h3>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label" for="add_earlier_activity_form_name">Activity</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" id="add_earlier_activity_form_name">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="add_earlier_activity_form_tags">Tags</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" id="add_earlier_activity_form_tags">
+                            <p class="help-block">Add tags, separated by comma</p>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="add_earlier_activity_form_start_date">Start time</label>
+                        <div class="controls">
+                            <input type="text" class="input-small" id="add_earlier_activity_form_start_date">
+                            <input type="text" class="input-small" id="add_earlier_activity_form_start_time">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="add_earlier_activity_form_end_date">End time</label>
+                        <div class="controls">
+                            <input type="text" class="input-small" id="add_earlier_activity_form_end_date">
+                            <input type="text" class="input-small" id="add_earlier_activity_form_end_time">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a class="btn" data-dismiss="modal">Cancel</a>
+                <a class="btn btn-primary" id="add_earlier_activity_form_ok">Add activity</a>
+            </div>
+        </div> <!-- /set_activity_form -->
+
         <div id="login_widget" class="btn-toolbar hide">
             <div class="btn-group">
                 <a id="toggle_notify" class="btn">Notifications</a>
@@ -132,6 +174,7 @@
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
         <script src="js/bootstrap-modal.js"></script>
+        <script src="js/bootstrap-datepicker.js"></script>
         <script src="js/site.js?1"></script>
 
     </body>

@@ -199,10 +199,6 @@ function update_timer() {
     }
 }
 
-function format_difference(start, end) {
-    end.getTime() - start.getTime();
-}
-
 function enableControls() {
     function sameDay(date1, date2) {
         return date1.getDate() == date2.getDate()
@@ -242,11 +238,12 @@ function enableControls() {
         });
     });
 
-    $('#set_activity_form form').on('submit', function() {
+    $('#set_activity_form form').on('submit', function(e) {
         var name = $('#set_activity_form_name').val();
         var tags = $('#set_activity_form_tags').val();
         set_activity(name, tags);
         $('#set_activity_form').modal('hide');
+        e.preventDefault();
     });
 
     $('#set_activity_form form input[type="text"]').on('keypress', function(e) {
@@ -262,6 +259,71 @@ function enableControls() {
     $('#stop_activity').click(stop_activity);
 
     $('#add_earlier_activity').click(function() {
+        $('#add_earlier_activity_form').modal('toggle');
+    });
+
+    $('#add_earlier_activity_form').on('shown', function() {
+        $('#add_earlier_activity_form_name').focus();
+        var today = new Date().format('%d.%m.%Y');
+        $('#add_earlier_activity_form_start_date').val(today);
+        $('#add_earlier_activity_form_end_date').val(today);
+        $('#add_earlier_activity_form_start_date').datepicker({
+            format: 'dd.mm.yyyy',
+            weekStart: 1
+        });
+        $('#add_earlier_activity_form_end_date').datepicker({
+            format: 'dd.mm.yyyy',
+            weekStart: 1
+        });
+    });
+
+    $('#add_earlier_activity_form form').on('submit', function(e) {
+        e.preventDefault();
+        var name = $('#add_earlier_activity_form_name').val();
+        var tags = $('#add_earlier_activity_form_tags').val();
+        var start_date = $('#add_earlier_activity_form_start_date').val();
+        var end_date = $('#add_earlier_activity_form_end_date').val();
+        var start_time = $('#add_earlier_activity_form_start_time').val();
+        var end_time = $('#add_earlier_activity_form_end_time').val();
+
+        function date_from_strings(date, time) {
+            var date_parts = /^(\d+)\.(\d+)\.(\d+)$/.exec(date);
+            if (date_parts.length != 4) {
+                return null;
+            }
+
+            var time_parts = /^(\d+):(\d\d)$/.exec(time);
+            if (time_parts.length != 3) {
+                return null;
+            }
+
+            return new Date(date_parts[3], date_parts[2], date_parts[1], time_parts[1], time_parts[2]);
+        }
+
+        var start = date_from_strings(start_date, start_time);
+        var end = date_from_strings(end_date, end_time);
+        if (!start || !end) {
+            return;
+        }
+
+        $.post('add-activity', {
+            name: name,
+            tags: tags,
+            start_time: start,
+            end_time: end
+        });
+
+        $('#add_earlier_activity_form').modal('hide');
+    });
+
+    $('#add_earlier_activity_form form input[type="text"]').on('keypress', function(e) {
+        if (e.which == 13) {
+            $('#add_earlier_activity_form form').submit();
+        }
+    });
+
+    $('#add_earlier_activity_form_ok').click(function() {
+        $('#add_earlier_activity_form form').submit();
     });
 
     $('#show_overview').click(function() {
@@ -373,8 +435,6 @@ function logged_in() {
 }
 
 $(function() {
-    $('#set_activity_form').modal({show: false});
-
     $.get('login-status').done(function(data) {
         if (data['logged_in']) {
             logged_in();
