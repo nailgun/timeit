@@ -8,8 +8,6 @@ var app = module.exports = express.createServer();
 var server = express.createServer();
 
 app.configure(function(done) {
-    var middleware = require('./middleware');
-
     app.config = require('./config.json');
     if (app.config.install_url.slice(-1) != '/') {
         app.config.install_url += '/';
@@ -33,30 +31,14 @@ app.configure(function(done) {
 
     if (app.config.log_format) {
         server.use(express.logger(app.config.log_format));
-    }
-    server.use(app.installation.pathname, app);
-
-    app.use(middleware.redirectRoot);
-    app.use(express.static(__dirname + '/static'));
-    app.use(express.bodyParser());
-    app.use(express.cookieParser());
-    app.use(express.session({
-        secret: app.config.secret,
-        store: new MongoStore({db: app.db}),
-    }));
-    app.use(express.csrf());
-    app.use(middleware.auth);
-    app.use(app.router);
-
-    installRoutes();
-
-    if (app.config.log_format) {
         console.log('Connecting to database...');
     }
     app.db.open(function(err, db) {
         if (app.config.log_format) {
             console.log('Connected to database.');
         }
+
+        installApplication();
         done();
     });
 });
@@ -69,8 +51,34 @@ app.configure('production', function() {
     app.use(express.errorHandler());
 });
 
-function installRoutes() {
+server.listen(app.installation.port, function() {
+    if (app.config.log_format) {
+        console.log('TimeIt is running on '+app.installation.href);
+    }
+});
+
+function installApplication() {
     var c = require('./controllers');
+
+    function redirectRoot(req, res, next) {
+        if (url.parse(req.url).pathname == '/' && req.originalUrl.slice(-1) != '/') {
+            res.redirect('', 301);
+        } else {
+            next();
+        }
+    }
+
+    app.use(redirectRoot);
+    app.use(express.static(__dirname + '/static'));
+    app.use(express.bodyParser());
+    app.use(express.cookieParser());
+    app.use(express.session({
+        secret: app.config.secret,
+        store: new MongoStore({db: app.db}),
+    }));
+    app.use(express.csrf());
+    app.use(c.auth.middleware);
+    app.use(app.router);
 
     app.get ('/activity', c.activity.getCurrent);
     app.get ('/today', c.activity.today);
@@ -86,10 +94,6 @@ function installRoutes() {
     app.get ('/auth/logout', c.auth.logout);
     app.get ('/auth/callback', c.auth.openIdCallback);
     app.get ('/auth/status', c.auth.status);
-}
 
-server.listen(app.installation.port, function() {
-    if (app.config.log_format) {
-        console.log('TimeIt is running on '+app.installation.href);
-    }
-});
+    server.use(app.installation.pathname, app);
+}

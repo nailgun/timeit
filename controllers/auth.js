@@ -1,4 +1,5 @@
 var openid = require('openid');
+var BSON = require('mongodb').BSONPure;
 var app = require('../app');
 
 var relyingParty = new openid.RelyingParty(app.installation.href+'auth/callback');
@@ -50,4 +51,28 @@ exports.status = function (req, res) {
 exports.logout = function (req, res) {
     delete req.session.userId;
     res.redirect('');
+};
+
+exports.middleware = function (req, res, next) {
+    if (!req.session.userId) {
+        req.user = null;
+        next();
+        return;
+    }
+
+    app.db.collection('accounts', function(err, accounts) {
+        var ob_id = null;
+        try {
+            ob_id = new BSON.ObjectID(req.session.userId);
+        } catch(err) {
+            req.user = null;
+            next();
+            return;
+        }
+
+        accounts.findOne({_id: ob_id}, function(err, doc) {
+            req.user = doc;
+            next();
+        });
+    });
 };
