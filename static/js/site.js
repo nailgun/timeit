@@ -67,6 +67,7 @@ function set_activity(name, tags) {
         tags: tags
     }).done(function(data) {
         $('#current_activity_name').text(name);
+        document.title = name + ' — TimeIt';
         $('#activity_supporting_text').text('');
         timeit.current_activity = name;
         timeit.start_time = new Date();
@@ -78,10 +79,12 @@ function set_activity(name, tags) {
 function stop_activity() {
     $('#set_activity_form').modal('hide');
     $('#current_activity_name').html('LOADER');
+    document.title = 'Working... — TimeIt';
     $('#activity_supporting_text').text('');
 
     $.post('activity/stop').done(function(data) {
         $('#current_activity_name').text('No activity');
+        document.title = 'No activity — TimeIt';
         $('#timer').text('');
         timeit.current_activity = null;
         timeit.start_time = null;
@@ -359,6 +362,7 @@ function show_tracker() {
             var activity = data[0];
 
             $('#current_activity_name').text(activity.name);
+            document.title = activity.name + ' — TimeIt';
             $('#activity_supporting_text').text('');
             timeit.current_activity = activity.name;
             timeit.start_time = new Date(activity.start_time);
@@ -366,6 +370,7 @@ function show_tracker() {
             restartNotification();
         } else {
             $('#current_activity_name').text('No activity');
+            document.title = 'No activity — TimeIt';
             $('#activity_supporting_text').text('Click here to set activity');
         }
 

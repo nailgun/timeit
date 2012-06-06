@@ -1,5 +1,5 @@
-1 animated favicon and title
-2 test deploy
+1 test deploy
+2 static serving + caching
 * check earlier date is in feature
 * error handling (client-side and server-side)
 * overview
