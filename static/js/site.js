@@ -183,8 +183,17 @@ Date.prototype.format = function(format) {
 
 function updateTimer() {
     if (timeit.start_time) {
+        var favicon = $('link[rel="shortcut icon"]').attr('href');
+        if (favicon == 'ico/empty.ico') {
+            $.favicon('ico/favicon.ico');
+        } else {
+            $.favicon('ico/empty.ico');
+        }
+
         var total_ms = timeit.time_elapsed_ms();
         $('#timer').text(new TimeDelta(total_ms).format('%H:%0M:%0S')[0]);
+    } else {
+        $.favicon('ico/favicon.ico');
     }
 }
 
