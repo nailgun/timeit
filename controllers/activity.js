@@ -62,6 +62,8 @@ exports.addEarlier = loginRequired(function (req, res) {
         var tags = tags_string.split(/\s*,\s*/);
         var start_time = new Date(req.body['start_time']);
         var end_time = new Date(req.body['end_time']);
+        assert(start_time < end_time, 'start_leser_than_end');
+        assert(end_time <= new Date(), 'date_in_feature');
     } catch(err) {
         res.statusCode = 400;
         res.json({result: 'error', message: 'invalid_request'});

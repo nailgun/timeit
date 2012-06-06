@@ -1,4 +1,3 @@
-* check earlier date is in feature
 * error handling (client-side and server-side)
 * server-side error reporting (email, log)
 * l10n, i18n

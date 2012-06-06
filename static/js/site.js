@@ -289,12 +289,12 @@ function enableControls() {
 
         function date_from_strings(date, time) {
             var date_parts = /^(\d+)\.(\d+)\.(\d+)$/.exec(date);
-            if (date_parts.length != 4) {
+            if (!date_parts || date_parts.length != 4) {
                 return null;
             }
 
             var time_parts = /^(\d+):(\d\d)$/.exec(time);
-            if (time_parts.length != 3) {
+            if (!time_parts || time_parts.length != 3) {
                 return null;
             }
 
