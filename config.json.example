@@ -1,0 +1,7 @@
+{
+    "install_url": "http://time.it:3000/",
+    "secret": "DO NOT FORGET YOUR SECRET HERE!!!",
+    "log_format": "dev",
+    "mongo_db": "timeit",
+    "mongo_host": "localhost"
+}

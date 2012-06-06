@@ -32,12 +32,12 @@
                 <h1>TimeIt time tracker</h1>
                 <h2>Login with OpenID</h2>
 
-                <form class="form-inline" action="login" method="get">
+                <form class="form-inline" action="auth/login" method="get">
                     <input type="text" name="openid" placeholder="OpenID identifier">
                     <button type="submit" class="btn">Login</button>
 
-                    <a class="btn" href="login?openid=https://www.google.com/accounts/o8/id"><img src="http://www.google.com/favicon.ico"></a>
-                    <a class="btn" href="login?openid=http://www.myopenid.com/server"><img src="http://www.myopenid.com/favicon.ico"></a>
+                    <a class="btn" href="auth/login?openid=https://www.google.com/accounts/o8/id"><img src="http://www.google.com/favicon.ico"></a>
+                    <a class="btn" href="auth/login?openid=http://www.myopenid.com/server"><img src="http://www.myopenid.com/favicon.ico"></a>
                 </form>
             </div>
 
@@ -165,7 +165,7 @@
             </div>
             <div class="btn-group">
                 <a id="username" class="btn disabled btn-info"></a>
-                <a class="btn btn-danger" href="logout">Logout</a>
+                <a class="btn btn-danger" href="auth/logout">Logout</a>
             </div>
         </div>
 

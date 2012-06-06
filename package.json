@@ -12,7 +12,8 @@
   "dependencies": {
       "connect": ">=2.3.0",
       "mongodb": ">=1.0.0",
-      "openid": ">=0.4.0"
+      "openid": ">=0.4.0",
+      "express": ">=2.5.0"
   },
   "devDependencies": {},
   "optionalDependencies": {},

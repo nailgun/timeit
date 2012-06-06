@@ -72,7 +72,7 @@ function start_notification() {
 }
 
 function set_activity(name, tags) {
-    $.post('set-activity', {
+    $.post('activity', {
         name: name,
         tags: tags
     }).done(function(data) {
@@ -90,7 +90,7 @@ function stop_activity() {
     $('#current_activity_name').html('LOADER');
     $('#activity_supporting_text').text('');
 
-    $.post('stop-activity').done(function(data) {
+    $.post('activity/stop').done(function(data) {
         $('#current_activity_name').text('No activity');
         $('#timer').text('');
         timeit.current_activity = null;
@@ -306,7 +306,7 @@ function enableControls() {
             return;
         }
 
-        $.post('add-activity', {
+        $.post('activity/add-earlier', {
             name: name,
             tags: tags,
             start_time: start,
@@ -354,7 +354,7 @@ function show_tracker() {
     $('#tracker').show();
     $('#login_widget').show();
 
-    $.get('current-activity').done(function(data) {
+    $.get('activity').done(function(data) {
         if (data.length) {
             var activity = data[0];
 
@@ -435,7 +435,7 @@ function logged_in() {
 }
 
 $(function() {
-    $.get('login-status').done(function(data) {
+    $.get('auth/status').done(function(data) {
         if (data['logged_in']) {
             logged_in();
         } else {
