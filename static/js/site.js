@@ -2,8 +2,9 @@ window.timeit = {
     current_activity: null,
     start_time: null,
     notifications_requested: false,
-    activity_num: 0,
-    notification_interval: 10 * 60 * 1000,
+    notificationInterval: 10 * 60 * 1000,
+    notificationIntervalId: null,
+    csrfToken: null,
     time_elapsed_ms: function() {
         return new Date().getTime() - timeit.start_time.getTime();
     },
@@ -32,15 +33,19 @@ $(document).ajaxSend(function(event, xhr, settings) {
     }
 
     if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-        xhr.setRequestHeader("X-CSRF-Token", window._csrfToken);
+        xhr.setRequestHeader("X-CSRF-Token", timeit.csrfToken);
     }
 });
 
-function start_notification() {
-    timeit.activity_num++;
-    var activity_num = timeit.activity_num;
-    var notify = function() {
-        if (!timeit.current_activity || activity_num != timeit.activity_num) {
+function restartNotification() {
+    if (timeit.notificationIntervalId) {
+        clearInterval(timeit.notificationIntervalId);
+    }
+
+    function notify() {
+        if (!timeit.current_activity) {
+            clearInterval(timeit.notificationIntervalId);
+            timeit.notificationIntervalId = null;
             return;
         }
 
@@ -51,10 +56,9 @@ function start_notification() {
                 popup.cancel();
             }, 2000);
         }
-
-        setTimeout(notify, timeit.notification_interval);
     }
-    setTimeout(notify, timeit.notification_interval);
+
+    timeit.notificationIntervalId = setInterval(notify, timeit.notificationInterval);
 }
 
 function set_activity(name, tags) {
@@ -66,8 +70,8 @@ function set_activity(name, tags) {
         $('#activity_supporting_text').text('');
         timeit.current_activity = name;
         timeit.start_time = new Date();
-        update_timer();
-        start_notification();
+        updateTimer();
+        restartNotification();
     });
 }
 
@@ -177,11 +181,10 @@ Date.prototype.format = function(format) {
     return str;
 }
 
-function update_timer() {
+function updateTimer() {
     if (timeit.start_time) {
         var total_ms = timeit.time_elapsed_ms();
         $('#timer').text(new TimeDelta(total_ms).format('%H:%0M:%0S')[0]);
-        setTimeout(update_timer, 1000);
     }
 }
 
@@ -340,6 +343,8 @@ function show_tracker() {
     $('#tracker').show();
     $('#login_widget').show();
 
+    setInterval(updateTimer, 1000);
+
     $.get('activity').done(function(data) {
         if (data.length) {
             var activity = data[0];
@@ -348,8 +353,8 @@ function show_tracker() {
             $('#activity_supporting_text').text('');
             timeit.current_activity = activity.name;
             timeit.start_time = new Date(activity.start_time);
-            update_timer();
-            start_notification();
+            updateTimer();
+            restartNotification();
         } else {
             $('#current_activity_name').text('No activity');
             $('#activity_supporting_text').text('Click here to set activity');
@@ -433,7 +438,7 @@ function startup() {
 
 $(function() {
     $.get('csrf-token').done(function(token) {
-        window._csrfToken = token;
+        timeit.csrfToken = token;
         startup();
     });
 });
