@@ -1,14 +1,37 @@
 var express = require('express')
   , mongo = require('mongodb')
   , url = require('url')
+  , path = require('path')
   , MongoStore = require('connect-mongodb');
-require('express-configure');
 
 var app = module.exports = express.createServer();
-var server = express.createServer();
+app.configure = configureApplication;
 
-app.configure(function(done) {
-    app.config = require('./config.json');
+if (require.main === module) {
+    var configPath = process.argv[2];
+    if (!configPath) {
+        console.error('USAGE: app.js CONFIG.JSON');
+        process.exit(1);
+    }
+
+    configPath = path.resolve(process.cwd(), configPath);
+
+    var server = express.createServer();
+    app.configure(require(configPath), function() {
+        server.use(app.installation.pathname, app);
+        if (!app.config.listen_port) {
+            app.config.listen_port = app.installation.port;
+        }
+        server.listen(app.config.listen_port, function() {
+            if (app.config.log_format) {
+                console.log('TimeIt is running on '+app.installation.href);
+            }
+        });
+    });
+}
+
+function configureApplication(config, done) {
+    app.config = config;
     if (app.config.install_url.slice(-1) != '/') {
         app.config.install_url += '/';
     }
@@ -33,6 +56,7 @@ app.configure(function(done) {
         server.use(express.logger(app.config.log_format));
         console.log('Connecting to database...');
     }
+
     app.db.open(function(err, db) {
         if (app.config.log_format) {
             console.log('Connected to database.');
@@ -41,24 +65,7 @@ app.configure(function(done) {
         installApplication();
         done();
     });
-});
-
-app.configure('development', function() {
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-
-app.configure('production', function() {
-    app.use(express.errorHandler());
-});
-
-if (!app.config.listen_port) {
-    app.config.listen_port = app.installation.port;
-}
-server.listen(app.config.listen_port, function() {
-    if (app.config.log_format) {
-        console.log('TimeIt is running on '+app.installation.href);
-    }
-});
+};
 
 function installApplication() {
     var c = require('./controllers');
@@ -72,7 +79,7 @@ function installApplication() {
     }
 
     app.use(redirectRoot);
-    app.use(express.static(__dirname + '/static'));
+    app.use(express.static(__dirname + '/static', {maxAge: app.config.staticFilesMaxAge*1000}));
     app.use(express.bodyParser());
     app.use(express.cookieParser());
     app.use(express.session({
@@ -82,6 +89,10 @@ function installApplication() {
     app.use(express.csrf());
     app.use(c.auth.middleware);
     app.use(app.router);
+    app.use(express.errorHandler({
+        dumpExceptions: !!app.config.log_format,
+        showStack: !!app.config.debug
+    }));
 
     app.get ('/activity', c.activity.getCurrent);
     app.get ('/today', c.activity.today);
@@ -97,6 +108,4 @@ function installApplication() {
     app.get ('/auth/logout', c.auth.logout);
     app.get ('/auth/callback', c.auth.openIdCallback);
     app.get ('/auth/status', c.auth.status);
-
-    server.use(app.installation.pathname, app);
 }

@@ -4,5 +4,7 @@
     "secret": "DO NOT FORGET YOUR SECRET HERE!!!",
     "log_format": "dev",
     "mongo_db": "timeit",
-    "mongo_host": "localhost"
+    "mongo_host": "localhost",
+    "staticFilesMaxAge": 2592000,
+    "debug": false,
 }
