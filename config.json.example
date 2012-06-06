@@ -6,5 +6,5 @@
     "mongo_db": "timeit",
     "mongo_host": "localhost",
     "staticFilesMaxAge": 2592000,
-    "debug": false,
+    "debug": false
 }
