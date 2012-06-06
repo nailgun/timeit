@@ -51,7 +51,10 @@ app.configure('production', function() {
     app.use(express.errorHandler());
 });
 
-server.listen(app.installation.port, function() {
+if (!app.config.listen_port) {
+    app.config.listen_port = app.installation.port;
+}
+server.listen(app.config.listen_port, function() {
     if (app.config.log_format) {
         console.log('TimeIt is running on '+app.installation.href);
     }
