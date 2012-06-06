@@ -5,3 +5,5 @@
 * overview
 * timezones
 * everyauth
+* interface:
+  * animate activity name (zoom-in)
