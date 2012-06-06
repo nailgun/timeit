@@ -1,6 +1,7 @@
 var express = require('express')
   , mongo = require('mongodb')
-  , url = require('url');
+  , url = require('url')
+  , MongoStore = require('connect-mongodb');
 require('express-configure');
 
 var app = module.exports = express.createServer();
@@ -25,25 +26,27 @@ app.configure(function(done) {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
 
-    if (app.config.log_format) {
-        app.use(express.logger(app.config.log_format));
-    }
+    var mongo_port = app.config.mongo_port || mongo.Connection.DEFAULT_PORT;
+    app.db = mongo.Db(app.config.mongo_db,
+                      new mongo.Server(app.config.mongo_host, mongo_port, {}),
+                      {});
 
+    if (app.config.log_format) {
+        server.use(express.logger(app.config.log_format));
+    }
     server.use(app.installation.pathname, app);
 
     app.use(middleware.redirectRoot);
     app.use(express.static(__dirname + '/static'));
     app.use(express.bodyParser());
     app.use(express.cookieParser());
-    app.use(express.session({ secret: app.config.secret }));
+    app.use(express.session({
+        secret: app.config.secret,
+        store: new MongoStore({db: app.db}),
+    }));
     app.use(express.csrf());
     app.use(middleware.auth);
     app.use(app.router);
-
-    var mongo_port = app.config.mongo_port || mongo.Connection.DEFAULT_PORT;
-    app.db = mongo.Db(app.config.mongo_db,
-                      new mongo.Server(app.config.mongo_host, mongo_port, {}),
-                      {});
 
     installRoutes();
 
