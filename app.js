@@ -33,10 +33,9 @@ app.configure(function(done) {
 
     app.use(middleware.redirectRoot);
     app.use(express.static(__dirname + '/static'));
-    //app.use(express.query());
     app.use(express.bodyParser());
-    app.use(express.cookieParser(app.config.secret));
-    //app.use(middleware.cookieWriter);
+    app.use(express.cookieParser());
+    app.use(express.session({ secret: app.config.secret }));
     app.use(middleware.csrf());
     app.use(middleware.auth);
     app.use(app.router);

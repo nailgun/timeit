@@ -13,36 +13,6 @@ exports.redirectRoot = function(req, res, next) {
     }
 };
 
-exports.cookieWriter = function(req, res, next) {
-    var _write = res.write;
-    var _end = res.end;
-    res.cookies = {};
-    function setHeaders() {
-        if (!res.headerSent) {
-            var cookies = [];
-            for (name in res.cookies) {
-                cookies.push(res.cookies[name]);
-            }
-            var oldCookies = res.getHeader('Set-Cookie');
-            // FIXME: oldCookies
-            res.setHeader('Set-Cookie', cookies);
-        }
-    }
-    res.setCookie = function(name, val, obj) {
-        res.cookies[name] = connect.utils.serializeCookie(name, val, obj);
-    }
-    res.write = function() {
-        setHeaders();
-        _write.apply(res, arguments);
-    }
-    res.end = function() {
-        setHeaders();
-        _end.apply(res, arguments);
-    }
-
-    next();
-};
-
 exports.csrf = function(options) {
     function defaultValue(req) {
         return (req.body && req.body._csrf)
@@ -76,8 +46,7 @@ exports.csrf = function(options) {
 };
 
 exports.auth = function (req, res, next) {
-    req.sid = req.cookies.sid;
-    if (!req.sid) {
+    if (!req.session.userId) {
         req.user = null;
         next();
         return;
@@ -86,7 +55,7 @@ exports.auth = function (req, res, next) {
     app.db.collection('accounts', function(err, accounts) {
         var ob_id = null;
         try {
-            ob_id = new BSON.ObjectID(req.sid);
+            ob_id = new BSON.ObjectID(req.session.userId);
         } catch(err) {
             req.user = null;
             next();

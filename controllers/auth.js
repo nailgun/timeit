@@ -17,8 +17,8 @@ exports.login = function(req, res) {
     });
 };
 
-function openIdSuccess(req, res, sid) {
-    res.cookie('sid', sid);
+function openIdSuccess(req, res, userId) {
+    req.session.userId = userId;
     res.redirect('');
 }
 
@@ -48,6 +48,6 @@ exports.status = function (req, res) {
 };
 
 exports.logout = function (req, res) {
-    res.clearCookie('sid');
+    delete req.session.userId;
     res.redirect('');
 };
