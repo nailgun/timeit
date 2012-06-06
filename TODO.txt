@@ -1,8 +1,8 @@
-1 ask to stop on close or logout
-2 static serving + caching
+1 static serving + caching
 * check earlier date is in feature
 * error handling (client-side and server-side)
 * server-side error reporting (email, log)
+* l10n, i18n
 * overview
 * timezones
 * everyauth

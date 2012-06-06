@@ -455,4 +455,10 @@ $(function() {
         timeit.csrfToken = token;
         startup();
     });
+
+    $(window).bind('beforeunload', function() {
+        if (timeit.current_activity) {
+            return "Keeping activity on the go!";
+        }
+    });
 });
