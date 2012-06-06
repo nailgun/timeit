@@ -1,4 +1,5 @@
 * error handling (client-side and server-side)
+* no activity notify
 * server-side error reporting (email, log)
 * l10n, i18n
 * overview
