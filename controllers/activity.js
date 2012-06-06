@@ -1,10 +1,11 @@
 var decors = require('./decors');
 var app = require('../app');
 var loginRequired = decors.loginRequiredAjax;
+var noErr = require('../utils').noErr;
 
 // FIXME: respect user timezone
 exports.today = loginRequired(function(req, res) {
-    app.db.collection('activities', function(err, activities) {
+    app.db.collection('activities', noErr(function(activities) {
         var end = new Date();
         end.setHours(23);
         end.setMinutes(59);
@@ -15,10 +16,15 @@ exports.today = loginRequired(function(req, res) {
         activities.find({
             account: req.user._id,
             end_time: {$gte: start, $lte: end},
-        }, ['name', 'start_time', 'end_time', 'tags']).sort({end_time: -1}).toArray(function(err, docs) {
+        }, [
+            'name',
+            'start_time',
+            'end_time',
+            'tags'
+        ]).sort({end_time: -1}).toArray(noErr(function(docs) {
             res.json(docs);
-        });
-    });
+        }));
+    }));
 });
 
 exports.setCurrent = loginRequired(function (req, res) {
@@ -32,7 +38,7 @@ exports.setCurrent = loginRequired(function (req, res) {
         return;
     }
 
-    app.db.collection('activities', function(err, collection) {
+    app.db.collection('activities', noErr(function(collection) {
         collection.update({
             account: req.user._id,
             end_time: null,
@@ -41,18 +47,18 @@ exports.setCurrent = loginRequired(function (req, res) {
         }, {
             safe: true,
             multi: true
-        }, function(err) {
+        }, noErr(function() {
             collection.insert({
                 account: req.user._id,
                 name: activity_name,
                 tags: tags,
                 start_time: new Date(),
                 end_time: null
-            }, function(err, docs) {
+            }, noErr(function(docs) {
                 res.json({result: 'done'});
-            });
-        });
-    });
+            }));
+        }));
+    }));
 });
 
 exports.addEarlier = loginRequired(function (req, res) {
@@ -70,21 +76,21 @@ exports.addEarlier = loginRequired(function (req, res) {
         return;
     }
 
-    app.db.collection('activities', function(err, collection) {
+    app.db.collection('activities', noErr(function(collection) {
         collection.insert({
             account: req.user._id,
             name: activity_name,
             tags: tags,
             start_time: start_time,
             end_time: end_time,
-        }, function(err, docs) {
+        }, noErr(function(docs) {
             res.json({result: 'done', id: docs[0]._id});
-        });
-    });
+        }));
+    }));
 });
 
 exports.stop = loginRequired(function (req, res) {
-    app.db.collection('activities', function(err, collection) {
+    app.db.collection('activities', noErr(function(collection) {
         collection.update({
             account: req.user._id,
             end_time: null,
@@ -92,19 +98,19 @@ exports.stop = loginRequired(function (req, res) {
             $set: {end_time: new Date()}
         }, {
             safe: true, multi: true
-        }, function(err, docs) {
+        }, noErr(function(docs) {
             res.json({result: 'done'});
-        });
-    });
+        }));
+    }));
 });
 
 exports.getCurrent = loginRequired(function(req, res) {
-    app.db.collection('activities', function(err, activities) {
+    app.db.collection('activities', noErr(function(activities) {
         activities.find({
             account: req.user._id,
             end_time: null,
-        }, ['name', 'start_time']).toArray(function(err, docs) {
+        }, ['name', 'start_time']).toArray(noErr(function(docs) {
             res.json(docs);
-        });
-    });
+        }));
+    }));
 });

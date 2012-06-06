@@ -2,7 +2,8 @@ var express = require('express')
   , mongo = require('mongodb')
   , url = require('url')
   , path = require('path')
-  , MongoStore = require('connect-mongodb');
+  , MongoStore = require('connect-mongodb')
+  , noErr = require('./utils').noErr;
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;
@@ -57,14 +58,14 @@ function configureApplication(config, done) {
         console.log('Connecting to database...');
     }
 
-    app.db.open(function(err, db) {
+    app.db.open(noErr(function(db) {
         if (app.config.log_format) {
             console.log('Connected to database.');
         }
 
         installApplication();
         done();
-    });
+    }));
 };
 
 function installApplication() {

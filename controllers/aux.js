@@ -1,16 +1,17 @@
 var decors = require('./decors');
 var app = require('../app');
 var loginRequired = decors.loginRequiredAjax;
+var noErr = require('../utils').noErr;
 
 exports.getSettings = loginRequired(function (req, res) {
-    app.db.collection('accounts', function(err, accounts) {
+    app.db.collection('accounts', noErr(function(accounts) {
         accounts.find({
             _id: req.user._id,
-        }, ['settings']).toArray(function(err, docs) {
+        }, ['settings']).toArray(noErr(function(docs) {
             var settings = docs ? docs[0].settings || {} : {};
             res.json(settings);
-        });
-    });
+        }));
+    }));
 });
 
 exports.setSettings = loginRequired(function (req, res) {
@@ -34,17 +35,17 @@ exports.setSettings = loginRequired(function (req, res) {
         dataset['settings.notifications'] = parseInt(notifications) ? true : false;
     }
 
-    app.db.collection('accounts', function(err, accounts) {
+    app.db.collection('accounts', noErr(function(accounts) {
         accounts.update({
             _id: req.user._id,
         }, {
             $set: dataset
         }, {
             safe: true
-        }, function(err) {
+        }, noErr(function() {
             res.json({result: 'done'});
-        });
-    });
+        }));
+    }));
 });
 
 exports.getCsrfToken = function(req, res) {

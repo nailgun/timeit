@@ -1,6 +1,7 @@
 var openid = require('openid');
 var BSON = require('mongodb').BSONPure;
 var app = require('../app');
+var noErr = require('../utils').noErr;
 
 var relyingParty = new openid.RelyingParty(app.installation.href+'auth/callback');
 
@@ -27,17 +28,17 @@ exports.openIdCallback = function (req, res) {
     openid.verifyAssertion(req, function(err, result) {
         if (!err && result.authenticated) {
             var openid = result.claimedIdentifier;
-            app.db.collection('accounts', function(err, accounts) {
-                accounts.findOne({openid: openid}, function(err, doc) {
+            app.db.collection('accounts', noErr(function(accounts) {
+                accounts.findOne({openid: openid}, noErr(function(doc) {
                     if (doc) {
                         openIdSuccess(req, res, doc._id);
                     } else {
-                        accounts.insert({openid: openid}, function(err, docs) {
+                        accounts.insert({openid: openid}, noErr(function(docs) {
                             openIdSuccess(req, res, docs[0]._id);
-                        });
+                        }));
                     }
-                });
-            });
+                }));
+            }));
         } else {
             res.redirect('login-failed.html');
         }
@@ -60,7 +61,7 @@ exports.middleware = function (req, res, next) {
         return;
     }
 
-    app.db.collection('accounts', function(err, accounts) {
+    app.db.collection('accounts', noErr(function(accounts) {
         var ob_id = null;
         try {
             ob_id = new BSON.ObjectID(req.session.userId);
@@ -70,9 +71,9 @@ exports.middleware = function (req, res, next) {
             return;
         }
 
-        accounts.findOne({_id: ob_id}, function(err, doc) {
+        accounts.findOne({_id: ob_id}, noErr(function(doc) {
             req.user = doc;
             next();
-        });
-    });
+        }));
+    }));
 };
