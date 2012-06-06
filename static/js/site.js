@@ -14,21 +14,6 @@ window.timeit = {
 };
 
 $(document).ajaxSend(function(event, xhr, settings) {
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie != '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
     function sameOrigin(url) {
         // url could be relative or scheme relative or absolute
         var host = document.location.host; // host + port
@@ -41,12 +26,13 @@ $(document).ajaxSend(function(event, xhr, settings) {
             // or any other URL that isn't scheme relative or absolute i.e relative.
             !(/^(\/\/|http:|https:).*/.test(url));
     }
+
     function safeMethod(method) {
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
 
     if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-        xhr.setRequestHeader("X-CSRF-Token", getCookie('_csrf'));
+        xhr.setRequestHeader("X-CSRF-Token", window._csrfToken);
     }
 });
 
@@ -434,7 +420,7 @@ function logged_in() {
     });
 }
 
-$(function() {
+function startup() {
     $.get('auth/status').done(function(data) {
         if (data['logged_in']) {
             logged_in();
@@ -442,5 +428,12 @@ $(function() {
             $('#login_form').show();
             $('#login_form input[name="openid"]').focus();
         }
+    });
+}
+
+$(function() {
+    $.get('csrf-token').done(function(token) {
+        window._csrfToken = token;
+        startup();
     });
 });

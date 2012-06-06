@@ -46,3 +46,7 @@ exports.setSettings = loginRequired(function (req, res) {
         });
     });
 });
+
+exports.getCsrfToken = function(req, res) {
+    res.json(req.session._csrf);
+};

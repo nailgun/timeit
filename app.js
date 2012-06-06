@@ -36,7 +36,7 @@ app.configure(function(done) {
     app.use(express.bodyParser());
     app.use(express.cookieParser());
     app.use(express.session({ secret: app.config.secret }));
-    app.use(middleware.csrf());
+    app.use(express.csrf());
     app.use(middleware.auth);
     app.use(app.router);
 
@@ -77,6 +77,7 @@ function installRoutes() {
 
     app.get ('/settings', c.aux.getSettings);
     app.post('/settings', c.aux.setSettings);
+    app.get ('/csrf-token', c.aux.getCsrfToken);
 
     app.get ('/auth/login', c.auth.login);
     app.get ('/auth/logout', c.auth.logout);

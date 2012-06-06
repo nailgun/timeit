@@ -13,7 +13,7 @@ exports.redirectRoot = function(req, res, next) {
     }
 };
 
-exports.csrf = function(options) {
+exports.cookieCsrf = function(options) {
     function defaultValue(req) {
         return (req.body && req.body._csrf)
             || (req.query && req.query._csrf)
