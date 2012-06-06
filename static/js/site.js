@@ -37,6 +37,10 @@ $(document).ajaxSend(function(event, xhr, settings) {
     }
 });
 
+$.ajaxSetup({
+    dataType: 'json'
+});
+
 function restartNotification() {
     if (timeit.notificationIntervalId) {
         clearInterval(timeit.notificationIntervalId);
