@@ -13,38 +13,6 @@ exports.redirectRoot = function(req, res, next) {
     }
 };
 
-exports.cookieCsrf = function(options) {
-    function defaultValue(req) {
-        return (req.body && req.body._csrf)
-            || (req.query && req.query._csrf)
-            || (req.headers['x-csrf-token']);
-    }
-
-    function defaultSafeMethod(method) {
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    var options = options || {},
-        value = options.value || defaultValue,
-        safeMethod = options.safeMethod || defaultSafeMethod;
-
-    return function(req, res, next) {
-        var token = req.cookies._csrf || (req.cookies._csrf = connect.utils.uid(24));
-        res.cookie('_csrf', token);
-
-        if (safeMethod(req.method)) {
-            return next();
-        }
-
-        var val = value(req);
-        if (val != token) {
-            return next(connect.utils.error(403));
-        }
-
-        next();
-    }
-};
-
 exports.auth = function (req, res, next) {
     if (!req.session.userId) {
         req.user = null;
