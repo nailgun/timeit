@@ -1,8 +1,8 @@
-1 test deploy
-2 ask to stop on close or logout
-3 static serving + caching
+1 ask to stop on close or logout
+2 static serving + caching
 * check earlier date is in feature
 * error handling (client-side and server-side)
+* server-side error reporting (email, log)
 * overview
 * timezones
 * everyauth
