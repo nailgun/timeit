@@ -19,6 +19,7 @@ window.timeit = {
             dataType: 'json',
         }).fail(function(xhr) {
             if (xhr.status == 401) {
+                timeit.current_activity = null;
                 location.href = '.';
             } else {
                 var msg = 'Request failed ('+xhr.status;
