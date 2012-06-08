@@ -11,8 +11,51 @@ window.timeit = {
     notifications_allowed: function() {
         return timeit.notifications_requested
             && window.webkitNotifications.checkPermission() == 0;
+    },
+    rpc: function(method, url, data) {
+        var xhr = $.ajax(url, {
+            type: method,
+            data: data,
+            dataType: 'json'
+        }).fail(function(xhr, textStatus) {
+            var msg = 'Request failed';
+            if (textStatus) {
+                msg += ' ('+textStatus+')';
+            }
+            alert(msg);
+        });
+        var callObj = {
+            ok: function(callback) {
+                xhr.done(function(data) {
+                    if (data.status == 'ok') {
+                        callback(data.body);
+                    }
+                });
+                return callObj;
+            },
+            err: function(callback) {
+                xhr.done(function(data) {
+                    if (data.status == 'err') {
+                        callback(data.body);
+                    }
+                });
+                return callObj;
+            }
+        };
+        return callObj;
+    },
+    post: function(url, data) {
+        return timeit.rpc('POST', url, data);
+    },
+    get: function(url, data) {
+        return timeit.rpc('GET', url, data);
     }
 };
+
+function capitalize(string)
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 $(document).ajaxSend(function(event, xhr, settings) {
     function sameOrigin(url) {
@@ -37,9 +80,17 @@ $(document).ajaxSend(function(event, xhr, settings) {
     }
 });
 
-$.ajaxSetup({
-    dataType: 'json'
-});
+function setFormErrors($form, report) {
+    $form.find('.error-help').remove();
+    $form.find('.control-group').removeClass('error');
+    for (var fieldName in report.field_errors) {
+        var field_errors = report.field_errors[fieldName];
+        var msg = capitalize(field_errors.join(', ')) + '.';
+        var $control = $form.find('[name="'+fieldName+'"]');
+        $control.parents('.control-group').addClass('error');
+        $control.after($('<p class="help-block error-help">'+msg+'</p>'));
+    }
+}
 
 function restartNotification() {
     if (timeit.notificationIntervalId) {
@@ -65,11 +116,11 @@ function restartNotification() {
     timeit.notificationIntervalId = setInterval(notify, timeit.notificationInterval);
 }
 
-function set_activity(name, tags) {
-    $.post('activity', {
+function setActivity(name, tags) {
+    return timeit.post('activity', {
         name: name,
         tags: tags
-    }).done(function(data) {
+    }).ok(function() {
         $('#current_activity_name').text(name);
         document.title = name + ' — TimeIt';
         $('#activity_supporting_text').text('');
@@ -86,7 +137,7 @@ function stop_activity() {
     document.title = 'Working... — TimeIt';
     $('#activity_supporting_text').text('');
 
-    $.post('activity/stop').done(function(data) {
+    timeit.post('activity/stop').ok(function(data) {
         $('#current_activity_name').text('No activity');
         document.title = 'No activity — TimeIt';
         $('#timer').text('');
@@ -221,7 +272,7 @@ function enableControls() {
         $('#set_activity_form_tags').val('');
         $('#set_activity_form_name').focus();
 
-        $.get('today').done(function(data) {
+        timeit.get('today').ok(function(data) {
             var $table = $('#today_activities');
             var $tpl = $table.find('tr.row-template');
             $.each(data, function(idx, activity) {
@@ -244,11 +295,15 @@ function enableControls() {
     });
 
     $('#set_activity_form form').on('submit', function(e) {
-        var name = $('#set_activity_form_name').val();
-        var tags = $('#set_activity_form_tags').val();
-        set_activity(name, tags);
-        $('#set_activity_form').modal('hide');
         e.preventDefault();
+
+        var name = $('#set_activity_form input[name="name"]').val();
+        var tags = $('#set_activity_form input[name="tags"]').val();
+        setActivity(name, tags).ok(function() {
+            $('#set_activity_form').modal('hide');
+        }).err(function(report) {
+            setFormErrors($('#set_activity_form'), report);
+        });
     });
 
     $('#set_activity_form form input[type="text"]').on('keypress', function(e) {
@@ -284,6 +339,7 @@ function enableControls() {
 
     $('#add_earlier_activity_form form').on('submit', function(e) {
         e.preventDefault();
+
         var name = $('#add_earlier_activity_form_name').val();
         var tags = $('#add_earlier_activity_form_tags').val();
         var start_date = $('#add_earlier_activity_form_start_date').val();
@@ -302,23 +358,22 @@ function enableControls() {
                 return null;
             }
 
-            return new Date(date_parts[3], date_parts[2], date_parts[1], time_parts[1], time_parts[2]);
+            return new Date(date_parts[3], date_parts[2]-1, date_parts[1], time_parts[1], time_parts[2]);
         }
 
         var start = date_from_strings(start_date, start_time);
         var end = date_from_strings(end_date, end_time);
-        if (!start || !end) {
-            return;
-        }
 
-        $.post('activity/add-earlier', {
+        timeit.post('activity/add-earlier', {
             name: name,
             tags: tags,
             start_time: start,
             end_time: end
+        }).ok(function() {
+            $('#add_earlier_activity_form').modal('hide');
+        }).err(function(report) {
+            setFormErrors($('#add_earlier_activity_form'), report);
         });
-
-        $('#add_earlier_activity_form').modal('hide');
     });
 
     $('#add_earlier_activity_form form input[type="text"]').on('keypress', function(e) {
@@ -344,12 +399,22 @@ function enableControls() {
     $('#today_activities tr').live('dblclick', function() {
         var name = $(this).find('.activity').text();
         var tags = $(this).find('.tags').text();
-        set_activity(name, tags);
+        setActivity(name, tags);
         $('#set_activity_form').modal('hide');
     });
 
     $('#toggle_notify').click(function() {
         setNotifications(!$(this).hasClass('active'));
+    });
+
+    $('input[type="text"]').keypress(function() {
+        $(this).removeClass('error');
+        $(this).parents().removeClass('error');
+    });
+
+    $('input').change(function() {
+        $(this).removeClass('error');
+        $(this).parents().removeClass('error');
     });
 }
 
@@ -361,7 +426,7 @@ function show_tracker() {
 
     setInterval(updateTimer, 1000);
 
-    $.get('activity').done(function(data) {
+    timeit.get('activity').ok(function(data) {
         if (data.length) {
             var activity = data[0];
 
@@ -386,7 +451,7 @@ function setNotifications(requested, dontUpdateSettings) {
     timeit.notifications_requested = requested;
 
     if (!dontUpdateSettings) {
-        $.post('settings', {notifications: requested ? 1 : 0});
+        timeit.post('settings', {notifications: requested ? 1 : 0});
     }
 
     if (window.webkitNotifications) {
@@ -406,8 +471,8 @@ function setNotifications(requested, dontUpdateSettings) {
     }
 }
 
-function logged_in() {
-    $.get('settings').done(function(settings) {
+function loggedIn() {
+    timeit.get('settings').ok(function(settings) {
         if (settings.username) {
             $('#username').text(settings.username);
             show_tracker();
@@ -426,27 +491,31 @@ function logged_in() {
             });
 
             $('#username_form form').on('submit', function(e) {
+                e.preventDefault();
+
                 var username = $username.val();
                 if (!username) {
                     $username.parents('.control-group').addClass('error');
                 } else {
-                    $.post('settings', { username: username }).done(function(data) {
+                    timeit.post('settings', {
+                        username: username
+                    }).ok(function(data) {
                         $('#username').text(username);
                         show_tracker();
                         setNotifications(true);
+                    }).err(function(report) {
+                        setFormErrors($('#username_form'), report);
                     });
                 }
-
-                e.preventDefault();
             });
         }
     });
 }
 
 function startup() {
-    $.get('auth/status').done(function(data) {
-        if (data['logged_in']) {
-            logged_in();
+    timeit.get('auth/status').ok(function(isLoggedIn) {
+        if (isLoggedIn) {
+            loggedIn();
         } else {
             $('#login_form').show();
             $('#login_form input[name="openid"]').focus();

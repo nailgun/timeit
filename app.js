@@ -79,7 +79,18 @@ function installApplication() {
         }
     }
 
+    function myResponse(req, res, next) {
+        res.okJson = function(body) {
+            res.json({status: 'ok', body: body});
+        };
+        res.errJson = function(body) {
+            res.json({status: 'err', body: body});
+        }
+        next();
+    }
+
     app.use(redirectRoot);
+    app.use(myResponse);
     app.use(express.static(__dirname + '/static', {maxAge: app.config.staticFilesMaxAge*1000}));
     app.use(express.bodyParser());
     app.use(express.cookieParser());

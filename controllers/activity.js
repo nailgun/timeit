@@ -2,6 +2,14 @@ var decors = require('./decors');
 var app = require('../app');
 var loginRequired = decors.loginRequiredAjax;
 var noErr = require('../utils').noErr;
+var jsonDumpFormErrors = require('../utils').jsonDumpFormErrors;
+var _ = require('underscore');
+var forms2 = require('forms2');
+
+function parseTags(tagsString) {
+    var tags = tagsString.split(/\s*,\s*/);
+    return _.uniq(tags.sort());
+}
 
 // FIXME: respect user timezone
 exports.today = loginRequired(function(req, res) {
@@ -22,71 +30,80 @@ exports.today = loginRequired(function(req, res) {
             'end_time',
             'tags'
         ]).sort({end_time: -1}).toArray(noErr(function(docs) {
-            res.json(docs);
+            res.okJson(docs);
         }));
     }));
+});
+
+var currentActivityForm = forms2.create({
+    name: forms2.fields.String(),
+    tags: forms2.fields.String({required: false}),
 });
 
 exports.setCurrent = loginRequired(function (req, res) {
-    var activity_name = req.body['name'];
-    var tags_string = req.body['tags'];
-    var tags = tags_string.split(/\s*,\s*/);
-
-    if (!activity_name) {
-        res.statusCode = 400;
-        res.json({result: 'error', message: 'activity_name'});
-        return;
-    }
-
-    app.db.collection('activities', noErr(function(collection) {
-        collection.update({
-            account: req.user._id,
-            end_time: null,
-        }, {
-            $set: {end_time: new Date()}
-        }, {
-            safe: true,
-            multi: true
-        }, noErr(function() {
-            collection.insert({
-                account: req.user._id,
-                name: activity_name,
-                tags: tags,
-                start_time: new Date(),
-                end_time: null
-            }, noErr(function(docs) {
-                res.json({result: 'done'});
+    currentActivityForm.handle(req, {
+        success: function(form) {
+            var tags = parseTags(form.data.tags);
+            app.db.collection('activities', noErr(function(collection) {
+                collection.update({
+                    account: req.user._id,
+                    end_time: null,
+                }, {
+                    $set: {end_time: new Date()}
+                }, {
+                    safe: true,
+                    multi: true
+                }, noErr(function() {
+                    collection.insert({
+                        account: req.user._id,
+                        name: form.data.name,
+                        tags: tags,
+                        start_time: new Date(),
+                        end_time: null
+                    }, noErr(function(docs) {
+                        res.okJson();
+                    }));
+                }));
             }));
-        }));
-    }));
+        },
+        error: jsonDumpFormErrors(res)
+    });
 });
 
 exports.addEarlier = loginRequired(function (req, res) {
-    try {
-        var activity_name = req.body['name'];
-        var tags_string = req.body['tags'];
-        var tags = tags_string.split(/\s*,\s*/);
-        var start_time = new Date(req.body['start_time']);
-        var end_time = new Date(req.body['end_time']);
-        assert(start_time < end_time, 'start_leser_than_end');
-        assert(end_time <= new Date(), 'date_in_feature');
-    } catch(err) {
-        res.statusCode = 400;
-        res.json({result: 'error', message: 'invalid_request'});
-        return;
-    }
+    var form = forms2.create({
+        name: forms2.fields.String(),
+        tags: forms2.fields.String({required: false}),
+        start_time: forms2.fields.JSDateTime(),
+        end_time: forms2.fields.JSDateTime({
+            validators: [forms2.validators.Max(new Date())],
+            errorMessages: {'max_value': 'date is in feature'}
+        })
+    }, function validate(form, callback) {
+        if (form.data.start_time > form.data.end_time) {
+            callback('start must be earlier then end', 'start_time');
+        } else {
+            callback();
+        }
+    });
 
-    app.db.collection('activities', noErr(function(collection) {
-        collection.insert({
-            account: req.user._id,
-            name: activity_name,
-            tags: tags,
-            start_time: start_time,
-            end_time: end_time,
-        }, noErr(function(docs) {
-            res.json({result: 'done', id: docs[0]._id});
-        }));
-    }));
+    form.handle(req, {
+        success: function(form) {
+            var tags = parseTags(form.data.tags);
+            app.db.collection('activities', noErr(function(collection) {
+                collection.insert({
+                    account: req.user._id,
+                    name: form.data.name,
+                    tags: tags,
+                    start_time: form.data.start_time,
+                    end_time: form.data.end_time,
+                }, noErr(function(docs) {
+                    res.okJson();
+                }));
+            }));
+        },
+        error: jsonDumpFormErrors(res)
+    });
 });
 
 exports.stop = loginRequired(function (req, res) {
@@ -99,7 +116,7 @@ exports.stop = loginRequired(function (req, res) {
         }, {
             safe: true, multi: true
         }, noErr(function(docs) {
-            res.json({result: 'done'});
+            res.okJson();
         }));
     }));
 });
@@ -110,7 +127,7 @@ exports.getCurrent = loginRequired(function(req, res) {
             account: req.user._id,
             end_time: null,
         }, ['name', 'start_time']).toArray(noErr(function(docs) {
-            res.json(docs);
+            res.okJson(docs);
         }));
     }));
 });

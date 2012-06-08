@@ -13,3 +13,12 @@ exports.noErr = function(callback) {
         return callback.apply(this, args);
     }
 }
+
+exports.jsonDumpFormErrors = function(res) {
+    return function(form) {
+        var report = {};
+        report.field_errors = form.field_errors;
+        report.errors = form.errors;
+        res.errJson(report);
+    }
+}

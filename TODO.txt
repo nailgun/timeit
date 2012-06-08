@@ -1,6 +1,6 @@
-* error handling (client-side and server-side)
-* no activity notify
 * relogin when unauthorized
+* no activity notify
+* clear forms and errors after submitting
 * server-side error reporting (email, log)
 * l10n, i18n
 * overview

@@ -46,7 +46,7 @@ exports.openIdCallback = function (req, res) {
 };
 
 exports.status = function (req, res) {
-    res.json({logged_in: !!req.user});
+    res.okJson(!!req.user);
 };
 
 exports.logout = function (req, res) {

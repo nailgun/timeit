@@ -9,21 +9,20 @@ exports.getSettings = loginRequired(function (req, res) {
             _id: req.user._id,
         }, ['settings']).toArray(noErr(function(docs) {
             var settings = docs ? docs[0].settings || {} : {};
-            res.json(settings);
+            res.okJson(settings);
         }));
     }));
 });
 
 exports.setSettings = loginRequired(function (req, res) {
-    try {
-        var username = req.body['username'];
-        var notifications = req.body['notifications'];
-        if (username !== undefined && !username) {
-            throw 'no username';
-        }
-    } catch(err) {
-        res.statusCode = 400;
-        res.json({result: 'error', message: 'invalid_request'});
+    var username = req.body['username'];
+    var notifications = req.body['notifications'];
+    if (username === '') {
+        res.errJson({
+            field_errors: {
+                username: ['this is required']
+            }
+        });
         return;
     }
 
@@ -43,7 +42,7 @@ exports.setSettings = loginRequired(function (req, res) {
         }, {
             safe: true
         }, noErr(function() {
-            res.json({result: 'done'});
+            res.okJson();
         }));
     }));
 });
