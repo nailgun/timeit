@@ -16,13 +16,18 @@ window.timeit = {
         var xhr = $.ajax(url, {
             type: method,
             data: data,
-            dataType: 'json'
-        }).fail(function(xhr, textStatus) {
-            var msg = 'Request failed';
-            if (textStatus) {
-                msg += ' ('+textStatus+')';
+            dataType: 'json',
+        }).fail(function(xhr) {
+            if (xhr.status == 401) {
+                location.href = '.';
+            } else {
+                var msg = 'Request failed ('+xhr.status;
+                if (xhr.statusText) {
+                    msg += ' '+xhr.statusText;
+                }
+                msg += ')'
+                alert(msg);
             }
-            alert(msg);
         });
         var callObj = {
             ok: function(callback) {
