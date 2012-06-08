@@ -1,3 +1,4 @@
+* activity timeperiods superposition
 * clear forms and errors after submitting
 * server-side error reporting (email, log)
 * l10n, i18n

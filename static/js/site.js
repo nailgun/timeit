@@ -516,6 +516,10 @@ function loggedIn() {
 }
 
 function startup() {
+    timeit.get('version').ok(function(version) {
+        $('#version').text(version);
+    });
+
     timeit.get('auth/status').ok(function(isLoggedIn) {
         if (isLoggedIn) {
             loggedIn();

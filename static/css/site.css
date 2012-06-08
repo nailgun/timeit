@@ -56,3 +56,10 @@ div.normal {
 #today_activities .dash {
     width: 1em;
 }
+
+#version_div {
+    color: #aaa;
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+}

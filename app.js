@@ -115,6 +115,7 @@ function installApplication() {
     app.get ('/settings', c.aux.getSettings);
     app.post('/settings', c.aux.setSettings);
     app.get ('/csrf-token', c.aux.getCsrfToken);
+    app.get ('/version', c.aux.getVersion);
 
     app.get ('/auth/login', c.auth.login);
     app.get ('/auth/logout', c.auth.logout);
