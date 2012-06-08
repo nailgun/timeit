@@ -132,7 +132,7 @@ exports.addEarlier = loginRequired(function (req, res) {
                 errors: form.errors,
                 field_errors: form.field_errors,
             };
-            $.errJson({
+            res.errJson({
                 reason: 'form',
                 report: report
             });

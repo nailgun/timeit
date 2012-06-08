@@ -1,4 +1,7 @@
-* clear forms and errors after submitting
+* cleanup client-side code
+* send forms on Enter
+* ajaxSubmit
+* pack js, css, etc
 * server-side error reporting (email, log)
 * l10n, i18n
 * overview

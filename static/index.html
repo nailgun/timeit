@@ -25,139 +25,9 @@
     </head>
 
     <body>
-
-        <span class="control"></span><div class="control well">
-
-            <div id="login_form" class="hide">
-                <h1>TimeIt time tracker</h1>
-                <h2>Login with OpenID</h2>
-
-                <form class="form-inline" action="auth/login" method="get">
-                    <input type="text" name="openid" placeholder="OpenID identifier">
-                    <button type="submit" class="btn">Login</button>
-
-                    <a class="btn" href="auth/login?openid=https://www.google.com/accounts/o8/id"><img src="http://www.google.com/favicon.ico"></a>
-                    <a class="btn" href="auth/login?openid=http://www.myopenid.com/server"><img src="http://www.myopenid.com/favicon.ico"></a>
-                </form>
-            </div>
-
-            <div id="username_form" class="hide">
-                <h2>Enter your name</h2>
-
-                <form class="form-inline">
-                    <div class="control-group">
-                        <input type="text" name="username">
-                        <button type="submit" class="btn">Continue</button>
-                    </div>
-                </form>
-            </div>
-
-            <div id="tracker" class="hide">
-                <div id="current_activity">
-                    <div id="system_message">TimeIt now tracking</div>
-                    <h1><span id="current_activity_name">Loading...</span></h1>
-                    <div id="activity_supporting_text">Please take a while</div>
-                    <div id="timer"></div>
-                </div>
-
-                <hr>
-
-                <div class="btn-toolbar">
-                    <a class="btn" id="add_earlier_activity">Add Earlier Activity</a>
-                    <a class="btn" id="show_overview">Overview</a>
-                </div>
-            </div>
-
-        </div> <!-- /control -->
-
-        <div id="set_activity_form" class="normal modal hide">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">×</button>
-                <h3>Set activity</h3>
-            </div>
-            <div class="modal-body">
-                <form class="form-horizontal">
-                    <div class="control-group">
-                        <label class="control-label" for="set_activity_form_name">Activity</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge" id="set_activity_form_name" name="name">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="set_activity_form_tags">Tags</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge" id="set_activity_form_tags" name="tags">
-                            <p class="help-block">Add tags, separated by comma.</p>
-                        </div>
-                    </div>
-
-                    <h4>Today</h4>
-
-                    <table class="table" id="today_activities">
-                        <tbody>
-                            <tr class="row-template">
-                                <td class="start_time"></td>
-                                <td class="dash">-</td>
-                                <td class="end_time"></td>
-                                <td class="activity"></td>
-                                <td class="tags"></td>
-                                <td class="duration"></td>
-                                <td><a class="edit" href="#">Edit</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div id="today_stats"></div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <a class="btn btn-danger pull-left" id="stop_activity">Stop activity</a>
-                <a class="btn" data-dismiss="modal">Cancel</a>
-                <a class="btn btn-primary" id="set_activity_form_ok">Set activity</a>
-            </div>
-        </div> <!-- /set_activity_form -->
-
-        <div id="add_earlier_activity_form" class="normal modal hide">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">×</button>
-                <h3>Add Earlier Activity</h3>
-            </div>
-            <div class="modal-body">
-                <form class="form-horizontal">
-                    <div class="control-group">
-                        <label class="control-label" for="add_earlier_activity_form_name">Activity</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge" id="add_earlier_activity_form_name" name="name">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="add_earlier_activity_form_tags">Tags</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge" id="add_earlier_activity_form_tags" name="tags">
-                            <p class="help-block">Add tags, separated by comma.</p>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="add_earlier_activity_form_start_date">Start time</label>
-                        <div class="controls">
-                            <input type="text" class="input-small" id="add_earlier_activity_form_start_date" name="start_date">
-                            <input type="text" class="input-small" id="add_earlier_activity_form_start_time" name="start_time">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="add_earlier_activity_form_end_date">End time</label>
-                        <div class="controls">
-                            <input type="text" class="input-small" id="add_earlier_activity_form_end_date" name="end_date">
-                            <input type="text" class="input-small" id="add_earlier_activity_form_end_time" name="end_time">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <a class="btn" data-dismiss="modal">Cancel</a>
-                <a class="btn btn-primary" id="add_earlier_activity_form_ok">Add activity</a>
-            </div>
-        </div> <!-- /set_activity_form -->
+        <span class="control"></span>
+        <div id="control" class="control well">
+        </div>
 
         <div id="login_widget" class="btn-toolbar hide">
             <div class="btn-group">
@@ -173,42 +43,22 @@
             version: <span id="version">?</span>
         </div>
 
-        <div id="intersection_modal" class="normal modal hide">
-            <div class="modal-header">
-                <button class="close" data-dismiss="modal">×</button>
-                <h3>Error</h3>
-            </div>
-            <div class="modal-body">
-                <p>New activity intersects with following earlier activities.
-                Please check time range or edit this activities.</p>
-
-                <h4>Intersecting activities</h4>
-                <table class="table" id="intersection_table">
-                    <tbody>
-                        <tr class="row-template">
-                            <td class="start_time"></td>
-                            <td class="end_time"></td>
-                            <td class="activity"></td>
-                            <td class="tags"></td>
-                            <td class="duration"></td>
-                            <td><a class="edit" href="#">Edit</a></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <a class="btn btn-primary" data-dismiss="modal">Cancel</a>
-            </div>
-        </div> <!-- /set_activity_form -->
-
         <!-- Le javascript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
         <script src="js/jquery.favicon.js"></script>
+        <script src="js/underscore-min.js"></script>
+        <script src="js/backbone-min.js"></script>
         <script src="js/bootstrap-modal.js"></script>
         <script src="js/bootstrap-datepicker.js"></script>
-        <script src="js/site.js?1"></script>
-
+        <script src="js/timeit.js?1"></script>
+        <script src="js/app.js?1"></script>
+        <script src="js/views/Login.js?1"></script>
+        <script src="js/views/Username.js?1"></script>
+        <script src="js/views/Tracker.js?1"></script>
+        <script src="js/views/SetActivityForm.js?1"></script>
+        <script src="js/views/EarlierActivityForm.js?1"></script>
+        <script src="js/views/Intersection.js?1"></script>
     </body>
 </html>
