@@ -104,14 +104,9 @@ function restartNotification() {
     }
 
     function notify() {
-        if (!timeit.current_activity) {
-            clearInterval(timeit.notificationIntervalId);
-            timeit.notificationIntervalId = null;
-            return;
-        }
-
         if (timeit.notifications_allowed()) {
-            var popup = window.webkitNotifications.createNotification('', 'TimeIt', timeit.current_activity);
+            var text = timeit.current_activity || 'No activity';
+            var popup = window.webkitNotifications.createNotification('', 'TimeIt', text);
             popup.show();
             setTimeout(function() {
                 popup.cancel();
@@ -149,6 +144,8 @@ function stop_activity() {
         $('#timer').text('');
         timeit.current_activity = null;
         timeit.start_time = null;
+        updateTimer();
+        restartNotification();
     });
 }
 
@@ -441,14 +438,14 @@ function show_tracker() {
             $('#activity_supporting_text').text('');
             timeit.current_activity = activity.name;
             timeit.start_time = new Date(activity.start_time);
-            updateTimer();
-            restartNotification();
         } else {
             $('#current_activity_name').text('No activity');
             document.title = 'No activity — TimeIt';
             $('#activity_supporting_text').text('Click here to set activity');
         }
 
+        updateTimer();
+        restartNotification();
         enableControls();
     });
 }
