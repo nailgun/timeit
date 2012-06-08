@@ -374,8 +374,30 @@ function enableControls() {
             end_time: end
         }).ok(function() {
             $('#add_earlier_activity_form').modal('hide');
-        }).err(function(report) {
-            setFormErrors($('#add_earlier_activity_form'), report);
+        }).err(function(descr) {
+            if (descr.reason == 'form') {
+                setFormErrors($('#add_earlier_activity_form'), descr.report);
+            } else if (descr.reason == 'intersection') {
+                $('#intersection_table tr:not(.row-template)').remove();
+                var $table = $('#intersection_table');
+                var $tpl = $table.find('tr.row-template');
+
+                $.each(descr.with, function(idx, activity) {
+                    var $row = $tpl.clone();
+                    $row.removeClass('row-template');
+                    var start = new Date(activity.start_time);
+                    var end = new Date(activity.end_time);
+                    $row.children('.start_time').text(start.format('%d.%m.%Y %H:%M'));
+                    $row.children('.end_time').text(end.format('%d.%m.%Y %H:%M'));
+                    $row.children('.activity').text(activity.name);
+                    if (activity.tags) {
+                        $row.children('.tags').text(activity.tags.join(', '));
+                    }
+                    $row.children('.duration').text(new TimeDelta(start, end).toShortString());
+                    $row.appendTo($table);
+                });
+                $('#intersection_modal').modal('show');
+            }
         });
     });
 
@@ -429,10 +451,8 @@ function show_tracker() {
 
     setInterval(updateTimer, 1000);
 
-    timeit.get('activity').ok(function(data) {
-        if (data.length) {
-            var activity = data[0];
-
+    timeit.get('activity').ok(function(activity) {
+        if (activity) {
             $('#current_activity_name').text(activity.name);
             document.title = activity.name + ' — TimeIt';
             $('#activity_supporting_text').text('');

@@ -173,6 +173,34 @@
             version: <span id="version">?</span>
         </div>
 
+        <div id="intersection_modal" class="normal modal hide">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">×</button>
+                <h3>Error</h3>
+            </div>
+            <div class="modal-body">
+                <p>New activity intersects with following earlier activities.
+                Please check time range or edit this activities.</p>
+
+                <h4>Intersecting activities</h4>
+                <table class="table" id="intersection_table">
+                    <tbody>
+                        <tr class="row-template">
+                            <td class="start_time"></td>
+                            <td class="end_time"></td>
+                            <td class="activity"></td>
+                            <td class="tags"></td>
+                            <td class="duration"></td>
+                            <td><a class="edit" href="#">Edit</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary" data-dismiss="modal">Cancel</a>
+            </div>
+        </div> <!-- /set_activity_form -->
+
         <!-- Le javascript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->

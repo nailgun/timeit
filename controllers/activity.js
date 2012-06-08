@@ -90,19 +90,53 @@ exports.addEarlier = loginRequired(function (req, res) {
     form.handle(req, {
         success: function(form) {
             var tags = parseTags(form.data.tags);
+
             app.db.collection('activities', noErr(function(collection) {
-                collection.insert({
-                    account: req.user._id,
-                    name: form.data.name,
-                    tags: tags,
-                    start_time: form.data.start_time,
-                    end_time: form.data.end_time,
-                }, noErr(function(docs) {
-                    res.okJson();
+                // check for intersection
+                collection.find({ account:req.user._id, $or: [{
+                    start_time: {$lt: form.data.start_time},
+                    end_time: {$gt: form.data.start_time},
+                }, {
+                    start_time: {$lt: form.data.end_time},
+                    end_time: {$gt: form.data.end_time},
+                }, {
+                    start_time: {$gte: form.data.start_time},
+                    end_time: {$lte: form.data.end_time},
+                }]}, [
+                    'name',
+                    'start_time',
+                    'end_time',
+                    'tags'
+                ]).sort({end_time: 1}).toArray(noErr(function(docs) {
+                    if (docs.length) {
+                        res.errJson({
+                            reason: 'intersection',
+                            with: docs
+                        });
+                    } else {
+                        collection.insert({
+                            account: req.user._id,
+                            name: form.data.name,
+                            tags: tags,
+                            start_time: form.data.start_time,
+                            end_time: form.data.end_time,
+                        }, noErr(function(docs) {
+                            res.okJson();
+                        }));
+                    }
                 }));
             }));
         },
-        error: jsonDumpFormErrors(res)
+        error: function(form) {
+            var report = {
+                errors: form.errors,
+                field_errors: form.field_errors,
+            };
+            $.errJson({
+                reason: 'form',
+                report: report
+            });
+        }
     });
 });
 
@@ -123,10 +157,10 @@ exports.stop = loginRequired(function (req, res) {
 
 exports.getCurrent = loginRequired(function(req, res) {
     app.db.collection('activities', noErr(function(activities) {
-        activities.find({
+        activities.findOne({
             account: req.user._id,
             end_time: null,
-        }, ['name', 'start_time']).toArray(noErr(function(docs) {
+        }, ['name', 'start_time'], noErr(function(docs) {
             res.okJson(docs);
         }));
     }));
