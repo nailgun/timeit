@@ -1,6 +1,7 @@
 * view inheritance
 * send forms on Enter
 * ajaxSubmit
+* use templates instead of DOM manipulation
 * pack js, css, templates
 * server-side error reporting (email, log)
 * l10n, i18n
