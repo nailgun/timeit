@@ -22,16 +22,16 @@ timeit.EarlierActivityForm = timeit.utils.View.extend({
     },
 
     submit: function(e) {
-        // TODO: on Enter
         e.preventDefault();
 
-        // TODO: ajaxSubmit
         var name = this.$('input[name="name"]').val();
         var tags = this.$('input[name="tags"]').val();
         var start_date = this.$('input[name="start_date"]').val();
         var start_time = this.$('input[name="start_time"]').val();
         var end_date = this.$('input[name="end_date"]').val();
         var end_time = this.$('input[name="end_time"]').val();
+
+        var activity = timeit.utils.formData(this.$('form'));
 
         function dateFromStrings(date, time) {
             var date_parts = /^(\d+)\.(\d+)\.(\d+)$/.exec(date);
@@ -48,16 +48,11 @@ timeit.EarlierActivityForm = timeit.utils.View.extend({
                     time_parts[1], time_parts[2]);
         }
 
-        var start = dateFromStrings(start_date, start_time);
-        var end = dateFromStrings(end_date, end_time);
+        activity.start_time = dateFromStrings(activity.start_date, activity.start_time);
+        activity.end_time = dateFromStrings(activity.end_date, activity.end_time);
 
         var view = this;
-        timeit.post('activity/add-earlier', {
-            name: name,
-            tags: tags,
-            start_time: start,
-            end_time: end
-        }).ok(function() {
+        timeit.post('activity/add-earlier', activity).ok(function() {
             view.$el.modal('hide');
         }).err(function(descr) {
             if (descr.reason == 'form') {

@@ -1,4 +1,3 @@
-* ajaxSubmit
 * use templates instead of DOM manipulation
 * pack js, css, templates
 * client-side memory usage

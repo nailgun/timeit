@@ -61,12 +61,9 @@ timeit.SetActivityForm = timeit.utils.View.extend({
     },
 
     submit: function(e) {
-        // TODO: on Enter
         e.preventDefault();
 
-        var activity = {};
-        activity.name = this.$('input[name="name"]').val();
-        activity.tags = this.$('input[name="tags"]').val();
+        var activity = timeit.utils.formData(this.$('form'));
 
         var view = this;
         timeit.currentActivity(activity).ok(function() {
@@ -77,9 +74,9 @@ timeit.SetActivityForm = timeit.utils.View.extend({
     },
 
     onTableClick: function(e) {
-        var name = $(e.currentTarget).find('.activity').text();
-        var tags = $(e.currentTarget).find('.tags').text();
-        this.$('input[name="name"]').val(name);
-        this.$('input[name="tags"]').val(tags);
+        var activity = {};
+        activity.name = $(e.currentTarget).find('.activity').text();
+        activity.tags = $(e.currentTarget).find('.tags').text();
+        timeit.utils.formData(this.$('form'), activity);
     }
 }).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ModalMixin).mixin(timeit.utils.ClearErrorMixin);

@@ -445,6 +445,20 @@ window.timeit = (function() {
         extend(viewProto, mixin);
     }
 
+    timeit.utils.formData = function($form, data) {
+        if (data === undefined) {
+            var values = {};
+            $.each($form.serializeArray(), function(i, field) {
+                values[field.name] = field.value;
+            });
+            return values;
+        } else {
+            $.each(data, function(name, value) {
+                $form.find('input[name="'+name+'"]').val(value);
+            });
+        }
+    };
+
     return timeit;
 })();
 
