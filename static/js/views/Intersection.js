@@ -1,5 +1,6 @@
 timeit.IntersectionView = timeit.utils.View.extend({
     template: 'intersection',
+    className: 'timeit-normal',
 
     rendered: function (activities) {
         this.setActivities(activities);

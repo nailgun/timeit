@@ -1,6 +1,6 @@
 timeit.SetActivityForm = timeit.utils.View.extend({
     template: 'set_activity_form',
-    className: 'timeit-set-activity-form',
+    className: 'timeit-set-activity-form timeit-normal',
 
     events: {
         'submit form': 'submit',

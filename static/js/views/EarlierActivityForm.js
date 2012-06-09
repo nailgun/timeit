@@ -1,5 +1,6 @@
 timeit.EarlierActivityForm = timeit.utils.View.extend({
     template: 'earlier_activity_form',
+    className: 'timeit-normal',
 
     events: {
         'submit form': 'submit',

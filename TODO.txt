@@ -1,13 +1,15 @@
-* forms not removed on hide
 * send forms on Enter
 * ajaxSubmit
 * use templates instead of DOM manipulation
 * pack js, css, templates
+* client-side memory usage
 * server-side error reporting (email, log)
 * l10n, i18n
 * overview
 * timezones
 * everyauth
 * interface:
-  * form artifacts
+  * form artifacts (white stripe)
   * animate activity name (zoom-in)
+  * date and time pickers
+* client-side memory usage

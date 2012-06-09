@@ -387,8 +387,10 @@ window.timeit = (function() {
     };
 
     timeit.utils.ModalMixin = {
+        className: 'modal',
+
         events: {
-            'hidden .modal': function() {
+            'hidden': function() {
                 this.remove();
             }
         },
@@ -436,6 +438,9 @@ window.timeit = (function() {
             if (typeof viewProto.events === 'object') {
                 extend(viewProto.events, mixin.events);
             }
+        }
+        if (typeof mixin.className == 'string' && typeof viewProto.className == 'string') {
+            viewProto.className += ' '+mixin.className;
         }
         extend(viewProto, mixin);
     }
