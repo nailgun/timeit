@@ -110,6 +110,8 @@ window.timeit = (function() {
                     activity.start_time = new Date();
                 }
                 timeit.trigger('activityChanged');
+            }).err(function() {
+                timeit.trigger('activityChanged');
             });
         }
     };
@@ -159,8 +161,6 @@ window.timeit = (function() {
             }
 
             timeit.trigger('tick');
-            /*
-            */
         } else {
             $.favicon('ico/favicon.ico');
         }
@@ -371,6 +371,74 @@ window.timeit = (function() {
             && date1.getMonth() == date2.getMonth()
             && date1.getFullYear() == date2.getFullYear();
     };
+
+    timeit.utils.TemplateMixin = {
+        render: function () {
+            var view = this;
+            var args = arguments;
+            $.get('views/'+this.template+'.html', function(html) {
+                view.$el.html(html);
+                if (view.rendered !== undefined) {
+                    view.rendered.apply(view, args);
+                }
+            });
+            return this;
+        }
+    };
+
+    timeit.utils.ModalMixin = {
+        events: {
+            'hidden .modal': function() {
+                this.remove();
+            }
+        },
+
+        show: function() {
+            this.render.apply(this, arguments).$el.modal();
+        }
+    };
+
+    timeit.utils.ClearErrorMixin = {
+        events: {
+            'keypress input[type="text"]': 'cleanError',
+            'change input': 'cleanError'
+        },
+
+        cleanError: function(e) {
+            $(e.currentTarget).removeClass('error');
+            $(e.currentTarget).parents().removeClass('error');
+        }
+    };
+
+    timeit.utils.View = Backbone.View.extend({});
+    timeit.utils.View.extend = function () {
+        var child = Backbone.View.extend.apply(this, arguments);
+        child.mixin = function (mixin) {
+            mixinView(child, mixin);
+            return child;
+        };
+        return child;
+    };
+    
+    function mixinView (viewClass, mixin) {
+        function extend(dst, src) {
+            for (var k in src) {
+                if (src.hasOwnProperty(k) && !dst.hasOwnProperty(k)) {
+                    dst[k] = src[k];
+                }
+            }
+        }
+        var viewProto = viewClass.prototype;
+        if (typeof mixin.events == 'object') {
+            if (typeof viewProto.events === 'undefined') {
+                viewProto.events = {};
+            }
+            if (typeof viewProto.events === 'object') {
+                extend(viewProto.events, mixin.events);
+            }
+        }
+        extend(viewProto, mixin);
+    }
 
     return timeit;
 })();

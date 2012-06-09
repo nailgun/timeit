@@ -1,24 +1,8 @@
-timeit.IntersectionView = Backbone.View.extend({
+timeit.IntersectionView = timeit.utils.View.extend({
     template: 'intersection',
 
-    events: {
-        'hidden .modal': function() {
-            this.remove();
-        },
-    },
-
-    render: function (activities) {
-        var view = this;
-        $.get('views/'+this.template+'.html', function(html) {
-            view.$el.html(html);
-            view.setActivities(activities);
-        });
-
-        return this;
-    },
-
-    show: function(activities) {
-        this.render(activities).$el.modal('show');
+    rendered: function (activities) {
+        this.setActivities(activities);
     },
 
     setActivities: function(activities) {
@@ -44,4 +28,4 @@ timeit.IntersectionView = Backbone.View.extend({
             $row.appendTo($table);
         });
     }
-});
+}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ModalMixin);

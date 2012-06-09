@@ -1,4 +1,4 @@
-timeit.TrackerView = Backbone.View.extend({
+timeit.TrackerView = timeit.utils.View.extend({
     template: 'tracker',
     className: 'timeit-tracker',
 
@@ -32,16 +32,10 @@ timeit.TrackerView = Backbone.View.extend({
         });
     },
 
-    render: function () {
-        var view = this;
-        $.get('views/'+this.template+'.html', function(html) {
-            view.$el.html(html);
-            if (this.valid) {
-                view.update();
-            }
-        });
-
-        return this;
+    rendered: function () {
+        if (this.valid) {
+            this.update();
+        }
     },
 
     update: function() {
@@ -74,4 +68,4 @@ timeit.TrackerView = Backbone.View.extend({
             this.$('.timeit-timer').text(text);
         }
     }
-});
+}).mixin(timeit.utils.TemplateMixin);

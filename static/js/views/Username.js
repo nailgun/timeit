@@ -1,22 +1,13 @@
-timeit.UsernameView = Backbone.View.extend({
+timeit.UsernameView = timeit.utils.View.extend({
     template: 'username',
 
     events: {
         'submit form': 'submit',
-
-        'keypress input[type="text"]': 'cleanError',
-        'change input': 'cleanError'
     },
 
-    render: function () {
-        var view = this;
-        $.get('views/'+this.template+'.html', function(html) {
-            view.$el.html(html);
-            var $username = view.$('input[name="username"]');
-            $username.focus();
-        });
-
-        return this;
+    rendered: function () {
+        var $username = this.$('input[name="username"]');
+        $username.focus();
     },
 
     submit: function (e) {
@@ -36,10 +27,5 @@ timeit.UsernameView = Backbone.View.extend({
                 timeit.utils.setFormErrors(this.$el, report);
             });
         }
-    },
-
-    cleanError: function(e) {
-        $(e.currentTarget).removeClass('error');
-        $(e.currentTarget).parents().removeClass('error');
     }
-});
+}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ClearErrorMixin);

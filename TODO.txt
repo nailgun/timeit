@@ -1,4 +1,4 @@
-* view inheritance
+* forms not removed on hide
 * send forms on Enter
 * ajaxSubmit
 * use templates instead of DOM manipulation

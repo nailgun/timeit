@@ -1,16 +1,14 @@
-timeit.SetActivityForm = Backbone.View.extend({
+timeit.SetActivityForm = timeit.utils.View.extend({
     template: 'set_activity_form',
     className: 'timeit-set-activity-form',
 
     events: {
         'submit form': 'submit',
+
         'click .timeit-stop': function(e) {
             e.preventDefault();
             timeit.currentActivity(null);
             this.$el.modal('hide');
-        },
-        'hidden .modal': function() {
-            this.remove();
         },
         'click table tr': function(e) {
             this.onTableClick(e);
@@ -19,26 +17,12 @@ timeit.SetActivityForm = Backbone.View.extend({
         'dblclick table tr': function(e) {
             this.onTableClick(e);
             this.submit(e);
-        },
-
-        'keypress input[type="text"]': 'cleanError',
-        'change input': 'cleanError'
+        }
     },
 
-    render: function () {
-        var view = this;
-        $.get('views/'+this.template+'.html', function(html) {
-            view.$el.html(html);
-            view.$('input[name="name"]').focus();
-
-            view.updateToday();
-        });
-
-        return this;
-    },
-
-    show: function() {
-        this.render().$el.modal('show');
+    rendered: function () {
+        this.$('input[name="name"]').focus();
+        this.updateToday();
     },
 
     updateToday: function() {
@@ -92,15 +76,10 @@ timeit.SetActivityForm = Backbone.View.extend({
         });
     },
 
-    cleanError: function(e) {
-        $(e.currentTarget).removeClass('error');
-        $(e.currentTarget).parents().removeClass('error');
-    },
-
     onTableClick: function(e) {
         var name = $(e.currentTarget).find('.activity').text();
         var tags = $(e.currentTarget).find('.tags').text();
         this.$('input[name="name"]').val(name);
         this.$('input[name="tags"]').val(tags);
     }
-});
+}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ModalMixin).mixin(timeit.utils.ClearErrorMixin);

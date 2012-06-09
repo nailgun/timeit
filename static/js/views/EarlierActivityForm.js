@@ -1,36 +1,23 @@
-timeit.EarlierActivityForm = Backbone.View.extend({
+timeit.EarlierActivityForm = timeit.utils.View.extend({
     template: 'earlier_activity_form',
 
     events: {
         'submit form': 'submit',
         'hidden .modal': function() {
             this.remove();
-        },
-
-        'keypress input[type="text"]': 'cleanError',
-        'change input': 'cleanError'
+        }
     },
 
-    render: function () {
-        var view = this;
-        $.get('views/'+this.template+'.html', function(html) {
-            view.$el.html(html);
-            view.$('input[name="name"]').focus();
+    rendered: function () {
+        this.$('input[name="name"]').focus();
 
-            var today = timeit.utils.formatDate(new Date(), '%d.%m.%Y');
-            view.$('input[name="start_date"],input[name="end_date"]')
-                .val(today)
-                .datepicker({
-                    format: 'dd.mm.yyyy',
-                    weekStart: 1
-                });
-        });
-
-        return this;
-    },
-
-    show: function() {
-        this.render().$el.modal('show');
+        var today = timeit.utils.formatDate(new Date(), '%d.%m.%Y');
+        this.$('input[name="start_date"],input[name="end_date"]')
+            .val(today)
+            .datepicker({
+                format: 'dd.mm.yyyy',
+                weekStart: 1
+            });
     },
 
     submit: function(e) {
@@ -78,10 +65,5 @@ timeit.EarlierActivityForm = Backbone.View.extend({
                 new timeit.IntersectionView().show(descr.with);
             }
         });
-    },
-
-    cleanError: function(e) {
-        $(e.currentTarget).removeClass('error');
-        $(e.currentTarget).parents().removeClass('error');
     }
-});
+}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ModalMixin).mixin(timeit.utils.ClearErrorMixin);
