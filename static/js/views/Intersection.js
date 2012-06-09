@@ -1,4 +1,4 @@
-var IntersectionView = Backbone.View.extend({
+timeit.IntersectionView = Backbone.View.extend({
     template: 'intersection',
 
     events: {
@@ -22,7 +22,7 @@ var IntersectionView = Backbone.View.extend({
     },
 
     setActivities: function(activities) {
-        var $table = this.$el.find('table');
+        var $table = this.$('table');
         $table.find('tr:not(.row-template)').remove();
         var $tpl = $table.find('tr.row-template');
 

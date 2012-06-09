@@ -1,4 +1,3 @@
-* cleanup client-side code
 * view inheritance
 * send forms on Enter
 * ajaxSubmit
@@ -9,4 +8,5 @@
 * timezones
 * everyauth
 * interface:
+  * form artifacts
   * animate activity name (zoom-in)

@@ -5,19 +5,19 @@ html, body {
     text-align: center;
 }
 
-span.control {
+span.timeit-control {
     height: 100%;
     vertical-align: middle;
     display: inline-block;
 }
 
-div.control {
+div.timeit-control {
     vertical-align: middle;
     display: inline-block;
     text-align: left;
 }
 
-div.normal {
+div.timeit-normal {
     text-align: left;
 }
 
@@ -25,25 +25,29 @@ div.normal {
     display: none;
 }
 
-#today_activities {
-    cursor: default;
-}
-
-#current_activity {
+.timeit-tracker .timeit-now {
     cursor: pointer;
     text-align: center;
     position: relative;
 }
 
-#system_message {
+.timeit-tracker .timeit-message {
     position: absolute;
     top: -50px;
     width: 100%;
     font-size: 150%;
 }
 
-#timer {
+.timeit-tracker .timeit-timer {
     font-size: 150%;
+}
+
+.timeit-seltable {
+    cursor: default;
+}
+
+.timeit-set-activity-form .dash {
+    width: 1em;
 }
 
 #login_widget {
@@ -51,10 +55,6 @@ div.normal {
     right: 30px;
     top: 30px;
     margin: 0;
-}
-
-#today_activities .dash {
-    width: 1em;
 }
 
 #version_div {

@@ -1,5 +1,6 @@
-var TrackerView = Backbone.View.extend({
+timeit.TrackerView = Backbone.View.extend({
     template: 'tracker',
+    className: 'timeit-tracker',
 
     events: {
         'click .timeit-now': function(e) {
@@ -18,6 +19,17 @@ var TrackerView = Backbone.View.extend({
 
     initialize: function () {
         this.valid = false;
+
+        var view = this;
+        timeit.on('activityChanging', function() {
+            view.pending();
+        });
+        timeit.on('activityChanged', function() {
+            view.update();
+        });
+        timeit.on('tick', function() {
+            view.updateTimer();
+        });
     },
 
     render: function () {
@@ -35,16 +47,31 @@ var TrackerView = Backbone.View.extend({
     update: function() {
         this.valid = true;
 
-        if (timeit.current_activity) {
-            this.$el.find('.timeit-name').text(timeit.current_activity);
-            this.$el.find('.timeit-subtext').text('');
-
-            document.title = timeit.current_activity + ' — TimeIt';
+        var activity = timeit.currentActivity();
+        if (activity) {
+            this.$('.timeit-name').text(activity.name);
+            this.$('.timeit-subtext').text('');
+            this.updateTimer();
         } else {
-            this.$el.find('.timeit-name').text('No activity');
-            this.$el.find('.timeit-subtext').text('Click here to set activity');
+            this.$('.timeit-name').text('No activity');
+            this.$('.timeit-subtext').text('Click here to set activity');
+            this.$('.timeit-timer').text('');
+        }
+    },
 
-            document.title = 'No activity — TimeIt';
+    pending: function() {
+        this.valid = true;
+
+        this.$('.timeit-name').text('Working...');
+        this.$('.timeit-subtext').text('Please take a while');
+    },
+
+    updateTimer: function() {
+        var activity = timeit.currentActivity();
+        if (activity) {
+            var ms = timeit.timeElapsedMs();
+            var text = new timeit.utils.TimeDelta(ms).format('%H:%0M:%0S')[0];
+            this.$('.timeit-timer').text(text);
         }
     }
 });

@@ -1,4 +1,4 @@
-var UsernameView = Backbone.View.extend({
+timeit.UsernameView = Backbone.View.extend({
     template: 'username',
 
     events: {
@@ -12,7 +12,7 @@ var UsernameView = Backbone.View.extend({
         var view = this;
         $.get('views/'+this.template+'.html', function(html) {
             view.$el.html(html);
-            var $username = view.$el.find('input[name="username"]');
+            var $username = view.$('input[name="username"]');
             $username.focus();
         });
 
@@ -22,7 +22,7 @@ var UsernameView = Backbone.View.extend({
     submit: function (e) {
         e.preventDefault();
 
-        var $username = this.$el.find('input[name="username"]');
+        var $username = this.$('input[name="username"]');
         var username = $username.val();
         if (!username) {
             $username.parents('.control-group').addClass('error');
@@ -31,7 +31,7 @@ var UsernameView = Backbone.View.extend({
             timeit.post('settings', {
                 username: username
             }).ok(function() {
-                this.trigger('ok', username);
+                view.trigger('ok', username);
             }).err(function(report) {
                 timeit.utils.setFormErrors(this.$el, report);
             });

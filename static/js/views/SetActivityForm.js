@@ -1,11 +1,12 @@
-var SetActivityForm = Backbone.View.extend({
+timeit.SetActivityForm = Backbone.View.extend({
     template: 'set_activity_form',
+    className: 'timeit-set-activity-form',
 
     events: {
         'submit form': 'submit',
         'click .timeit-stop': function(e) {
             e.preventDefault();
-            timeit.stopActivity();
+            timeit.currentActivity(null);
             this.$el.modal('hide');
         },
         'hidden .modal': function() {
@@ -28,7 +29,7 @@ var SetActivityForm = Backbone.View.extend({
         var view = this;
         $.get('views/'+this.template+'.html', function(html) {
             view.$el.html(html);
-            view.$el.find('input[name="name"]').focus();
+            view.$('input[name="name"]').focus();
 
             view.updateToday();
         });
@@ -44,7 +45,7 @@ var SetActivityForm = Backbone.View.extend({
         var view = this;
 
         timeit.get('today').ok(function(activities) {
-            var $table = view.$el.find('table');
+            var $table = view.$('table');
             $table.find('tr:not(.row-template)').remove();
             var $tpl = $table.find('tr.row-template');
 
@@ -79,11 +80,12 @@ var SetActivityForm = Backbone.View.extend({
         // TODO: on Enter
         e.preventDefault();
 
-        var name = this.$el.find('input[name="name"]').val();
-        var tags = this.$el.find('input[name="tags"]').val();
+        var activity = {};
+        activity.name = this.$('input[name="name"]').val();
+        activity.tags = this.$('input[name="tags"]').val();
 
         var view = this;
-        timeit.setActivity(name, tags).ok(function() {
+        timeit.currentActivity(activity).ok(function() {
             view.$el.modal('hide');
         }).err(function(report) {
             timeit.utils.setFormErrors(view.$el, report);
@@ -98,7 +100,7 @@ var SetActivityForm = Backbone.View.extend({
     onTableClick: function(e) {
         var name = $(e.currentTarget).find('.activity').text();
         var tags = $(e.currentTarget).find('.tags').text();
-        this.$el.find('input[name="name"]').val(name);
-        this.$el.find('input[name="tags"]').val(tags);
+        this.$('input[name="name"]').val(name);
+        this.$('input[name="tags"]').val(tags);
     }
 });
