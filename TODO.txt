@@ -11,3 +11,4 @@
   * animate activity name (zoom-in)
   * date and time pickers
 * client-side memory usage
+* client-side form validation
