@@ -2,7 +2,6 @@ var decors = require('./decors');
 var app = require('../app');
 var loginRequired = decors.loginRequiredAjax;
 var noErr = require('../utils').noErr;
-var child_process = require('child_process');
 
 exports.getSettings = loginRequired(function (req, res) {
     app.db.collection('accounts', noErr(function(accounts) {
@@ -53,11 +52,5 @@ exports.getCsrfToken = function(req, res) {
 };
 
 exports.getVersion = function(req, res) {
-    child_process.exec('git describe --always', {
-        cwd: __dirname,
-        timeout: 1000,
-    }, noErr(function(stdout, stderr) {
-        var version = stdout.toString();
-        res.okJson(version);
-    }));
+    res.okJson(app.version);
 };

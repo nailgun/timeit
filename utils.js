@@ -1,3 +1,4 @@
+var child_process = require('child_process');
 var utils = exports;
 
 exports.throwOnErr = function(err) {
@@ -21,4 +22,14 @@ exports.jsonDumpFormErrors = function(res) {
         report.errors = form.errors;
         res.errJson(report);
     }
+}
+
+exports.getGitVersion = function(callback) {
+    child_process.exec('git describe --always', {
+        cwd: __dirname,
+        timeout: 1000,
+    }, function(err, stdout, stderr) {
+        var version = stdout.toString();
+        callback(err, version);
+    });
 }

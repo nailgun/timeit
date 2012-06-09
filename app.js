@@ -1,14 +1,20 @@
 var express = require('express')
   , mongo = require('mongodb')
+  , async = require('async')
   , url = require('url')
   , path = require('path')
   , MongoStore = require('connect-mongodb')
-  , noErr = require('./utils').noErr;
+  , utils = require('./utils')
+  , noErr = utils.noErr;
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;
 
 if (require.main === module) {
+    main();
+}
+
+function main() {
     var configPath = process.argv[2];
     if (!configPath) {
         console.error('USAGE: app.js CONFIG.JSON');
@@ -54,18 +60,28 @@ function configureApplication(config, done) {
                       {});
 
     if (app.config.log_format) {
-        server.use(express.logger(app.config.log_format));
+        app.use(express.logger(app.config.log_format));
         console.log('Connecting to database...');
     }
 
-    app.db.open(noErr(function(db) {
-        if (app.config.log_format) {
-            console.log('Connected to database.');
-        }
+    async.parallel([
+        function(callback) {
+            utils.getGitVersion(function(err, version) {
+                app.version = version;
+                callback(err);
+            });
+        },
+        function(callback) {
+            app.db.open(function(err, db) {
+                if (app.config.log_format) {
+                    console.log('Connected to database.');
+                }
 
-        installApplication();
-        done();
-    }));
+                installApplication();
+                callback(err);
+            });
+        }
+    ], noErr(done));
 };
 
 function installApplication() {
