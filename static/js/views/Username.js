@@ -1,5 +1,5 @@
 timeit.UsernameView = timeit.utils.View.extend({
-    template: 'username',
+    template: 'username.html',
 
     events: {
         'submit form': 'submit',

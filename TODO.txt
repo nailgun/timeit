@@ -1,5 +1,5 @@
-* use templates instead of DOM manipulation
 * pack js, css, templates
+* cache client-side template objects
 * client-side memory usage
 * server-side error reporting (email, log)
 * l10n, i18n

@@ -1,0 +1,13 @@
+<table class="table timeit-seltable">
+<% _.each(activities, function(activity) { %>
+    <tr>
+        <td class="start_time"><%- activity.start_time %></td>
+        <td class="dash">-</td>
+        <td class="end_time"><%- activity.end_time %></td>
+        <td class="activity"><%- activity.name %></td>
+        <td class="tags"><%- activity.tags %></td>
+        <td class="duration"><%- activity.duration %></td>
+        <td><a class="edit">Edit</a></td>
+    </tr>
+<% }); %>
+</table>

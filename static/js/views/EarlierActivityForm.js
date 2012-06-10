@@ -1,5 +1,5 @@
 timeit.EarlierActivityForm = timeit.utils.View.extend({
-    template: 'earlier_activity_form',
+    template: 'earlier_activity_form.html',
     className: 'timeit-normal',
 
     events: {
@@ -23,13 +23,6 @@ timeit.EarlierActivityForm = timeit.utils.View.extend({
 
     submit: function(e) {
         e.preventDefault();
-
-        var name = this.$('input[name="name"]').val();
-        var tags = this.$('input[name="tags"]').val();
-        var start_date = this.$('input[name="start_date"]').val();
-        var start_time = this.$('input[name="start_time"]').val();
-        var end_date = this.$('input[name="end_date"]').val();
-        var end_time = this.$('input[name="end_time"]').val();
 
         var activity = timeit.utils.formData(this.$('form'));
 

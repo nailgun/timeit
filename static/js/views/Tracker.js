@@ -1,5 +1,5 @@
 timeit.TrackerView = timeit.utils.View.extend({
-    template: 'tracker',
+    template: 'tracker.html',
     className: 'timeit-tracker',
 
     events: {

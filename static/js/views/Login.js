@@ -1,5 +1,5 @@
 timeit.LoginView = timeit.utils.View.extend({
-    template: 'login',
+    template: 'login.html',
 
     rendered: function () {
         this.$('input[name="openid"]').focus();

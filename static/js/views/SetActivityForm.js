@@ -1,5 +1,5 @@
 timeit.SetActivityForm = timeit.utils.View.extend({
-    template: 'set_activity_form',
+    template: 'set_activity_form.html',
     className: 'timeit-set-activity-form timeit-normal',
 
     events: {
@@ -22,42 +22,7 @@ timeit.SetActivityForm = timeit.utils.View.extend({
 
     rendered: function () {
         this.$('input[name="name"]').focus();
-        this.updateToday();
-    },
-
-    updateToday: function() {
-        var view = this;
-
-        timeit.get('today').ok(function(activities) {
-            var $table = view.$('table');
-            $table.find('tr:not(.row-template)').remove();
-            var $tpl = $table.find('tr.row-template');
-
-            $.each(activities, function(idx, activity) {
-                var $row = $tpl.clone();
-                $row.removeClass('row-template');
-
-                var start = new Date(activity.start_time);
-                var end = new Date(activity.end_time);
-
-                if (timeit.utils.sameDay(start, end)) {
-                    $row.children('.start_time').text(
-                        timeit.utils.formatDate(start, '%H:%M'));
-                }
-
-                $row.children('.end_time').text(
-                    timeit.utils.formatDate(end, '%H:%M'));
-
-                $row.children('.activity').text(activity.name);
-                if (activity.tags) {
-                    $row.children('.tags').text(activity.tags.join(', '));
-                }
-                $row.children('.duration').text(
-                    new timeit.utils.TimeDelta(start, end).toShortString());
-
-                $row.appendTo($table);
-            });
-        });
+        this.$('.timeit-today').html(new timeit.TodayView().render().el);
     },
 
     submit: function(e) {
