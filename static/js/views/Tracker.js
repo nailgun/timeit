@@ -1,4 +1,4 @@
-timeit.TrackerView = timeit.utils.View.extend({
+timeit.TrackerView = Backbone.View.extend({
     template: 'tracker.html',
     className: 'timeit-tracker',
 
@@ -68,4 +68,4 @@ timeit.TrackerView = timeit.utils.View.extend({
             this.$('.timeit-timer').text(text);
         }
     }
-}).mixin(timeit.utils.TemplateMixin);
+}).mixin(Backbone.ViewMixins.Template);

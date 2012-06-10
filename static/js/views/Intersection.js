@@ -1,4 +1,4 @@
-timeit.IntersectionView = timeit.utils.View.extend({
+timeit.IntersectionView = Backbone.View.extend({
     template: 'intersection.html',
     className: 'timeit-normal',
 
@@ -16,4 +16,5 @@ timeit.IntersectionView = timeit.utils.View.extend({
             activities: activities
         });
     }
-}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ModalMixin);
+}).mixin(Backbone.ViewMixins.Template)
+  .mixin(Backbone.ViewMixins.Modal);

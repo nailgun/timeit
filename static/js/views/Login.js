@@ -1,7 +1,7 @@
-timeit.LoginView = timeit.utils.View.extend({
+timeit.LoginView = Backbone.View.extend({
     template: 'login.html',
 
     rendered: function () {
         this.$('input[name="openid"]').focus();
     }
-}).mixin(timeit.utils.TemplateMixin);
+}).mixin(Backbone.ViewMixins.Template);

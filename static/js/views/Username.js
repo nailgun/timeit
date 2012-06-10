@@ -1,4 +1,4 @@
-timeit.UsernameView = timeit.utils.View.extend({
+timeit.UsernameView = Backbone.View.extend({
     template: 'username.html',
 
     events: {
@@ -28,4 +28,5 @@ timeit.UsernameView = timeit.utils.View.extend({
             });
         }
     }
-}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ClearErrorMixin);
+}).mixin(Backbone.ViewMixins.Template)
+  .mixin(Backbone.ViewMixins.ClearError);

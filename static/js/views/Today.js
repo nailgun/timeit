@@ -1,4 +1,4 @@
-timeit.TodayView = timeit.utils.View.extend({
+timeit.TodayView = Backbone.View.extend({
     template: 'activities_table.html',
 
     context: function (callback, activities) {
@@ -21,4 +21,4 @@ timeit.TodayView = timeit.utils.View.extend({
             });
         });
     }
-}).mixin(timeit.utils.TemplateMixin);
+}).mixin(Backbone.ViewMixins.Template);

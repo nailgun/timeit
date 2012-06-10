@@ -1,4 +1,4 @@
-timeit.EarlierActivityForm = timeit.utils.View.extend({
+timeit.EarlierActivityForm = Backbone.View.extend({
     template: 'earlier_activity_form.html',
     className: 'timeit-normal',
 
@@ -55,4 +55,6 @@ timeit.EarlierActivityForm = timeit.utils.View.extend({
             }
         });
     }
-}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ModalMixin).mixin(timeit.utils.ClearErrorMixin);
+}).mixin(Backbone.ViewMixins.Template)
+  .mixin(Backbone.ViewMixins.Modal)
+  .mixin(Backbone.ViewMixins.ClearError);

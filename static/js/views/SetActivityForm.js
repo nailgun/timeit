@@ -1,4 +1,4 @@
-timeit.SetActivityForm = timeit.utils.View.extend({
+timeit.SetActivityForm = Backbone.View.extend({
     template: 'set_activity_form.html',
     className: 'timeit-set-activity-form timeit-normal',
 
@@ -44,4 +44,6 @@ timeit.SetActivityForm = timeit.utils.View.extend({
         activity.tags = $(e.currentTarget).find('.tags').text();
         timeit.utils.formData(this.$('form'), activity);
     }
-}).mixin(timeit.utils.TemplateMixin).mixin(timeit.utils.ModalMixin).mixin(timeit.utils.ClearErrorMixin);
+}).mixin(Backbone.ViewMixins.Template)
+  .mixin(Backbone.ViewMixins.Modal)
+  .mixin(Backbone.ViewMixins.ClearError);
