@@ -8,6 +8,7 @@
 * overview
 * timezones
 * everyauth
+* node.js cluster
 * interface:
   * animate activity name (zoom-in)
   * date and time pickers
