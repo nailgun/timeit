@@ -10,5 +10,6 @@
 * interface:
   * animate activity name (zoom-in)
   * date and time pickers
+  * no text selection in lists
 * client-side memory usage
 * client-side form validation
