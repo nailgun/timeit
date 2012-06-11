@@ -1,12 +1,12 @@
-var express = require('express')
-  , mongo = require('mongodb')
-  , async = require('async')
-  , url = require('url')
-  , path = require('path')
-  , MongoStore = require('connect-mongodb')
-  , utils = require('./utils')
-  , noErr = utils.noErr
-  , fs = require('fs');
+var express = require('express'),
+    mongo = require('mongodb'),
+    async = require('async'),
+    url = require('url'),
+    path = require('path'),
+    MongoStore = require('connect-mongodb'),
+    utils = require('./utils'),
+    noErr = utils.noErr,
+    fs = require('fs');
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;

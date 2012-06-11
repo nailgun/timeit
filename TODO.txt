@@ -1,4 +1,3 @@
-* JSLint
 * pack js, css, templates
 * cache client-side template objects
 * client-side memory usage
