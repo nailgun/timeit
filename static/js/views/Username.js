@@ -1,4 +1,12 @@
-timeit.UsernameView = Backbone.View.extend({
+define([
+    'timeit',
+    'timeit.utils',
+    'backbone',
+    'backbone.template',
+    'backbone.bootstrap'
+], function(timeit, utils, Backbone) {
+
+return Backbone.View.extend({
     template: 'username.html',
 
     events: {
@@ -24,9 +32,11 @@ timeit.UsernameView = Backbone.View.extend({
             }).ok(function() {
                 view.trigger('ok', username);
             }).err(function(report) {
-                timeit.utils.setFormErrors(this.$el, report);
+                utils.setFormErrors(this.$el, report);
             });
         }
     }
 }).mixin(Backbone.ViewMixins.Template)
   .mixin(Backbone.ViewMixins.ClearError);
+
+});

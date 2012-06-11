@@ -1,23 +1,23 @@
-(function() {
-    timeit.utils = {};
+define(['jquery'], function($) {
+    var utils = {};
 
-    timeit.utils.capitalize = function (string) {
+    utils.capitalize = function (string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
 
-    timeit.utils.setFormErrors = function ($form, report) {
+    utils.setFormErrors = function ($form, report) {
         $form.find('.error-help').remove();
         $form.find('.control-group').removeClass('error');
         for (var fieldName in report.field_errors) {
             var field_errors = report.field_errors[fieldName];
-            var msg = timeit.utils.capitalize(field_errors.join(', ')) + '.';
+            var msg = utils.capitalize(field_errors.join(', ')) + '.';
             var $control = $form.find('[name="'+fieldName+'"]');
             $control.parents('.control-group').addClass('error');
             $control.after($('<p class="help-block error-help">'+msg+'</p>'));
         }
     };
 
-    timeit.utils.formData = function($form, data) {
+    utils.formData = function($form, data) {
         if (data === undefined) {
             var values = {};
             $.each($form.serializeArray(), function(i, field) {
@@ -31,7 +31,7 @@
         }
     };
 
-    timeit.utils.TimeDelta = function (from, to) {
+    utils.TimeDelta = function (from, to) {
         if (to !== undefined) {
             this.total_ms = to.getTime() - from.getTime();
         } else {
@@ -39,11 +39,11 @@
         }
     };
 
-    timeit.utils.TimeDelta.prototype.totalMs = function() {
+    utils.TimeDelta.prototype.totalMs = function() {
         return this.total_ms;
     };
 
-    timeit.utils.TimeDelta.prototype.components = function() {
+    utils.TimeDelta.prototype.components = function() {
         var total_ms = this.total_ms;
 
         var hours = Math.floor(total_ms / (1000 * 60 * 60));
@@ -61,7 +61,7 @@
         };
     };
 
-    timeit.utils.TimeDelta.prototype.format = function(format) {
+    utils.TimeDelta.prototype.format = function(format) {
         var total_ms = this.total_ms;
         var str = format;
 
@@ -97,7 +97,7 @@
         return [str, total_ms];
     };
 
-    timeit.utils.TimeDelta.prototype.toShortString = function() {
+    utils.TimeDelta.prototype.toShortString = function() {
         var c = this.components();
         if (c.hours != 0) {
             return c.hours+' hours';
@@ -108,7 +108,7 @@
         return c.seconds+' secs';
     };
 
-    timeit.utils.formatDate = function(date, format) {
+    utils.formatDate = function(date, format) {
         var total_ms = date.total_ms;
         var str = format;
 
@@ -124,9 +124,11 @@
         return str;
     };
 
-    timeit.utils.sameDay = function (date1, date2) {
+    utils.sameDay = function (date1, date2) {
         return date1.getDate() == date2.getDate()
             && date1.getMonth() == date2.getMonth()
             && date1.getFullYear() == date2.getFullYear();
     };
-})();
+
+    return utils;
+});

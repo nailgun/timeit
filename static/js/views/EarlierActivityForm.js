@@ -1,4 +1,14 @@
-timeit.EarlierActivityForm = Backbone.View.extend({
+define([
+    'timeit',
+    'timeit.utils',
+    'views/Intersection',
+    'backbone',
+    'backbone.template',
+    'backbone.bootstrap',
+    'bootstrap-datepicker'
+], function(timeit, utils, IntersectionView, Backbone) {
+
+return Backbone.View.extend({
     template: 'earlier_activity_form.html',
     className: 'timeit-normal',
 
@@ -12,7 +22,7 @@ timeit.EarlierActivityForm = Backbone.View.extend({
     rendered: function () {
         this.$('input[name="name"]').focus();
 
-        var today = timeit.utils.formatDate(new Date(), '%d.%m.%Y');
+        var today = utils.formatDate(new Date(), '%d.%m.%Y');
         this.$('input[name="start_date"],input[name="end_date"]')
             .val(today)
             .datepicker({
@@ -24,7 +34,7 @@ timeit.EarlierActivityForm = Backbone.View.extend({
     submit: function(e) {
         e.preventDefault();
 
-        var activity = timeit.utils.formData(this.$('form'));
+        var activity = utils.formData(this.$('form'));
 
         function dateFromStrings(date, time) {
             var date_parts = /^(\d+)\.(\d+)\.(\d+)$/.exec(date);
@@ -49,12 +59,14 @@ timeit.EarlierActivityForm = Backbone.View.extend({
             view.$el.modal('hide');
         }).err(function(descr) {
             if (descr.reason == 'form') {
-                timeit.utils.setFormErrors(view.$el, descr.report);
+                utils.setFormErrors(view.$el, descr.report);
             } else if (descr.reason == 'intersection') {
-                new timeit.IntersectionView().show(descr.with);
+                new IntersectionView().show(descr.with);
             }
         });
     }
 }).mixin(Backbone.ViewMixins.Template)
   .mixin(Backbone.ViewMixins.Modal)
   .mixin(Backbone.ViewMixins.ClearError);
+
+});

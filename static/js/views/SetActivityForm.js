@@ -1,4 +1,13 @@
-timeit.SetActivityForm = Backbone.View.extend({
+define([
+    'timeit',
+    'timeit.utils',
+    'views/Today',
+    'backbone',
+    'backbone.template',
+    'backbone.bootstrap'
+], function(timeit, utils, TodayView, Backbone) {
+
+return Backbone.View.extend({
     template: 'set_activity_form.html',
     className: 'timeit-set-activity-form timeit-normal',
 
@@ -22,19 +31,19 @@ timeit.SetActivityForm = Backbone.View.extend({
 
     rendered: function () {
         this.$('input[name="name"]').focus();
-        this.$('.timeit-today').html(new timeit.TodayView().render().el);
+        this.$('.timeit-today').html(new TodayView().render().el);
     },
 
     submit: function(e) {
         e.preventDefault();
 
-        var activity = timeit.utils.formData(this.$('form'));
+        var activity = utils.formData(this.$('form'));
 
         var view = this;
         timeit.currentActivity(activity).ok(function() {
             view.$el.modal('hide');
         }).err(function(report) {
-            timeit.utils.setFormErrors(view.$el, report);
+            utils.setFormErrors(view.$el, report);
         });
     },
 
@@ -42,8 +51,10 @@ timeit.SetActivityForm = Backbone.View.extend({
         var activity = {};
         activity.name = $(e.currentTarget).find('.activity').text();
         activity.tags = $(e.currentTarget).find('.tags').text();
-        timeit.utils.formData(this.$('form'), activity);
+        utils.formData(this.$('form'), activity);
     }
 }).mixin(Backbone.ViewMixins.Template)
   .mixin(Backbone.ViewMixins.Modal)
   .mixin(Backbone.ViewMixins.ClearError);
+
+});

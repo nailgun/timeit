@@ -1,4 +1,11 @@
-timeit.TrackerView = Backbone.View.extend({
+define([
+    'timeit',
+    'timeit.utils',
+    'backbone',
+    'backbone.template'
+], function(timeit, utils, Backbone) {
+
+return Backbone.View.extend({
     template: 'tracker.html',
     className: 'timeit-tracker',
 
@@ -64,8 +71,10 @@ timeit.TrackerView = Backbone.View.extend({
         var activity = timeit.currentActivity();
         if (activity) {
             var ms = timeit.timeElapsedMs();
-            var text = new timeit.utils.TimeDelta(ms).format('%H:%0M:%0S')[0];
+            var text = new utils.TimeDelta(ms).format('%H:%0M:%0S')[0];
             this.$('.timeit-timer').text(text);
         }
     }
 }).mixin(Backbone.ViewMixins.Template);
+
+});
