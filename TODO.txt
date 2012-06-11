@@ -9,6 +9,7 @@
 * timezones
 * everyauth
 * node.js cluster
+* clear sessions from db (node-cron)
 * interface:
   * animate activity name (zoom-in)
   * date and time pickers
