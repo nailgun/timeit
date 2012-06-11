@@ -5,7 +5,8 @@ var express = require('express')
   , path = require('path')
   , MongoStore = require('connect-mongodb')
   , utils = require('./utils')
-  , noErr = utils.noErr;
+  , noErr = utils.noErr
+  , fs = require('fs');
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;
@@ -30,6 +31,10 @@ function main() {
             app.config.listen_port = app.installation.port;
         }
         server.listen(app.config.listen_port, function() {
+            var isUnixSocket = parseInt(app.config.listen_port) != app.config.listen_port;
+            if (isUnixSocket && typeof app.config.unixSocketMode !== 'undefined') {
+                fs.chmodSync(app.config.listen_port, app.config.unixSocketMode);
+            }
             if (app.config.log_format) {
                 console.log('TimeIt is running on '+app.installation.href);
             }
