@@ -6,7 +6,8 @@ var express = require('express'),
     MongoStore = require('connect-mongodb'),
     utils = require('./utils'),
     noErr = utils.noErr,
-    fs = require('fs');
+    fs = require('fs'),
+    cache = require('./cache');
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;
@@ -59,34 +60,47 @@ function configureApplication(config, done) {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
 
-    var mongo_port = app.config.mongo_port || mongo.Connection.DEFAULT_PORT;
-    app.db = mongo.Db(app.config.mongo_db,
-                      new mongo.Server(app.config.mongo_host, mongo_port, {}),
-                      {});
 
     if (app.config.log_format) {
         app.use(express.logger(app.config.log_format));
-        console.log('Connecting to database...');
     }
 
     async.parallel([
         function(callback) {
             utils.getGitVersion(function(err, version) {
-                app.version = version;
+                if (!err) {
+                    app.version = version;
+                }
                 callback(err);
             });
         },
         function(callback) {
-            app.db.open(function(err, db) {
-                if (app.config.log_format) {
-                    console.log('Connected to database.');
-                }
+            if (app.config.log_format) {
+                console.log('Connecting to database...');
+            }
 
-                installApplication();
-                callback(err);
+            var mongo_port = app.config.mongo_port || mongo.Connection.DEFAULT_PORT;
+            app.db = mongo.Db(app.config.mongo_db,
+                              new mongo.Server(app.config.mongo_host, mongo_port, {}),
+                              {});
+            app.db.open(function(err, db) {
+                if (!err) {
+                    if (app.config.log_format) {
+                        console.log('Connected to database.');
+                    }
+
+                    cache.init(app.config.cache, function(err) {
+                        callback(err);
+                    });
+                } else {
+                    callback(err);
+                }
             });
         }
-    ], noErr(done));
+    ], noErr(function() {
+        installApplication();
+        done();
+    }));
 };
 
 function installApplication() {
