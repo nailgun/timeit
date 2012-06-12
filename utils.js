@@ -5,7 +5,7 @@ exports.throwOnErr = function(err) {
     if (err) {
         throw err;
     }
-}
+};
 
 exports.noErr = function(callback) {
     return function(err) {
@@ -13,7 +13,7 @@ exports.noErr = function(callback) {
         var args = Array.prototype.slice.call(arguments, 1)
         return callback.apply(this, args);
     }
-}
+};
 
 exports.jsonDumpFormErrors = function(res) {
     return function(form) {
@@ -22,7 +22,7 @@ exports.jsonDumpFormErrors = function(res) {
         report.errors = form.errors;
         res.errJson(report);
     }
-}
+};
 
 exports.getGitVersion = function(callback) {
     child_process.exec('git describe --always', {
@@ -32,4 +32,4 @@ exports.getGitVersion = function(callback) {
         var version = stdout.toString();
         callback(err, version);
     });
-}
+};
