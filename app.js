@@ -126,7 +126,6 @@ function installApplication() {
 
     app.use(redirectRoot);
     app.use(myResponse);
-    app.use(express.static(__dirname + '/static', {maxAge: app.config.staticFilesMaxAge*1000}));
     app.use(express.bodyParser());
     app.use(express.cookieParser());
     app.use(express.session({
@@ -136,10 +135,14 @@ function installApplication() {
     app.use(express.csrf());
     app.use(c.auth.middleware);
     app.use(app.router);
+    app.use(express.static(__dirname + '/static', {maxAge: app.config.staticFilesMaxAge*1000}));
     app.use(express.errorHandler({
         dumpExceptions: !!app.config.log_format,
         showStack: !!app.config.debug
     }));
+
+    app.get ('/', c.template.index(__dirname + '/templates/index.html', __dirname + '/static'));
+    app.get ('/site.js', c.template.scripts());
 
     app.get ('/activity', c.activity.getCurrent);
     app.get ('/today', c.activity.today);
