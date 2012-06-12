@@ -40,24 +40,6 @@
             version: <span id="version">?</span>
         </div>
 
-        <%= script('js/lib/jquery.js',
-                   'js/lib/jquery.favicon.js',
-                   'js/lib/underscore.js',
-                   'js/lib/underscore.exttemplate.js',
-                   'js/lib/backbone.js',
-                   'js/lib/backbone.mixin.js',
-                   'js/lib/backbone.bootstrap.js',
-                   'js/lib/bootstrap-modal.js',
-                   'js/lib/bootstrap-datepicker.js',
-                   'js/timeit.js',
-                   'js/timeit.utils.js',
-                   'js/views/Login.js',
-                   'js/views/Username.js',
-                   'js/views/Tracker.js',
-                   'js/views/SetActivityForm.js',
-                   'js/views/EarlierActivityForm.js',
-                   'js/views/Intersection.js',
-                   'js/views/Today.js',
-                   'js/ui.js') %>
+        <%= asset('app.js') %>
     </body>
 </html>

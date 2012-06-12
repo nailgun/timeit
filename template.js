@@ -1,8 +1,11 @@
 var _= require('underscore'),
+    cache = require('./cache'),
+    app = require('./app'),
     async = require('async'),
+    path = require('path'),
     fs = require('fs'),
     utils = require('./utils'),
-    cache = require('./cache');
+    crypto = require('crypto');
 
 exports.template = function(source, context, callback) {
     var compiled = _.template(source);
@@ -82,4 +85,35 @@ exports.renderToResponse = function(res, templateFile, context, opts) {
             }));
         }));
     }
+};
+
+exports.Renderer = function(templatesPath) {
+    var renderer = {
+        templatesPath: templatesPath,
+        contextExtensions: []
+    };
+
+    renderer.render = function(name, context, callback) {
+        _.each(renderer.contextExtensions, function(ext) {
+            context = ext(context);
+        });
+
+        var templateFile = path.join(templatesPath, name);
+        fs.readFile(templateFile, 'utf8', function(err, content) {
+            if (err) {
+                callback(err);
+            }
+
+            exports.template(content, context, callback);
+        });
+    };
+
+    renderer.renderToRes = function(res, name, context) {
+        context = context || {};
+        renderer.render(name, context, utils.noErr(function(content) {
+            res.end(content);
+        }));
+    };
+
+    return renderer;
 };

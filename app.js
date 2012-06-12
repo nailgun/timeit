@@ -7,7 +7,11 @@ var express = require('express'),
     utils = require('./utils'),
     noErr = utils.noErr,
     fs = require('fs'),
-    cache = require('./cache');
+    cache = require('./cache'),
+    ContentCache = require('./content_cache'),
+    AssetStore = require('./asset_store'),
+    template = require('./template'),
+    context_extensions = require('./context_extensions');
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;
@@ -106,6 +110,33 @@ function configureApplication(config, done) {
 function installApplication() {
     var c = require('./controllers');
 
+    app.contentCache = ContentCache();
+    app.assetStore = AssetStore(__dirname + '/static', app.contentCache, {compile: true});
+    app.renderer = template.Renderer(__dirname + '/templates');
+    app.renderer.contextExtensions.push(context_extensions.AssetCompiler(app.assetStore));
+
+    app.assetStore.register('app.js', [
+        'js/lib/jquery.js',
+        'js/lib/jquery.favicon.js',
+        'js/lib/underscore.js',
+        'js/lib/underscore.exttemplate.js',
+        'js/lib/backbone.js',
+        'js/lib/backbone.mixin.js',
+        'js/lib/backbone.bootstrap.js',
+        'js/lib/bootstrap-modal.js',
+        'js/lib/bootstrap-datepicker.js',
+        'js/timeit.js',
+        'js/timeit.utils.js',
+        'js/views/Login.js',
+        'js/views/Username.js',
+        'js/views/Tracker.js',
+        'js/views/SetActivityForm.js',
+        'js/views/EarlierActivityForm.js',
+        'js/views/Intersection.js',
+        'js/views/Today.js',
+        'js/ui.js'
+    ]);
+
     function redirectRoot(req, res, next) {
         if (url.parse(req.url).pathname == '/' && req.originalUrl.slice(-1) != '/') {
             res.redirect('', 301);
@@ -141,8 +172,8 @@ function installApplication() {
         showStack: !!app.config.debug
     }));
 
-    app.get ('/', c.template.index(__dirname + '/templates/index.html', __dirname + '/static'));
-    app.get ('/site.js', c.template.scripts());
+    app.get ('/', c.index);
+    app.get ('/app.js', c.asset);
 
     app.get ('/activity', c.activity.getCurrent);
     app.get ('/today', c.activity.today);
