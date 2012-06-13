@@ -130,6 +130,7 @@ function installApplication() {
         'js/lib/underscore.exttemplate.js',
         'js/lib/backbone.js',
         'js/lib/backbone.mixin.js',
+        'js/lib/backbone.template.js',
         'js/lib/backbone.bootstrap.js',
         'js/lib/bootstrap-modal.js',
         'js/lib/bootstrap-datepicker.js',
