@@ -1,17 +1,21 @@
-* cache middleware, per-page cache
-* compress HTML
-* client-side memory usage
-* server-side error reporting (email, log)
-* l10n, i18n
-* login errors
+* activity editing
 * overview
 * timezones
 * everyauth
+* l10n, i18n
+* clear sessions,cache from db (node-cron)
+* client-side form validation
+
+* server-side error reporting (email, log)
+* valid HTTP headers: content-length, content-type, charset
+* login errors
+
+* cache middleware, per-page cache
+* compress HTML
+* client-side memory usage
+
 * node.js cluster
-* clear sessions from db (node-cron)
 * interface:
   * animate activity name (zoom-in)
   * date and time pickers
   * no text selection in lists
-* client-side memory usage
-* client-side form validation
