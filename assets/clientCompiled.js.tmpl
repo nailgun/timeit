@@ -1,0 +1,6 @@
+<%= objectName %> = (function() {
+    var compiled = <%= compiled %>;
+    return function (templateName, callback) {
+        callback(compiled[templateName]);
+    };
+})();

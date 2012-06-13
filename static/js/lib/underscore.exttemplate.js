@@ -1,6 +1,7 @@
 (function() {
     _.mixin({
-        extTemplate: extTemplate
+        extTemplate: extTemplate,
+        extTemplateLoader: null
     });
 
     var contextExtensions = {};
@@ -30,24 +31,18 @@
             return domTemplate(name, wrapTemplate);
         } else {
             useExtensions = enabledExtensions.plain;
-            return plainTemplate(name, wrapTemplate);
+            return _.extTemplateLoader(name, wrapTemplate);
         }
     };
 
     function domTemplate (name, callback) {
-        return plainTemplate(name, function (template) {
+        return _.extTemplateLoader(name, function (template) {
             function templateFunc(context) {
                 var html = template(context);
                 var $dom = $(html);
                 return $dom;
             }
             return callback(templateFunc);
-        });
-    };
-
-    function plainTemplate (name, callback) {
-        return $.get('templates/'+name).done(function(data) {
-            callback(_.template(data));
         });
     };
 

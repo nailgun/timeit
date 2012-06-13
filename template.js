@@ -109,7 +109,7 @@ exports.Renderer = function(templatesPath) {
     };
 
     renderer.renderToRes = function(res, name, context) {
-        context = context || {};
+        context = context || exports.Context();
         renderer.render(name, context, utils.noErr(function(content) {
             res.end(content);
         }));

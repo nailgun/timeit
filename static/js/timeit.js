@@ -12,6 +12,8 @@ window.timeit = (function() {
     // ===============
 
     timeit.init = function(callback) {
+        _.extTemplateLoader = timeit.loadTemplate;
+
         $.get('csrf-token').done(function(token) {
             timeit.csrfToken = token;
             callback();

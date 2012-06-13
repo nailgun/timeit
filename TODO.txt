@@ -1,6 +1,5 @@
-* pack js, css, templates
 * cache middleware, per-page cache
-* cache client-side template objects
+* compress HTML
 * client-side memory usage
 * server-side error reporting (email, log)
 * l10n, i18n

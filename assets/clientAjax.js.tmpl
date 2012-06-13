@@ -1,0 +1,5 @@
+<%= objectName %> = function (templateName, callback) {
+    $.get('<%= templatePath %>/'+templateName).done(function (data) {
+        callback(_.template(data));
+    });
+};

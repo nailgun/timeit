@@ -11,7 +11,8 @@ var express = require('express'),
     ContentCache = require('./content_cache'),
     AssetStore = require('./asset_store'),
     template = require('./template'),
-    context_extensions = require('./context_extensions');
+    context_extensions = require('./context_extensions'),
+    assets = require('./assets');
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;
@@ -136,6 +137,10 @@ function installApplication() {
         'js/lib/bootstrap-datepicker.js',
         'js/timeit.js',
         'js/timeit.utils.js',
+        assets.TemplateLoader({
+                templateDir: 'templates',
+                objectName: 'timeit.loadTemplate'
+        }),
         'js/views/Login.js',
         'js/views/Username.js',
         'js/views/Tracker.js',

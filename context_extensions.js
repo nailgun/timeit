@@ -1,8 +1,8 @@
 exports.AssetCompiler = function(assetStore) {
     return function (context) {
-        context.asset = function (name) {
-            return assetStore.getInclude(name);
-        };
+        context.wrap('asset', function (callback, name) {
+            return assetStore.getInclude(name, callback);
+        });
         return context;
     };
 };

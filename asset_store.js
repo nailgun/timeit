@@ -11,12 +11,13 @@ module.exports = function(storePath, contentCache, opts) {
 
     var store = {
         path: storePath,
-        contentCache: contentCache
+        contentCache: contentCache,
+        options: opts
     };
 
     var assets = {};
 
-    store.register = function (name, fileNames) {
+    store.register = function (name, items) {
         var overwrite = name in assets;
         if (overwrite) {
             contentCache.invalidate('asset', name);
@@ -24,19 +25,29 @@ module.exports = function(storePath, contentCache, opts) {
 
         var asset = assets[name] = {};
 
-        if (!_.isArray(fileNames)) {
-            fileNames = [fileNames];
+        if (!_.isArray(items)) {
+            items = [items];
         }
-        asset.fileNames = fileNames;
+        asset.items = items;
 
         var hash = crypto.createHash('md5');
-        hash.update(fileNames.join(';'));
+        hash.update(_.map(items, function(item) {
+            if (!_.isFunction(item)) {
+                return item;
+            } else {
+                // TODO: hash contents?
+                return 'function';
+            }
+        }).join(';'));
         asset.digest = hash.digest('hex');
     };
 
     store.getContent = function (name, callback) {
         if (!assets[name]) {
-            callback(new Error('not registered'));
+            return callback(new Error('not registered'));
+        }
+        if (!opts.compile) {
+            return callback(new Error('not compiled'));
         }
 
         contentCache.get('asset', name, function(err, content) {
@@ -65,48 +76,83 @@ module.exports = function(storePath, contentCache, opts) {
         }
     };
 
-    store.getInclude = function (name) {
-        var include = '';
-        var fileNames = store.getIncludeFileNames(name);
-
+    store.getInclude = function (name, callback) {
+        var parts;
         if (name.slice(-3) === '.js') {
-            _.each(fileNames, function(fileName) {
-                include += '<script src="'+fileName+'"></script>\n';
-            });
+            parts = {
+                prefix: '<script src="',
+                postfix: '"></script>\n',
+                inlinePrefix: '<script>',
+                inlinePostfix: '</script>\n'
+            };
         } else if (name.slice(-4) === '.css') {
-            _.each(fileNames, function(fileName) {
-                include += '<link href="'+fileName+'" rel="stylesheet">\n';
-            });
+            parts = {
+                prefix: '<link href="',
+                postfix: '" rel="stylesheet">\n',
+                inlinePrefix: '<style>',
+                inlinePostfix: '</style>\n'
+            };
         } else {
-            include += fileNames.join('\n');
+            parts = {
+                prefix: '',
+                postfix: '\n',
+                inlinePrefix: '',
+                inlinePostfix: '\n'
+            };
         }
 
-        return include;
+        joinInclude (name, parts, callback);
     };
 
-    store.getIncludeFileNames = function (name) {
+    function joinInclude (name, parts, callback) {
         if (opts.compile) {
-            return [name+'?'+assets[name].digest];
+            return callback(null, parts.prefix+name+'?'+assets[name].digest+parts.postfix);
+
         } else {
-            return assets[name].fileNames;
+            async.map(assets[name].items, function (item, callback) {
+                if (!_.isFunction(item)) {
+                    return callback(null, parts.prefix + item + parts.postfix);
+                } else {
+                    item(store, function (err, content) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        return callback(null, parts.inlinePrefix + content + parts.inlinePostfix);
+                    });
+                }
+
+            }, function (err, includes) {
+                if (err) {
+                    return callback(err);
+                }
+                callback(null, includes.join(''));
+            });
         }
     };
 
+    store.templates = function (opts) {
+        opts = opts || {};
+        opts.subDir = opts.subDir || '';
+        opts.objectName = opts.objectName || 'templates';
+
+        return opts.compile ? [function (callback) {
+        }] : [];
+    };
 
     function compile(name, callback) {
-        var fileNames = assets[name].fileNames;
+        var items = assets[name].items;
 
         if (name.slice(-3) === '.js') {
-            compileJs(fileNames, callback);
+            compileJs(items, callback);
         } else if (name.slice(-4) === '.css') {
-            compileCss(fileNames, callback);
+            compileCss(items, callback);
         } else {
-            readAll(fileNames, callback);
+            readAll(items, callback);
         }
     };
 
-    function compileJs(fileNames, callback) {
-        readAll(fileNames, ';\n', function(err, code) {
+    function compileJs(items, callback) {
+        readAll(items, ';\n', function(err, code) {
             if (err) {
                 callback(err);
             }
@@ -120,8 +166,8 @@ module.exports = function(storePath, contentCache, opts) {
         });
     };
 
-    function compileCss(fileNames, callback) {
-        readAll(fileNames, function(err, css) {
+    function compileCss(items, callback) {
+        readAll(items, function(err, css) {
             if (err) {
                 callback(err);
             }
@@ -131,15 +177,19 @@ module.exports = function(storePath, contentCache, opts) {
         });
     };
 
-    function readAll(fileNames, separator, callback) {
+    function readAll(items, separator, callback) {
         if (typeof separator === 'function' && typeof callback === 'undefined') {
             callback = separator;
             separator = '';
         }
 
-        async.map(fileNames, function(fileName, callback) {
-            var filePath = path.join(storePath, fileName);
-            fs.readFile(filePath, 'utf8', callback);
+        async.map(items, function(item, callback) {
+            if (!_.isFunction(item)) {
+                var filePath = path.join(storePath, item);
+                fs.readFile(filePath, 'utf8', callback);
+            } else {
+                item(store, callback);
+            }
 
         }, function(err, contents) {
             if (err) {
