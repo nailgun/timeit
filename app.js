@@ -111,9 +111,17 @@ function installApplication() {
     var c = require('./controllers');
 
     app.contentCache = ContentCache(app.version);
-    app.assetStore = AssetStore(__dirname + '/static', app.contentCache, {compile: true});
+    app.assetStore = AssetStore(__dirname + '/static', app.contentCache, {
+        compile: !app.config.debug
+    });
     app.renderer = template.Renderer(__dirname + '/templates');
     app.renderer.contextExtensions.push(context_extensions.AssetCompiler(app.assetStore));
+
+    app.assetStore.register('app.css', [
+        'css/bootstrap.css',
+        'css/datepicker.css',
+        'css/timeit.css',
+    ]);
 
     app.assetStore.register('app.js', [
         'js/lib/jquery.js',
@@ -174,6 +182,7 @@ function installApplication() {
 
     app.get ('/', c.index);
     app.get ('/app.js', c.asset);
+    app.get ('/app.css', c.asset);
 
     app.get ('/activity', c.activity.getCurrent);
     app.get ('/today', c.activity.today);

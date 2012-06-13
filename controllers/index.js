@@ -16,7 +16,7 @@ exports.asset = function(req, res) {
     var assetName = pathname.slice(1);
 
     app.assetStore.getContent(assetName, utils.noErr(function (content) {
-        res.header('Content-Type', 'text/javascript');
+        res.header('Content-Type', app.assetStore.getContentType(assetName));
         res.end(content);
     }));
 };

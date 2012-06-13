@@ -3,7 +3,8 @@ var _ = require('underscore'),
     path = require('path'),
     async = require('async'),
     crypto = require('crypto'),
-    uglify = require('uglify-js');
+    uglify = require('uglify-js'),
+    cleanCss = require('clean-css');
 
 module.exports = function(storePath, contentCache, opts) {
     opts = opts || {};
@@ -52,6 +53,16 @@ module.exports = function(storePath, contentCache, opts) {
                 });
             }
         });
+    };
+
+    store.getContentType = function (name) {
+        if (name.slice(-3) === '.js') {
+            return 'text/javascript';
+        } else if (name.slice(-4) === '.css') {
+            return 'text/css';
+        } else {
+            return 'text/plain';
+        }
     };
 
     store.getInclude = function (name) {
@@ -110,7 +121,14 @@ module.exports = function(storePath, contentCache, opts) {
     };
 
     function compileCss(fileNames, callback) {
-        readAll(fileNames, callback);
+        readAll(fileNames, function(err, css) {
+            if (err) {
+                callback(err);
+            }
+
+            css = cleanCss.process(css);
+            callback(err, css);
+        });
     };
 
     function readAll(fileNames, separator, callback) {
