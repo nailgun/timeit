@@ -19,7 +19,7 @@ module.exports = function(cacheVersion) {
         var cid = contentId(type, name);
         cache.set(cid, undefined, function(err) {
             if (callback) {
-                callback(err);
+                return callback(err);
             }
         });
     };

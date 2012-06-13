@@ -76,7 +76,7 @@ function configureApplication(config, done) {
                 if (!err) {
                     app.version = version;
                 }
-                callback(err);
+                return callback(err);
             });
         },
         function(callback) {
@@ -95,10 +95,10 @@ function configureApplication(config, done) {
                     }
 
                     cache.init(app.config.cache, function(err) {
-                        callback(err);
+                        return callback(err);
                     });
                 } else {
-                    callback(err);
+                    return callback(err);
                 }
             });
         }

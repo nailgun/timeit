@@ -10,7 +10,7 @@ module.exports = function(config) {
             if (!err) {
                 driver.collection = collection;
             }
-            callback(err);
+            return callback(err);
         });
     };
 
@@ -32,11 +32,11 @@ module.exports = function(config) {
             'v'
         ], function (err, doc) {
             if (err) {
-                callback(err);
+                return callback(err);
             } else if (!doc) {
-                callback(new Error('key not found'));
+                return callback(new Error('key not found'));
             } else {
-                callback(err, doc.v);
+                return callback(err, doc.v);
             }
         });
     };

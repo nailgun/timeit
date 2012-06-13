@@ -6,6 +6,6 @@ exports.init = function(config, callback) {
             exports.set = driver.set;
             exports.get = driver.get;
         }
-        callback(err);
+        return callback(err);
     });
 };

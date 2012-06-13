@@ -101,10 +101,10 @@ exports.Renderer = function(templatesPath) {
         var templateFile = path.join(templatesPath, name);
         fs.readFile(templateFile, 'utf8', function(err, content) {
             if (err) {
-                callback(err);
+                return callback(err);
             }
 
-            exports.template(content, context, callback);
+            return exports.template(content, context, callback);
         });
     };
 

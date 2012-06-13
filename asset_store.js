@@ -154,7 +154,7 @@ module.exports = function(storePath, contentCache, opts) {
     function compileJs(items, callback) {
         readAll(items, ';\n', function(err, code) {
             if (err) {
-                callback(err);
+                return callback(err);
             }
 
             var ast = uglify.parser.parse(code.toString());
@@ -162,18 +162,18 @@ module.exports = function(storePath, contentCache, opts) {
             ast = uglify.uglify.ast_squeeze(ast);
             code = uglify.uglify.gen_code(ast);
 
-            callback(err, code);
+            return callback(err, code);
         });
     };
 
     function compileCss(items, callback) {
         readAll(items, function(err, css) {
             if (err) {
-                callback(err);
+                return callback(err);
             }
 
             css = cleanCss.process(css);
-            callback(err, css);
+            return callback(err, css);
         });
     };
 
@@ -193,9 +193,9 @@ module.exports = function(storePath, contentCache, opts) {
 
         }, function(err, contents) {
             if (err) {
-                callback(err);
+                return callback(err);
             } else {
-                callback(null, contents.join(separator));
+                return callback(null, contents.join(separator));
             }
         });
     };

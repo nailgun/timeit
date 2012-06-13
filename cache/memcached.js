@@ -16,7 +16,7 @@ module.exports = function(config) {
             if (!err && app.config.log_format) {
                 console.log('Connected to memcached.');
             }
-            callback(err);
+            return callback(err);
         }));
     };
 
@@ -29,7 +29,7 @@ module.exports = function(config) {
             if (!err) {
                 value = value['timeit.'+key];
             }
-            callback(err, value);
+            return callback(err, value);
         });
     };
 
