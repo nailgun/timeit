@@ -29,7 +29,7 @@ exports.getGitVersion = function(callback) {
         cwd: __dirname,
         timeout: 1000,
     }, function(err, stdout, stderr) {
-        var version = stdout.toString();
+        var version = stdout.toString().trim();
         callback(err, version);
     });
 };
