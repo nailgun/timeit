@@ -16,6 +16,11 @@ module.exports = function(storePath, contentCache, opts) {
     var assets = {};
 
     store.register = function (name, fileNames) {
+        var overwrite = name in assets;
+        if (overwrite) {
+            contentCache.invalidate('asset', name);
+        }
+
         var asset = assets[name] = {};
 
         if (!_.isArray(fileNames)) {

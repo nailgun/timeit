@@ -1,32 +1,31 @@
 var cache = require('./cache');
 
-module.exports = function() {
-    var validContent = {};
-    var contentCache = {};
+module.exports = function(cacheVersion) {
+    var contentCache = {
+        version: cacheVersion
+    };
 
     contentCache.get = function(type, name, callback) {
         var cid = contentId(type, name);
-        if (validContent[cid]) {
-            cache.get(cid, function(err, content) {
-                callback(err, content);
-            });
-        } else {
-            callback(new Error('not found'));
-        }
+        cache.get(cid, callback);
     };
 
     contentCache.set = function(type, name, content, callback) {
         var cid = contentId(type, name);
-        cache.set(cid, content, function(err) {
-            if (!err) {
-                validContent[cid] = 1;
+        cache.set(cid, content, callback);
+    };
+
+    contentCache.invalidate = function(type, name, callback) {
+        var cid = contentId(type, name);
+        cache.set(cid, undefined, function(err) {
+            if (callback) {
+                callback(err);
             }
-            callback(err);
         });
     };
 
     function contentId(type, name) {
-        return type+':'+name;
+        return cacheVersion+':'+type+':'+name;
     };
 
     return contentCache;

@@ -110,7 +110,7 @@ function configureApplication(config, done) {
 function installApplication() {
     var c = require('./controllers');
 
-    app.contentCache = ContentCache();
+    app.contentCache = ContentCache(app.version);
     app.assetStore = AssetStore(__dirname + '/static', app.contentCache, {compile: true});
     app.renderer = template.Renderer(__dirname + '/templates');
     app.renderer.contextExtensions.push(context_extensions.AssetCompiler(app.assetStore));

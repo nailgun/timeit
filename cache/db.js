@@ -6,11 +6,11 @@ module.exports = function(config) {
     };
 
     driver.init = function(callback) {
-        app.db.clllection(config.collection || 'cache', function (err, collection) {
+        app.db.collection(config.collection || 'cache', function (err, collection) {
             if (!err) {
                 driver.collection = collection;
             }
-            collback(err);
+            callback(err);
         });
     };
 
@@ -33,6 +33,8 @@ module.exports = function(config) {
         ], function (err, doc) {
             if (err) {
                 callback(err);
+            } else if (!doc) {
+                callback(new Error('key not found'));
             } else {
                 callback(err, doc.v);
             }

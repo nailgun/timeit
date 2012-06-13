@@ -1,4 +1,5 @@
 * pack js, css, templates
+* cache middleware, per-page cache
 * cache client-side template objects
 * client-side memory usage
 * server-side error reporting (email, log)
