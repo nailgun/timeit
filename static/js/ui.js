@@ -56,13 +56,7 @@
             new timeit.EarlierActivityForm().show();
         });
 
-        timeit.get('activity').ok(function(activity) {
-            currentActivity = activity;
-            if (activity) {
-                currentActivity.start_time = new Date(currentActivity.start_time);
-            }
-            timeit.trigger('activityChanged');
-        });
+        timeit.initActivity();
 
         setInterval(tick, 1000);
         if (settings.notifications || settings.notifications === undefined) {

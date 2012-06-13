@@ -2,7 +2,8 @@ window.timeit = (function() {
     var timeit = {
         notificationsRequested: false,
         notificationInterval: 10 * 60 * 1000,
-        csrfToken: null
+        csrfToken: null,
+        valid: false
     };
     _.extend(timeit, Backbone.Events);
 
@@ -18,7 +19,18 @@ window.timeit = (function() {
             timeit.csrfToken = token;
             callback();
         });
-    }
+    };
+
+    timeit.initActivity = function() {
+        timeit.get('activity').ok(function(activity) {
+            currentActivity = activity;
+            if (activity) {
+                activity.start_time = new Date(currentActivity.start_time);
+            }
+            timeit.valid = true;
+            timeit.trigger('activityChanged');
+        });
+    };
 
     timeit.currentActivity = function(activity) {
         if (activity === undefined) {
@@ -41,6 +53,7 @@ window.timeit = (function() {
                 if (activity) {
                     activity.start_time = new Date();
                 }
+                timeit.valid = true;
                 timeit.trigger('activityChanged');
             }).err(function() {
                 timeit.trigger('activityChanged');

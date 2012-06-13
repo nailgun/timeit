@@ -5,21 +5,19 @@ timeit.TrackerView = Backbone.View.extend({
     events: {
         'click .timeit-now': function(e) {
             e.preventDefault();
-            this.valid && this.trigger('click');
+            timeit.valid && this.trigger('click');
         },
         'click .timeit-add-earlier-btn': function(e) {
             e.preventDefault();
-            this.valid && this.trigger('addEarlier');
+            timeit.valid && this.trigger('addEarlier');
         },
         'click .timeit-overview-btn': function(e) {
             e.preventDefault();
-            this.valid && this.trigger('overview');
+            timeit.valid && this.trigger('overview');
         }
     },
 
     initialize: function () {
-        this.valid = false;
-
         var view = this;
         timeit.on('activityChanging', function() {
             view.pending();
@@ -33,14 +31,12 @@ timeit.TrackerView = Backbone.View.extend({
     },
 
     rendered: function () {
-        if (this.valid) {
+        if (timeit.valid) {
             this.update();
         }
     },
 
     update: function() {
-        this.valid = true;
-
         var activity = timeit.currentActivity();
         if (activity) {
             this.$('.timeit-name').text(activity.name);
@@ -54,8 +50,6 @@ timeit.TrackerView = Backbone.View.extend({
     },
 
     pending: function() {
-        this.valid = true;
-
         this.$('.timeit-name').text('Working...');
         this.$('.timeit-subtext').text('Please take a while');
     },
