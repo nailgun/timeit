@@ -5,11 +5,13 @@
 * l10n, i18n
 * clear sessions,cache from db (node-cron)
 * client-side form validation
+* ping status
 
 * server-side error reporting (email, log)
 * valid HTTP headers: content-length, content-type, charset
 * login errors
 
+* uglify-js parameters
 * cache middleware, per-page cache
 * compress HTML
 * client-side memory usage
