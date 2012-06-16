@@ -1,5 +1,6 @@
 * activity editing
 * overview
+* massive edit
 * timezones
 * everyauth
 * l10n, i18n
