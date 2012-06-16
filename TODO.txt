@@ -4,6 +4,7 @@
 * timezones
 * everyauth
 * l10n, i18n
+* activity name and tags autocompletion
 * clear sessions,cache from db (node-cron)
 * client-side form validation
 * ping status
