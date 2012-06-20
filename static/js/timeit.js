@@ -32,6 +32,32 @@ window.timeit = (function() {
         });
     };
 
+    timeit.updateCurrent = function() {
+        timeit.trigger('activityChanging');
+        timeit.initActivity();
+    };
+
+    timeit.activity = function(activity) {
+        if (typeof activity === 'object') {
+            return timeit.post('activity', activity);
+        } else {
+            var result = timeit.get('activity', {
+                id: activity
+            }).err(function (reason) {
+                alert(reason);
+            });
+            var oldOk = result.ok;
+            result.ok = function(callback) {
+                oldOk.call(result, function(a) {
+                    a.start_time = moment(a.start_time);
+                    a.end_time = moment(a.end_time);
+                    callback(a);
+                });
+            };
+            return result;
+        }
+    };
+
     timeit.currentActivity = function(activity) {
         if (activity === undefined) {
             return currentActivity;
@@ -40,12 +66,12 @@ window.timeit = (function() {
 
             var req;
             if (activity) {
-                req = timeit.post('activity', {
+                req = timeit.post('current', {
                     name: activity.name,
                     tags: activity.tags
                 });
             } else {
-                req = timeit.post('activity/stop');
+                req = timeit.post('current/stop');
             }
 
             return req.ok(function() {

@@ -7,7 +7,7 @@
         <td class="activity"><%- activity.name %></td>
         <td class="tags"><%- activity.tags %></td>
         <td class="duration"><%- activity.duration %></td>
-        <td><a class="edit">Edit</a></td>
+        <td><a data-activity="<%- activity._id %>" class="edit">Edit</a></td>
     </tr>
 <% }); %>
 </table>

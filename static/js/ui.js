@@ -53,7 +53,7 @@
             new timeit.SetActivityForm().show();
         });
         tracker.on('addEarlier', function() {
-            new timeit.EarlierActivityForm().show();
+            new timeit.EditActivityForm().show();
         });
 
         timeit.initActivity();

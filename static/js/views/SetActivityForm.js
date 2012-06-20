@@ -20,9 +20,22 @@ timeit.SetActivityForm = Backbone.View.extend({
         }
     },
 
+    initialize: function() {
+        this.todayView = new timeit.TodayView();
+    },
+
     rendered: function () {
         this.$('input[name="name"]').focus();
-        this.$('.timeit-today').html(new timeit.TodayView().render().el);
+        this.$('.timeit-today').html(this.todayView.render().el);
+
+        var view = this;
+        this.todayView.on('editClicked', function(activityId) {
+            var editForm = new timeit.EditActivityForm(activityId);
+            editForm.on('ok', function() {
+                view.todayView.render();
+            });
+            editForm.show();
+        });
     },
 
     submit: function(e) {
@@ -39,6 +52,9 @@ timeit.SetActivityForm = Backbone.View.extend({
     },
 
     onTableClick: function(e) {
+        if (e.target.tagName === 'A') {
+            return;
+        }
         var activity = {};
         activity.name = $(e.currentTarget).find('.activity').text();
         activity.tags = $(e.currentTarget).find('.tags').text();

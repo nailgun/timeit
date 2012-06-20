@@ -1,0 +1,45 @@
+<div class="modal-header">
+    <button class="close" data-dismiss="modal">×</button>
+    <h3>Edit activity</h3>
+</div>
+
+<form class="form-horizontal">
+    <div class="modal-body">
+        <div class="ti-slider"></div>
+
+        <div class="control-group">
+            <label class="control-label" for="from">From</label>
+            <div class="controls">
+                <input type="text" class="input-small ti-date ti-start" name="start_date" id="from">
+                <input type="text" class="input-small ti-time ti-start" name="start_time">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="to">To</label>
+            <div class="controls">
+                <input type="text" class="input-small ti-date ti-end" name="end_date" id="to">
+                <input type="text" class="input-small ti-time ti-end" name="end_time">
+                <label class="checkbox inline">
+                    <input type="checkbox" class="input-small" name="in_progress"> in progress
+                </label>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="name">Activity</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" name="name" value="<%- activity.name %>" id="name">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="tags">Tags</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" name="tags" value="<%- activity.tags %>" id="tags">
+                <p class="help-block">Tags, separated by comma.</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a class="btn" data-dismiss="modal">Cancel</a>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+</form>

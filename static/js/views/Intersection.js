@@ -2,6 +2,10 @@ timeit.IntersectionView = Backbone.View.extend({
     template: 'intersection.html',
     className: 'timeit-normal',
 
+    events: {
+        'click .edit': 'onEdit'
+    },
+
     context: function (callback, activities) {
         _.each(activities, function(a) {
             var start = new Date(a.start_time);
@@ -15,6 +19,13 @@ timeit.IntersectionView = Backbone.View.extend({
         callback({
             activities: activities
         });
+    },
+
+    onEdit: function (e) {
+        e.preventDefault();
+        var activityId = $(e.target).data('activity');
+        new timeit.EditActivityForm(activityId).show();
+        this.$el.modal('hide');
     }
 }).mixin(Backbone.ViewMixins.Template)
   .mixin(Backbone.ViewMixins.Modal);

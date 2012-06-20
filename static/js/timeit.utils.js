@@ -12,8 +12,10 @@
             var field_errors = report.field_errors[fieldName];
             var msg = timeit.utils.capitalize(field_errors.join(', ')) + '.';
             var $control = $form.find('[name="'+fieldName+'"]');
-            $control.parents('.control-group').addClass('error');
-            $control.after($('<p class="help-block error-help">'+msg+'</p>'));
+            var $controlGroup = $control.parents('.control-group');
+            var $controls = $controlGroup.find('.controls');
+            $controlGroup.addClass('error');
+            $controls.append($('<p class="help-block error-help">'+msg+'</p>'));
         }
     };
 

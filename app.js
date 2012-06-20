@@ -127,6 +127,7 @@ function installApplication() {
     app.assetStore.register('app.js', [
         'js/lib/jquery.js',
         'js/lib/jquery.favicon.js',
+        'js/lib/jquery.disableselection.js',
         'js/lib/underscore.js',
         'js/lib/underscore.exttemplate.js',
         'js/lib/backbone.js',
@@ -135,6 +136,9 @@ function installApplication() {
         'js/lib/backbone.bootstrap.js',
         'js/lib/bootstrap-modal.js',
         'js/lib/bootstrap-datepicker.js',
+        'js/lib/raphael.js',
+        'js/lib/moment.js',
+        'js/jquery.time-slider.js',
         'js/timeit.js',
         'js/timeit.utils.js',
         assets.TemplateLoader({
@@ -145,7 +149,7 @@ function installApplication() {
         'js/views/Username.js',
         'js/views/Tracker.js',
         'js/views/SetActivityForm.js',
-        'js/views/EarlierActivityForm.js',
+        'js/views/EditActivityForm.js',
         'js/views/Intersection.js',
         'js/views/Today.js',
         'js/ui.js'
@@ -190,11 +194,11 @@ function installApplication() {
     app.get ('/app.js', c.asset);
     app.get ('/app.css', c.asset);
 
-    app.get ('/activity', c.activity.getCurrent);
     app.get ('/today', c.activity.today);
-    app.post('/activity', c.activity.setCurrent);
-    app.post('/activity/add-earlier', c.activity.addEarlier);
-    app.post('/activity/stop', c.activity.stop);
+    app.get ('/activity', c.activity.get);
+    app.post('/activity', c.activity.edit);
+    app.post('/current', c.activity.setCurrent);
+    app.post('/current/stop', c.activity.stop);
 
     app.get ('/settings', c.aux.getSettings);
     app.post('/settings', c.aux.setSettings);

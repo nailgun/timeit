@@ -46,6 +46,10 @@ div.timeit-normal {
     cursor: default;
 }
 
+.timeit-seltable a {
+    cursor: pointer;
+}
+
 .timeit-set-activity-form .dash {
     width: 1em;
 }
