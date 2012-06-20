@@ -1,4 +1,3 @@
-* activity editing
 * overview
 * massive edit
 * timezones
