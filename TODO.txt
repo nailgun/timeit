@@ -1,16 +1,22 @@
+============
+Mongoose
+search for TODO
+db migration
+last link - delete account?
+============
+
 * overview
 * massive edit
 * timezones
-* everyauth
 * l10n, i18n
 * activity name and tags autocompletion
-* clear sessions,cache from db (node-cron)
 * client-side form validation
 * ping status
 
+* auth error handling (handle UserError exceptions)
 * server-side error reporting (email, log)
 * valid HTTP headers: content-length, content-type, charset
-* login errors
+* clean database (not confirmed accounts, sessions, cache)
 
 * uglify-js parameters
 * cache middleware, per-page cache

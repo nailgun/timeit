@@ -11,5 +11,15 @@
     "cache": {
         "backend": "db",
         "collection": "cache"
+    },
+    "auth": {
+        "google": {
+            "clientId": "GOOGLE CLIENT ID",
+            "clientSecret": "GOOGLE CLIENT SECRET"
+        },
+        "twitter": {
+            "consumerKey": "TWITTER CONSUMER KEY",
+            "consumerSecret": "TWITTER CONSUMER SECRET"
+        }
     }
 }

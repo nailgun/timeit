@@ -10,6 +10,10 @@
 
         show: function() {
             this.render.apply(this, arguments).$el.modal();
+        },
+        
+        hide: function() {
+            this.$el.modal('hide');
         }
     };
 

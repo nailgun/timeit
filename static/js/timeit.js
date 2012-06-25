@@ -157,6 +157,15 @@ window.timeit = (function() {
             && window.webkitNotifications.checkPermission() == 0;
     };
 
+    timeit.fetchMessages = function() {
+        timeit.get('messages').ok(function (messages) {
+            var $container = $('#messages');
+            _.each(messages, function (message) {
+                $container.append(new timeit.AlertView(message).render().el);
+            });
+        });
+    };
+
     timeit.post = function(url, data) {
         return timeit.rpc('POST', url, data, {
             headers: {
@@ -179,7 +188,6 @@ window.timeit = (function() {
 
         var xhr = $.ajax(url, fullOpts).fail(function(xhr) {
             if (xhr.status == 401) {
-                timeit.current_activity = null;
                 location.href = '.';
             } else {
                 var msg = 'Request failed ('+xhr.status;

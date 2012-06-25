@@ -1,79 +1,78 @@
-var openid = require('openid');
-var BSON = require('mongodb').BSONPure;
-var app = require('../app');
-var noErr = require('../utils').noErr;
-
-var relyingParty = new openid.RelyingParty(app.installation.href+'auth/callback');
-
-exports.login = function(req, res) {
-    var identifier = req.query['openid'];
-
-    relyingParty.authenticate(identifier, false, function(err, auth_url) {
-        if (err) {
-            res.end('Authentication failed: ' + err.message);
-        } else if (!auth_url) {
-            res.end('Authentication failed');
-        } else {
-            res.redirect(auth_url);
-        }
-    });
-};
-
-function openIdSuccess(req, res, userId) {
-    req.session.userId = userId;
-    res.redirect('');
-}
-
-exports.openIdCallback = function (req, res) {
-    openid.verifyAssertion(req, function(err, result) {
-        if (!err && result.authenticated) {
-            var openid = result.claimedIdentifier;
-            app.db.collection('accounts', noErr(function(accounts) {
-                accounts.findOne({openid: openid}, noErr(function(doc) {
-                    if (doc) {
-                        openIdSuccess(req, res, doc._id);
-                    } else {
-                        accounts.insert({openid: openid}, noErr(function(docs) {
-                            openIdSuccess(req, res, docs[0]._id);
-                        }));
-                    }
-                }));
-            }));
-        } else {
-            res.redirect('login-failed.html');
-        }
-    });
-};
+var _ = require('underscore'),
+    app = require('../app'),
+    auth = require('../auth'),
+    decors = require('./decors'),
+    utils = require('../utils'),
+    noErr = utils.noErr,
+    loginRequired = decors.loginRequiredAjax;
 
 exports.status = function (req, res) {
-    res.okJson(!!req.user);
-};
-
-exports.logout = function (req, res) {
-    delete req.session.userId;
-    res.redirect('');
-};
-
-exports.middleware = function (req, res, next) {
-    if (!req.session.userId) {
-        req.user = null;
-        next();
-        return;
-    }
-
-    app.db.collection('accounts', noErr(function(accounts) {
-        var ob_id = null;
-        try {
-            ob_id = new BSON.ObjectID(req.session.userId);
-        } catch(err) {
-            req.user = null;
-            next();
-            return;
+    if (req.user) {
+        if (req.user.confirmed) {
+            res.okJson('ok');
+        } else {
+            res.okJson('not_confirmed');
         }
+    } else {
+        res.okJson('not_logged_in');
+    }
+};
 
-        accounts.findOne({_id: ob_id}, noErr(function(doc) {
-            req.user = doc;
-            next();
+exports.links = loginRequired(function (req, res) {
+    var result = {
+        linked: [],
+        not_linked: [],
+    };
+    _.each(auth.providers(), function (provider) {
+        if (provider in req.user.links) {
+            result.linked.push(provider);
+        } else {
+            result.not_linked.push(provider);
+        }
+    });
+
+    res.okJson(result);
+});
+
+exports.providers = function (req, res) {
+    res.okJson(auth.providers());
+};
+
+// TODO: delete account if no links
+exports.unlink = loginRequired(function (req, res) {
+    var provider = req.body.provider;
+    if (provider) {
+        app.db.collection('accounts', noErr(function(accounts) {
+            var dataset = {};
+            dataset['links.'+provider] = 1;
+
+            accounts.update({
+                _id: req.user._id
+            }, {
+                $unset: dataset
+            }, {
+                safe: true,
+            }, noErr(function () {
+                res.okJson();
+            }));
+        }));
+    } else {
+        res.errJson({reason: 'no provider'});
+    }
+});
+
+exports.confirmAccount = loginRequired(function (req, res) {
+    app.db.collection('accounts', noErr(function(accounts) {
+        accounts.update({
+            _id: req.user._id
+        }, {
+            $set: {
+                confirmed: true
+            }
+        }, {
+            safe: true,
+        }, noErr(function () {
+            res.okJson();
         }));
     }));
-};
+}, true);

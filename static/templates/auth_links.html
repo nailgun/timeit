@@ -1,0 +1,15 @@
+<p>
+Linked with
+<% _.each(providers.linked, function(provider) { %>
+    <a class="ti-linked" data-provider="<%- provider %>" href="#"><img src="<%- icons[provider] %>"></a>
+<% }); %> <small>click to unlink</small>
+</p>
+
+<% if (providers.not_linked.length) { %>
+<p>
+Link more
+<% _.each(providers.not_linked, function(provider) { %>
+    <a href="auth/<%- provider %>"><img src="<%- icons[provider] %>"></a>
+<% }); %>
+</p>
+<% } %>

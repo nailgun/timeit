@@ -54,3 +54,24 @@ exports.getCsrfToken = function(req, res) {
 exports.getVersion = function(req, res) {
     res.okJson(app.version);
 };
+
+exports.getMessages = function (req, res) {
+    var messages = req.session.messages || [];
+    req.session.messages = [];
+
+    if (req.user) {
+        messages.concat(req.user.messages);
+
+        app.db.collection('accounts', noErr(function(accounts) {
+            accounts.update({
+                _id: req.user._id
+            }, {
+                $set: {
+                    messages: []
+                }
+            });
+        }));
+    }
+
+    res.okJson(messages);
+};

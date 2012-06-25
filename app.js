@@ -65,7 +65,6 @@ function configureApplication(config, done) {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
 
-
     if (app.config.log_format) {
         app.use(express.logger(app.config.log_format));
     }
@@ -110,6 +109,9 @@ function configureApplication(config, done) {
 
 function installApplication() {
     var c = require('./controllers');
+    var auth = require('./auth');
+
+    auth.install();
 
     app.contentCache = ContentCache(app.version);
     app.assetStore = AssetStore(__dirname + '/static', app.contentCache, {
@@ -135,6 +137,9 @@ function installApplication() {
         'js/lib/backbone.template.js',
         'js/lib/backbone.bootstrap.js',
         'js/lib/bootstrap-modal.js',
+        'js/lib/bootstrap-tooltip.js',
+        'js/lib/bootstrap-popover.js',
+        'js/lib/bootstrap-alert.js',
         'js/lib/bootstrap-datepicker.js',
         'js/lib/raphael.js',
         'js/lib/moment.js',
@@ -152,6 +157,10 @@ function installApplication() {
         'js/views/EditActivityForm.js',
         'js/views/Intersection.js',
         'js/views/Today.js',
+        'js/views/AuthLinks.js',
+        'js/views/Account.js',
+        'js/views/Question.js',
+        'js/views/Alert.js',
         'js/ui.js'
     ]);
 
@@ -174,6 +183,7 @@ function installApplication() {
     }
 
     app.use(redirectRoot);
+    app.use(express.static(__dirname + '/static', {maxAge: app.config.staticFilesMaxAge*1000}));
     app.use(myResponse);
     app.use(express.bodyParser());
     app.use(express.cookieParser());
@@ -181,10 +191,9 @@ function installApplication() {
         secret: app.config.secret,
         store: new MongoStore({db: app.db}),
     }));
+    app.use(auth.middleware());
     app.use(express.csrf());
-    app.use(c.auth.middleware);
     app.use(app.router);
-    app.use(express.static(__dirname + '/static', {maxAge: app.config.staticFilesMaxAge*1000}));
     app.use(express.errorHandler({
         dumpExceptions: !!app.config.log_format,
         showStack: !!app.config.debug
@@ -204,9 +213,11 @@ function installApplication() {
     app.post('/settings', c.aux.setSettings);
     app.get ('/csrf-token', c.aux.getCsrfToken);
     app.get ('/version', c.aux.getVersion);
+    app.get ('/messages', c.aux.getMessages);
 
-    app.get ('/auth/login', c.auth.login);
-    app.get ('/auth/logout', c.auth.logout);
-    app.get ('/auth/callback', c.auth.openIdCallback);
+    app.get ('/auth/providers', c.auth.providers);
     app.get ('/auth/status', c.auth.status);
+    app.get ('/auth/links', c.auth.links);
+    app.post('/auth/unlink', c.auth.unlink);
+    app.post('/auth/confirm', c.auth.confirmAccount);
 }
