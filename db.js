@@ -50,4 +50,12 @@ exports.init = function (connectionString, callback) {
         },
         tags: [String]
     }));
+
+    exports.User.schema.post('remove', function (next) {
+        exports.Activity.remove({
+            userId: this._id
+        }, function (err) {
+            next(err);
+        });
+    });
 };
