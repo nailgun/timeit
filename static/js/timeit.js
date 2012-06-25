@@ -166,6 +166,11 @@ window.timeit = (function() {
         });
     };
 
+    timeit.redirect = function (path) {
+        currentActivity = null;
+        location.href = path;
+    };
+
     timeit.post = function(url, data) {
         return timeit.rpc('POST', url, data, {
             headers: {
@@ -188,8 +193,7 @@ window.timeit = (function() {
 
         var xhr = $.ajax(url, fullOpts).fail(function(xhr) {
             if (xhr.status == 401) {
-                currentActivity = null;
-                location.href = '.';
+                timeit.redirect('.');
             } else {
                 var msg = 'Request failed ('+xhr.status;
                 if (xhr.statusText) {

@@ -1,5 +1,6 @@
 var _ = require('underscore'),
     auth = require('../auth'),
+    db = require('../db'),
     decors = require('./decors'),
     utils = require('../utils'),
     noErr = utils.noErr,
@@ -37,17 +38,33 @@ exports.providers = function (req, res) {
     res.okJson(auth.providers());
 };
 
-// TODO: delete account if no links
 exports.unlink = loginRequired(function (req, res) {
     var provider = req.body.provider;
     if (provider) {
-        delete req.user.links[provider];
-        req.user.save(noErr(function () {
-            res.okJson();
-        }));
+        if (_.keys(req.user.links).length > 1) {
+            var dataset = {};
+            dataset['links.'+provider] = 1;
+
+            db.User.update({
+                _id: req.user._id
+            }, {
+                $unset: dataset
+            }, noErr(function () {
+                delete req.user.links[provider];
+                res.okJson();
+            }));
+        } else {
+            res.errJson({reason: 'last_link'});
+        }
     } else {
         res.errJson({reason: 'invalid_request'});
     }
+});
+
+exports.removeAccount = loginRequired(function (req, res) {
+    req.user.remove(noErr(function () {
+        res.okJson();
+    }));
 });
 
 exports.confirmAccount = loginRequired(function (req, res) {

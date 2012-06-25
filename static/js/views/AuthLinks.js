@@ -35,6 +35,18 @@ timeit.AuthLinksView = Backbone.View.extend({
                 provider: provider
             }).ok(function () {
                 view.render();
+            }).err(function (err) {
+                view.render();
+                if (err.reason == 'last_link') {
+                    var question = new timeit.QuestionView();
+                    question.show('Remove account',
+                        'This is your last link. Do you want to remove account?');
+                    question.on('ok', function () {
+                        timeit.post('auth/remove-account').ok(function () {
+                            timeit.redirect('.');
+                        });
+                    });
+                }
             });
         });
     }

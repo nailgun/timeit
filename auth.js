@@ -98,8 +98,14 @@ function linkUser (user, provider, remoteUid, callback) {
             return callback(new UserError('already exists account linked with '+provider));
         }
 
-        user.links[provider] = remoteUid;
-        user.save(function (err) {
+        db.User.update({
+            _id: user._id
+        }, {
+            $set: dataset
+        }, function (err) {
+            if (!err) {
+                user.links[provider] = remoteUid;
+            }
             callback(err, user);
         });
     });

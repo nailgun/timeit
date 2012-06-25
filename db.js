@@ -51,11 +51,9 @@ exports.init = function (connectionString, callback) {
         tags: [String]
     }));
 
-    exports.User.schema.post('remove', function (next) {
-        exports.Activity.remove({
+    exports.User.schema.post('remove', function () {
+        exports.Activity.find({
             userId: this._id
-        }, function (err) {
-            next(err);
-        });
+        }).remove();
     });
 };

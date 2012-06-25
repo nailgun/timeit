@@ -1,7 +1,5 @@
 ============
-search for TODO
 db migration
-last link - delete account?
 ============
 
 * overview

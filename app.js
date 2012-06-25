@@ -208,4 +208,5 @@ function installApplication() {
     app.get ('/auth/links', c.auth.links);
     app.post('/auth/unlink', c.auth.unlink);
     app.post('/auth/confirm', c.auth.confirmAccount);
+    app.post('/auth/remove-account', c.auth.removeAccount);
 }
