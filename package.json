@@ -19,7 +19,8 @@
       "uglify-js": "1.3.x",
       "mc": "1.0.x",
       "clean-css": "0.4.x",
-      "everyauth": "0.2.x"
+      "everyauth": "0.2.x",
+      "forms2": "0.0.1"
   },
   "devDependencies": {},
   "optionalDependencies": {},
