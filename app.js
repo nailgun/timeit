@@ -1,5 +1,4 @@
 var express = require('express'),
-    mongo = require('mongodb'),
     async = require('async'),
     url = require('url'),
     path = require('path'),
@@ -7,6 +6,7 @@ var express = require('express'),
     utils = require('./utils'),
     noErr = utils.noErr,
     fs = require('fs'),
+    db = require('./db'),
     cache = require('./cache'),
     ContentCache = require('./content_cache'),
     AssetStore = require('./asset_store'),
@@ -79,26 +79,14 @@ function configureApplication(config, done) {
             });
         },
         function(callback) {
-            if (app.config.log_format) {
-                console.log('Connecting to database...');
-            }
-
-            var mongo_port = app.config.mongo_port || mongo.Connection.DEFAULT_PORT;
-            app.db = mongo.Db(app.config.mongo_db,
-                              new mongo.Server(app.config.mongo_host, mongo_port, {}),
-                              {});
-            app.db.open(function(err, db) {
-                if (!err) {
-                    if (app.config.log_format) {
-                        console.log('Connected to database.');
-                    }
-
-                    cache.init(app.config.cache, function(err) {
-                        return callback(err);
-                    });
-                } else {
+            db.init(app.config.db, function (err) {
+                if (err) {
                     return callback(err);
                 }
+
+                cache.init(app.config.cache, function(err) {
+                    return callback(err);
+                });
             });
         }
     ], noErr(function() {
@@ -189,7 +177,7 @@ function installApplication() {
     app.use(express.cookieParser());
     app.use(express.session({
         secret: app.config.secret,
-        store: new MongoStore({db: app.db}),
+        store: new MongoStore({db: db.mongo}),
     }));
     app.use(auth.middleware());
     app.use(express.csrf());

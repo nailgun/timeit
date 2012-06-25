@@ -1,11 +1,10 @@
 var decors = require('./decors');
-var app = require('../app');
 var loginRequired = decors.loginRequiredAjax;
 var noErr = require('../utils').noErr;
 var jsonDumpFormErrors = require('../utils').jsonDumpFormErrors;
 var _ = require('underscore');
 var forms2 = require('forms2');
-var BSON = require('mongodb').BSONPure;
+var db = require('../db');
 
 function parseTags(tagsString) {
     var tags = tagsString.split(/\s*,\s*/);
@@ -14,25 +13,20 @@ function parseTags(tagsString) {
 
 // FIXME: respect user timezone
 exports.today = loginRequired(function(req, res) {
-    app.db.collection('activities', noErr(function(activities) {
-        var end = new Date();
-        end.setHours(23);
-        end.setMinutes(59);
-        end.setSeconds(59);
-        end.setMilliseconds(999);
-        var start = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    var end = new Date();
+    end.setHours(23);
+    end.setMinutes(59);
+    end.setSeconds(59);
+    end.setMilliseconds(999);
+    var start = new Date(end.getFullYear(), end.getMonth(), end.getDate());
 
-        activities.find({
-            account: req.user._id,
-            end_time: {$gte: start, $lte: end},
-        }, [
-            'name',
-            'start_time',
-            'end_time',
-            'tags'
-        ]).sort({end_time: -1}).toArray(noErr(function(docs) {
-            res.okJson(docs);
-        }));
+    db.Activity.find({
+        userId: req.user._id,
+        end_time: {$gte: start, $lte: end},
+    }).select('name', 'start_time', 'end_time', 'tags')
+      .sort('end_time', -1)
+      .exec(noErr(function(docs) {
+        res.okJson(docs);
     }));
 });
 
@@ -45,25 +39,25 @@ exports.setCurrent = loginRequired(function (req, res) {
     currentActivityForm.handle(req, {
         success: function(form) {
             var tags = parseTags(form.data.tags);
-            app.db.collection('activities', noErr(function(collection) {
-                collection.update({
-                    account: req.user._id,
-                    end_time: null,
-                }, {
-                    $set: {end_time: new Date()}
-                }, {
-                    safe: true,
-                    multi: true
-                }, noErr(function() {
-                    collection.insert({
-                        account: req.user._id,
-                        name: form.data.name,
-                        tags: tags,
-                        start_time: new Date(),
-                        end_time: null
-                    }, noErr(function(docs) {
-                        res.okJson();
-                    }));
+            db.Activity.update({
+                account: req.user._id,
+                end_time: null,
+            }, {
+                $set: {end_time: new Date()}
+            }, {
+                safe: true,
+                multi: true
+            }, noErr(function() {
+                var activity = new db.Activity({
+                    userId: req.user._id,
+                    name: form.data.name,
+                    tags: tags,
+                    start_time: new Date(),
+                    end_time: null
+                });
+
+                activity.save(noErr(function() {
+                    res.okJson();
                 }));
             }));
         },
@@ -86,21 +80,18 @@ exports.edit = loginRequired(function (req, res) {
                     return callback();
                 }
 
-                app.db.collection('activities', noErr(function(activities) {
-                    activities.findOne({
-                        account: req.user._id,
-                        end_time: null
-                    }, [
-                        'name'
-                    ], noErr(function(doc) {
-                        if (doc) {
-                            return callback({
-                                message: 'activity '+doc.name+' already in progress'
-                            });
-                        } else {
-                            return callback();
-                        }
-                    }));
+                db.Activity.findOne({
+                    userId: req.user._id,
+                    end_time: null
+                }).select('name')
+                  .exec(noErr(function(doc) {
+                    if (doc) {
+                        return callback({
+                            message: 'activity '+doc.name+' already in progress'
+                        });
+                    } else {
+                        return callback();
+                    }
                 }));
             }]
         })
@@ -117,72 +108,70 @@ exports.edit = loginRequired(function (req, res) {
             var tags = parseTags(form.data.tags);
             var isNew = !req.body._id;
 
-            app.db.collection('activities', noErr(function(collection) {
-                var queryEndTime;
-                if (form.data.in_progress) {
-                    queryEndTime = new Date();
-                } else {
-                    queryEndTime = form.data.end_time;
-                }
+            var queryEndTime;
+            if (form.data.in_progress) {
+                queryEndTime = new Date();
+            } else {
+                queryEndTime = form.data.end_time;
+            }
 
-                var query = { 
-                    account: req.user._id,
-                    $or: [{
-                        start_time: {$lt: form.data.start_time},
-                        end_time: {$gt: form.data.start_time},
-                    }, {
-                        start_time: {$lt: queryEndTime},
-                        end_time: {$gt: queryEndTime},
-                    }, {
-                        start_time: {$gte: form.data.start_time},
-                        end_time: {$lte: queryEndTime},
-                    }]
+            var query = { 
+                userId: req.user._id,
+                $or: [{
+                    start_time: {$lt: form.data.start_time},
+                    end_time: {$gt: form.data.start_time},
+                }, {
+                    start_time: {$lt: queryEndTime},
+                    end_time: {$gt: queryEndTime},
+                }, {
+                    start_time: {$gte: form.data.start_time},
+                    end_time: {$lte: queryEndTime},
+                }]
+            };
+
+            if (!isNew) {
+                query._id = {
+                    $ne: req.body._id
                 };
+            }
 
-                if (!isNew) {
-                    query._id = {
-                        $ne: new BSON.ObjectID(req.body._id)
+            // check for intersection
+            db.Activity.find(query, {
+                userId: 0
+            }).sort('end_time', 1).exec(noErr(function(docs) {
+                if (docs.length) {
+                    res.errJson({
+                        reason: 'intersection',
+                        with: docs
+                    });
+                } else {
+                    var data = {
+                        userId: req.user._id,
+                        name: form.data.name,
+                        tags: tags,
+                        start_time: form.data.start_time,
                     };
-                }
-
-                // check for intersection
-                collection.find(query, {
-                    account: 0
-                }).sort({end_time: 1}).toArray(noErr(function(docs) {
-                    if (docs.length) {
-                        res.errJson({
-                            reason: 'intersection',
-                            with: docs
-                        });
+                    if (form.data.in_progress) {
+                        data.end_time = null;
                     } else {
-                        var data = {
-                            account: req.user._id,
-                            name: form.data.name,
-                            tags: tags,
-                            start_time: form.data.start_time,
-                        };
-                        if (form.data.in_progress) {
-                            data.end_time = null;
-                        } else {
-                            data.end_time = form.data.end_time;
-                        }
-
-                        // insert/update
-                        if (isNew) {
-                            collection.insert(data, noErr(function(docs) {
-                                res.okJson();
-                            }));
-                        } else {
-                            collection.update({
-                                _id: new BSON.ObjectID(req.body._id)
-                            }, {
-                                $set: data
-                            }, noErr(function(docs) {
-                                res.okJson();
-                            }));
-                        }
+                        data.end_time = form.data.end_time;
                     }
-                }));
+
+                    // insert/update
+                    if (isNew) {
+                        new db.Activity(data).save(noErr(function () {
+                            res.okJson();
+                        }));
+                    } else {
+                        db.Activity.update({
+                            _id: req.body._id
+                        }, {
+                            $set: data
+                        }, noErr(function() {
+                            res.okJson();
+                        }));
+                    }
+                }
             }));
         },
         error: function(form) {
@@ -199,35 +188,32 @@ exports.edit = loginRequired(function (req, res) {
 });
 
 exports.stop = loginRequired(function (req, res) {
-    app.db.collection('activities', noErr(function(collection) {
-        collection.update({
-            account: req.user._id,
-            end_time: null,
-        }, {
-            $set: {end_time: new Date()}
-        }, {
-            safe: true, multi: true
-        }, noErr(function(docs) {
-            res.okJson();
-        }));
+    db.Activity.update({
+        userId: req.user._id,
+        end_time: null,
+    }, {
+        $set: {end_time: new Date()}
+    }, {
+        safe: true,
+        multi: true
+    }, noErr(function(docs) {
+        res.okJson();
     }));
 });
 
 exports.get = loginRequired(function(req, res) {
     var query = {
-        account: req.user._id
+        userId: req.user._id
     };
     if (req.query.id) {
-        query._id = new BSON.ObjectID(req.query.id);
+        query._id = req.query.id;
     } else {
         query.end_time = null;
     }
 
-    app.db.collection('activities', noErr(function(activities) {
-        activities.findOne(query, {
-            account: 0
-        }, noErr(function(doc) {
-            res.okJson(doc);
-        }));
+    db.Activity.findOne(query, {
+        userId: 0
+    }, noErr(function(doc) {
+        res.okJson(doc);
     }));
 });

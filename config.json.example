@@ -4,8 +4,7 @@
     "unixSocketMode": "0777",
     "secret": "DO NOT FORGET YOUR SECRET HERE!!!",
     "log_format": "dev",
-    "mongo_db": "timeit",
-    "mongo_host": "localhost",
+    "db": "mongodb://localhost/timeit",
     "staticFilesMaxAge": 2592000,
     "debug": false,
     "cache": {

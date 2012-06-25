@@ -1,4 +1,4 @@
-var app = require('../app');
+var db = require('../db');
 
 module.exports = function(config) {
     var driver = {
@@ -6,7 +6,7 @@ module.exports = function(config) {
     };
 
     driver.init = function(callback) {
-        app.db.collection(config.collection || 'cache', function (err, collection) {
+        db.mongo.collection(config.collection || 'cache', function (err, collection) {
             if (!err) {
                 driver.collection = collection;
             }

@@ -1,6 +1,6 @@
 var everyauth = require('everyauth'),
-    BSON = require('mongodb').BSONPure,
     app = require('./app'),
+    db = require('./db'),
     util = require('util');
 
 function UserError(msg) {
@@ -20,7 +20,7 @@ exports.install = function() {
         .handleAuthCallbackError(handleCallbackError)
         .myHostname(hostname)
         .findOrCreateUser(function (session, accessToken, accessTokenExtra, metadata) {
-            return getLinkedAccountPromise(this.Promise(), session, 'google', metadata.id, metadata);
+            return getLinkedUserPromise(this.Promise(), session, 'google', metadata.id, metadata);
         })
         .redirectPath('/');
     app.config.auth.twitter && everyauth.twitter
@@ -29,11 +29,11 @@ exports.install = function() {
         .handleAuthCallbackError(handleCallbackError)
         .myHostname(hostname)
         .findOrCreateUser(function (session, accessToken, accessTokenExtra, metadata) {
-            return getLinkedAccountPromise(this.Promise(), session, 'twitter', metadata.id, metadata);
+            return getLinkedUserPromise(this.Promise(), session, 'twitter', metadata.id, metadata);
         })
         .redirectPath('/');
 
-    everyauth.everymodule.findUserById(findAccountById);
+    everyauth.everymodule.findUserById(findUserById);
     everyauth.everymodule.logoutPath('/auth/logout');
     everyauth.everymodule.performRedirect(function (res, location) {
         if (location === '/') {
@@ -53,8 +53,8 @@ exports.providers = function() {
     return providers;
 };
 
-function getLinkedAccountPromise (promise, session, provider, remoteUid, metadata) {
-    getLinkedAccount(session, provider, remoteUid, metadata, function (err, account) {
+function getLinkedUserPromise (promise, session, provider, remoteUid, metadata) {
+    getLinkedUser(session, provider, remoteUid, metadata, function (err, account) {
         if (err) {
             promise.fail(err);
         } else {
@@ -64,14 +64,14 @@ function getLinkedAccountPromise (promise, session, provider, remoteUid, metadat
     return promise;
 }
 
-function getLinkedAccount (session, provider, remoteUid, metadata, callback) {
+function getLinkedUser (session, provider, remoteUid, metadata, callback) {
     if (session.req.user) {
         if (provider in session.req.user.links) {
             return callback(new UserError('account already linked with '+provider));
         }
-        return linkAccount(session.req.user._id, provider, remoteUid, callback);
+        return linkUser(session.req.user, provider, remoteUid, callback);
     } else {
-        findLinkedAccount(provider, remoteUid, function (err, account) {
+        findLinkedUser(provider, remoteUid, function (err, account) {
             if (err) {
                 return callback(err);
             }
@@ -79,106 +79,67 @@ function getLinkedAccount (session, provider, remoteUid, metadata, callback) {
             if (account) {
                 return callback(null, account);
             } else {
-                return createLinkedAccount (provider, remoteUid, metadata, callback);
+                return createLinkedUser (provider, remoteUid, metadata, callback);
             }
         });
     }
 }
 
-function linkAccount (accountId, provider, remoteUid, callback) {
-    app.db.collection('accounts', function(err, accounts) {
+function linkUser (user, provider, remoteUid, callback) {
+    var dataset = {};
+    dataset['links.'+provider] = remoteUid;
+
+    db.User.count(dataset, function (err, count) {
         if (err) {
             return callback(err);
         }
 
-        var dataset = {};
-        dataset['links.'+provider] = remoteUid;
+        if (count) {
+            return callback(new UserError('already exists account linked with '+provider));
+        }
 
-        accounts.count(dataset, function (err, count) {
-            if (err) {
-                return callback(err);
-            }
-
-            if (count) {
-                return callback(new UserError('already exists account linked with '+provider));
-            }
-
-            accounts.findAndModify({
-                _id: accountId
-            }, [], {
-                $set: dataset
-            }, {
-                safe: true,
-                new: true
-            }, function (err, account) {
-                if (account) {
-                    account.id = account._id;
-                }
-                callback(err, account);
-            });
+        user.links[provider] = remoteUid;
+        user.save(function (err) {
+            callback(err, user);
         });
     });
 }
 
-function findLinkedAccount (provider, remoteUid, callback) {
-    app.db.collection('accounts', function(err, accounts) {
-        if (err) {
-            return callback(err);
-        }
-
-        var query = {};
-        query['links.'+provider] = remoteUid;
-        accounts.findOne(query, function (err, account) {
-            if (account) {
-                account.id = account._id;
-            }
-            callback(err, account);
-        });
-    });
-}
-
-function createLinkedAccount (provider, remoteUid, metadata, callback) {
-    app.db.collection('accounts', function(err, accounts) {
-        if (err) {
-            return callback(err);
-        }
-
-        var account = {
-            registrationDate: new Date(),
-            confirmed: false,
-            links: {},
-            settings: {},
-        }
-        account.links[provider] = remoteUid;
-        if (metadata.name) {
-            account.settings.username = metadata.name;
-        }
-
-        accounts.insert(account, function(err, docs) {
-            if (err) {
-                return callback(err);
-            }
-            var account = docs[0];
+function findLinkedUser (provider, remoteUid, callback) {
+    var query = {};
+    query['links.'+provider] = remoteUid;
+    db.User.findOne(query, function (err, account) {
+        if (account) {
             account.id = account._id;
-            return callback(null, account);
-        });
+        }
+        callback(err, account);
     });
 }
 
-function findAccountById (id, callback) {
-    app.db.collection('accounts', function (err, accounts) {
+function createLinkedUser (provider, remoteUid, metadata, callback) {
+    var user = new db.User();
+    user.links = {};
+    user.links[provider] = remoteUid;
+    if (metadata.name) {
+        user.settings.username = metadata.name;
+    }
+    user.save(function (err) {
         if (err) {
             return callback(err);
         }
+        user.id = user._id;
+        return callback(null, user);
+    });
+}
 
-        accounts.findOne({
-            _id: new BSON.ObjectID(id)
-        }, function (err, account) {
-            if (account) {
-                account.id = account._id;
-            }
-            callback(err, account);
-        });
+function findUserById (id, callback) {
+    db.User.findOne({
+        _id: id
+    }, function (err, user) {
+        if (user) {
+            user.id = user._id;
+        }
+        callback(err, user);
     });
 }
 

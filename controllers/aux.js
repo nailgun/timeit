@@ -4,14 +4,7 @@ var loginRequired = decors.loginRequiredAjax;
 var noErr = require('../utils').noErr;
 
 exports.getSettings = loginRequired(function (req, res) {
-    app.db.collection('accounts', noErr(function(accounts) {
-        accounts.find({
-            _id: req.user._id,
-        }, ['settings']).toArray(noErr(function(docs) {
-            var settings = docs ? docs[0].settings || {} : {};
-            res.okJson(settings);
-        }));
-    }));
+    res.okJson(req.user.settings);
 });
 
 exports.setSettings = loginRequired(function (req, res) {
@@ -28,22 +21,14 @@ exports.setSettings = loginRequired(function (req, res) {
 
     var dataset = {};
     if (username) {
-        dataset['settings.username'] = username;
+        req.user.settings.username = username;
     }
     if (notifications !== undefined) {
-        dataset['settings.notifications'] = parseInt(notifications) ? true : false;
+        req.user.settings.notifications = parseInt(notifications) ? true : false;
     }
 
-    app.db.collection('accounts', noErr(function(accounts) {
-        accounts.update({
-            _id: req.user._id,
-        }, {
-            $set: dataset
-        }, {
-            safe: true
-        }, noErr(function() {
-            res.okJson();
-        }));
+    req.user.save(noErr(function() {
+        res.okJson();
     }));
 });
 
@@ -62,15 +47,8 @@ exports.getMessages = function (req, res) {
     if (req.user) {
         messages.concat(req.user.messages);
 
-        app.db.collection('accounts', noErr(function(accounts) {
-            accounts.update({
-                _id: req.user._id
-            }, {
-                $set: {
-                    messages: []
-                }
-            });
-        }));
+        req.user.messages = [];
+        req.user.save();
     }
 
     res.okJson(messages);

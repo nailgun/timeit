@@ -1,5 +1,4 @@
 var _ = require('underscore'),
-    app = require('../app'),
     auth = require('../auth'),
     decors = require('./decors'),
     utils = require('../utils'),
@@ -42,37 +41,18 @@ exports.providers = function (req, res) {
 exports.unlink = loginRequired(function (req, res) {
     var provider = req.body.provider;
     if (provider) {
-        app.db.collection('accounts', noErr(function(accounts) {
-            var dataset = {};
-            dataset['links.'+provider] = 1;
-
-            accounts.update({
-                _id: req.user._id
-            }, {
-                $unset: dataset
-            }, {
-                safe: true,
-            }, noErr(function () {
-                res.okJson();
-            }));
+        delete req.user.links[provider];
+        req.user.save(noErr(function () {
+            res.okJson();
         }));
     } else {
-        res.errJson({reason: 'no provider'});
+        res.errJson({reason: 'invalid_request'});
     }
 });
 
 exports.confirmAccount = loginRequired(function (req, res) {
-    app.db.collection('accounts', noErr(function(accounts) {
-        accounts.update({
-            _id: req.user._id
-        }, {
-            $set: {
-                confirmed: true
-            }
-        }, {
-            safe: true,
-        }, noErr(function () {
-            res.okJson();
-        }));
+    req.user.confirmed = true;
+    req.user.save(noErr(function () {
+        res.okJson();
     }));
 }, true);
