@@ -1,7 +1,4 @@
-============
-db migration
-============
-
+* activity removal
 * overview
 * massive edit
 * timezones
