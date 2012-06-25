@@ -188,6 +188,7 @@ window.timeit = (function() {
 
         var xhr = $.ajax(url, fullOpts).fail(function(xhr) {
             if (xhr.status == 401) {
+                currentActivity = null;
                 location.href = '.';
             } else {
                 var msg = 'Request failed ('+xhr.status;
