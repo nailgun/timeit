@@ -25,7 +25,9 @@
         <div class="timeit-stats"></div>
     </div>
     <div class="modal-footer">
+        <% if (showStop) { %>
         <a class="btn btn-danger pull-left timeit-stop">Stop activity</a>
+        <% } %>
         <a class="btn" data-dismiss="modal">Cancel</a>
         <button type="submit" class="btn btn-primary">Set activity</button>
     </div>

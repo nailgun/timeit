@@ -24,6 +24,12 @@ timeit.SetActivityForm = Backbone.View.extend({
         this.todayView = new timeit.TodayView();
     },
 
+    context: function (callback) {
+        callback({
+            showStop: !!timeit.currentActivity()
+        });
+    },
+
     rendered: function () {
         this.$('input[name="name"]').focus();
         this.$('.timeit-today').html(this.todayView.render().el);
