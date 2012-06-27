@@ -72,6 +72,9 @@
         tracker.on('addEarlier', function() {
             new timeit.EditActivityForm().show();
         });
+        tracker.on('overview', function() {
+            new timeit.OverviewView().show();
+        });
 
         timeit.initActivity();
 

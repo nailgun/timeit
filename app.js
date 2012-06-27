@@ -119,10 +119,7 @@ function installApplication() {
         'js/lib/jquery.favicon.js',
         'js/lib/underscore.js',
         'js/lib/backbone.js',
-        'js/lib/bootstrap-modal.js',
-        'js/lib/bootstrap-tooltip.js',
-        'js/lib/bootstrap-popover.js',
-        'js/lib/bootstrap-alert.js',
+        'js/lib/bootstrap.js',
         'js/lib/bootstrap-datepicker.js',
         'js/lib/raphael.js',
         'js/lib/moment.js',
@@ -149,6 +146,10 @@ function installApplication() {
         'js/views/Account.js',
         'js/views/Question.js',
         'js/views/Alert.js',
+        'js/views/Overview.js',
+        'js/views/DateRangePicker.js',
+        'js/views/ActivityList.js',
+        'js/views/TimeLine.js',
         'js/ui.js'
     ]);
 
@@ -193,6 +194,7 @@ function installApplication() {
 
     app.get ('/today', c.activity.today);
     app.get ('/activity', c.activity.get);
+    app.get ('/log', c.activity.getLog);
     app.post('/activity', c.activity.edit);
     app.post('/current', c.activity.setCurrent);
     app.post('/current/stop', c.activity.stop);

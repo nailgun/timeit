@@ -80,3 +80,20 @@ div.timeit-normal {
 .modal .form-horizontal {
     margin: 0;
 }
+
+.DateRangePicker .form-horizontal .control-label {
+    width: 50px;
+}
+
+.DateRangePicker .form-horizontal .controls {
+    margin-left: 70px;
+}
+
+.DateRangePicker h4 {
+    text-align: center;
+    margin: 1em 0;
+}
+
+.modal-open .dropdown-menu {
+    z-index: 2070;
+}

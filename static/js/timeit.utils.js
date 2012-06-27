@@ -131,4 +131,25 @@
             && date1.getMonth() == date2.getMonth()
             && date1.getFullYear() == date2.getFullYear();
     };
+
+    timeit.utils.intervalProps = function (a, b) {
+        var props = {};
+        if (a.format('DDMMYYYY') === b.format('DDMMYYYY')) {
+            props.sameDay = true;
+            props.sameMonth = true;
+            props.sameYear = true;
+        } else if (a.format('MMYYYY') === b.format('MMYYYY')) {
+            props.sameMonth = true;
+            props.sameYear = true;
+        } else if (a.year() === b.year()) {
+            props.sameYear = true;
+        }
+        if (a.day() === 1 && b.day() === 0) {
+            var diff = Math.abs(b.diff(a));
+            if (diff < moment.duration(8, 'days') && diff > moment.duration(6, 'days')) {
+                props.week = true;
+            }
+        }
+        return props;
+    };
 })();

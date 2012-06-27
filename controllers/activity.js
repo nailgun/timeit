@@ -217,3 +217,38 @@ exports.get = loginRequired(function(req, res) {
         res.okJson(doc);
     }));
 });
+
+var fromToForm = forms2.create({
+    from: forms2.fields.JSDateTime(),
+    to: forms2.fields.JSDateTime()
+}, function validate(form, callback) {
+    if (form.data.from > form.data.to) {
+        return callback('start must be earlier then end', 'from');
+    } else {
+        return callback();
+    }
+});
+
+// FIXME: respect user timezone
+exports.getLog = loginRequired(function(req, res) {
+    fromToForm.handle(req, {
+        success: function (form) {
+            db.Activity.find({
+                userId: req.user._id,
+                start_time: {$lte: form.data.to},
+                end_time: {$gte: form.data.from},
+            }).select({userId: 0})
+              .sort('start_time', 1)
+              .exec(noErr(function(docs) {
+                res.okJson(docs);
+            }));
+        },
+        error: function (form) {
+            var report = {
+                errors: form.errors,
+                field_errors: form.field_errors,
+            };
+            res.errJson(report);
+        }
+    });
+});

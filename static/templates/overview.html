@@ -1,0 +1,39 @@
+<div class="modal-header">
+    <button class="close ti-cancel" data-dismiss="modal">×</button>
+    <h3>Overview</h3>
+</div>
+<div class="modal-body">
+    <form class="form-search pull-right">
+
+        <input type="text" class="input-medium search-query" placeholder="Search activity, tags">
+    </form>
+
+    <div>
+        <span class="btn-group">
+            <button class="ti-back btn"><i class="icon-chevron-left"></i></button>
+            <button class="ti-home btn"><i class="icon-home"></i></button>
+            <button class="ti-forward btn"><i class="icon-chevron-right"></i></button>
+        </span>
+
+        <button class="ti-date btn"><span class="ti-txt"></span> <span class="caret"></span></button>
+    </div>
+
+    <div class="ti-timeline"></div>
+
+    <div class="tabbable">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#activities_tab" data-toggle="tab">Activities</a>
+            </li>
+            <li>
+                <a href="#totals_tab" data-toggle="tab">Totals</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="ti-activities tab-pane active" id="activities_tab">
+            </div>
+            <div class="ti-totals tab-pane" id="totals_tab">
+            </div>
+        </div>
+    </div>
+</div>
