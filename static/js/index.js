@@ -39,7 +39,12 @@
         });
 
         tracker.on('addEarlier', function() {
-            new timeit.EditActivityForm().show();
+            var addActivity = new timeit.EditActivityForm();
+            $('#tracker').html(addActivity.render().el);
+            addActivity.on('done', function () {
+                $('#tracker').html(tracker.el);
+                tracker.delegateEvents();
+            });
         });
 
         var overview = new timeit.OverviewView();

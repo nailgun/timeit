@@ -42,7 +42,7 @@ timeit.SetActivityForm = Backbone.View.extend({
 
         var view = this;
         this.todayView.on('editClicked', function(activityId) {
-            var editForm = new timeit.EditActivityForm(activityId);
+            var editForm = new timeit.EditActivityFormModal(activityId);
             editForm.on('ok', function() {
                 view.todayView.render();
             });

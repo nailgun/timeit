@@ -1,5 +1,7 @@
 <div class="modal-header">
+    <% if (this.modal) { %>
     <button class="close" data-dismiss="modal">×</button>
+    <% } %>
     <h3><% if (!activity._id) { %>Add Earlier Activity<% } else { %>Edit activity<% } %></h3>
 </div>
 
@@ -44,7 +46,7 @@
             <a href="#" class="btn btn-danger ti-remove">Remove</a>
         </div>
         <% } %>
-        <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+        <a href="#" class="btn ti-cancel" data-dismiss="modal">Cancel</a>
         <button type="submit" class="btn btn-primary"><% if (!activity._id) { %>Add<% } else { %>Update<% } %></button>
     </div>
 </form>

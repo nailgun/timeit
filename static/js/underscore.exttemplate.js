@@ -11,12 +11,13 @@
         var useExtensions;
         function wrapTemplate(template) {
             var templateFunc = function(context) {
+                var templateThis = this;
                 context = context || {};
                 context._done = [];
                 _.each(useExtensions, function(ext) {
-                    context = ext(context);
+                    context = ext.call(templateThis, context);
                 });
-                var result = template(context);
+                var result = template.call(templateThis, context);
                 _.each(context._done, function(callback) {
                     callback(result);
                 });
@@ -38,7 +39,7 @@
     function domTemplate (name, callback) {
         return _.extTemplateLoader(name, function (template) {
             function templateFunc(context) {
-                var html = template(context);
+                var html = template.call(this, context);
                 var $dom = $(html);
                 return $dom;
             }

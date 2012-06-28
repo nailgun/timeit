@@ -22,12 +22,6 @@ timeit.OverviewView = Backbone.View.extend({
         });
     },
 
-    context: function (callback) {
-        callback({
-            overview: this
-        });
-    },
-
     rendered: function () {
         this.$('.ti-date')
             .popover({

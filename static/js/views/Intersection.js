@@ -23,7 +23,7 @@ timeit.IntersectionView = Backbone.View.extend({
     onEdit: function (e) {
         e.preventDefault();
         var activityId = $(e.target).data('activity');
-        new timeit.EditActivityForm(activityId).show();
+        new timeit.EditActivityFormModal(activityId).show();
         this.$el.modal('hide');
     }
 }).mixin(Backbone.ViewMixins.Template)

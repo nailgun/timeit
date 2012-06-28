@@ -6,7 +6,12 @@ timeit.EditActivityForm = Backbone.View.extend({
         'submit form': 'submit',
         'change input.ti-date,input.ti-time': 'updateSlider',
         'changeDate input.ti-date': 'updateSlider',
-        'trigger .ti-remove': 'removeActivity'
+        'trigger .ti-remove': 'removeActivity',
+
+        'click .ti-cancel': function(e) {
+            e.preventDefault();
+            this.trigger('done');
+        },
     },
 
     initialize: function (activityId) {
@@ -113,7 +118,7 @@ timeit.EditActivityForm = Backbone.View.extend({
 
         var view = this;
         timeit.activity(activity).ok(function() {
-            view.$el.modal('hide');
+            view.trigger('done');
             view.trigger('ok');
             if (activity.in_progress) {
                 timeit.updateCurrent();
@@ -132,10 +137,22 @@ timeit.EditActivityForm = Backbone.View.extend({
         timeit.post('remove', {
             id: this.activityId
         }).ok(function() {
-            view.$el.modal('hide');
+            view.trigger('done');
             view.trigger('ok');
         });
     }
 }).mixin(Backbone.ViewMixins.Template)
-  .mixin(Backbone.ViewMixins.Modal)
   .mixin(Backbone.ViewMixins.ClearError);
+
+timeit.EditActivityFormModal = timeit.EditActivityForm.extend({
+    events: {
+        'done': function () {
+            this.$el.modal('hide');
+        }
+    },
+
+    initialize: function () {
+        timeit.EditActivityForm.prototype.initialize.apply(this, arguments);
+        this.modal = true;
+    }
+}).mixin(Backbone.ViewMixins.Modal);
