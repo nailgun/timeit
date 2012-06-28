@@ -97,13 +97,26 @@ div.ti-control {
     height: 100%;
     text-align: right;
     padding-right: 4px;
-    background-color: #D4D3D2;
     -webkit-border-top-right-radius: 2px;
     -webkit-border-bottom-right-radius: 2px;
     -moz-border-radius-topright: 2px;
     -moz-border-radius-bottomright: 2px;
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
+    background-color: #D4D3D2;
+    cursor: pointer;
+}
+
+.TotalsView .ti-bar span.hover {
+    background-color: #A8A7A7;
+}
+
+.TotalsView .ti-bar span.active {
+    background-color: #08C;
+}
+
+.TotalsView .ti-bar span.active.hover {
+    background-color: #78B0CC;
 }
 
 /* === OLD === */

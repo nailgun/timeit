@@ -4,13 +4,18 @@ timeit.TotalsView = Backbone.View.extend({
 
     initialize: function () {
         this.totals = {
-            activities: {},
-            tags: {}
+            activity: {},
+            tag: {}
+        };
+        this.filter = {
+            activity: [],
+            tag: []
         };
         this.animationDuration = 1000;
     },
 
     render: function (activities) {
+        this.activities = activities;
         if (this.isRendered) {
             this.rendered(activities);
             return this;
@@ -19,17 +24,19 @@ timeit.TotalsView = Backbone.View.extend({
         }
     },
 
-    rendered: function (activities) {
+    rendered: function () {
         this.isRendered = true;
         var view = this;
 
-        // reset duration
-        _.each(this.totals.activities, function (total) {
+        // reset all
+        _.each(this.totals.activity, function (total) {
             total.duration = 0;
+            total.display = false;
         });
 
-        _.each(this.totals.tags, function (total) {
+        _.each(this.totals.tag, function (total) {
             total.duration = 0;
+            total.display = false;
         });
 
         var maxActivityDuration = 0;
@@ -37,23 +44,42 @@ timeit.TotalsView = Backbone.View.extend({
         var absoluteTotal = 0;
 
         // sum durations
-        _.each(activities, function (activity) {
-            var total = view.totals.activities[activity.name] = 
-                view.totals.activities[activity.name] || {
+        _.each(this.activities, function (activity) {
+            var total = view.totals.activity[activity.name] = 
+                view.totals.activity[activity.name] || {
                     duration: 0
                 };
+            total.display = true;
+            var include = true;
+
+            if (!_.isEmpty(view.filter.activity) && !_.include(view.filter.activity, activity.name)) {
+                include = false;
+            }
+
+            if (include && !_.all(view.filter.tag, function (tag) {
+                return _.include(activity.tags, tag);
+            })) {
+                include = false;
+            }
+
             var duration = activity.end_time.diff(activity.start_time);
-            total.duration += duration;
             absoluteTotal += duration;
-            maxActivityDuration = Math.max(total.duration, maxActivityDuration);
+            if (include) {
+                total.duration += duration;
+                maxActivityDuration = Math.max(total.duration, maxActivityDuration);
+            }
 
             _.each(activity.tags, function (tag) {
-                var total = view.totals.tags[tag] = 
-                    view.totals.tags[tag] || {
+                var total = view.totals.tag[tag] = 
+                    view.totals.tag[tag] || {
                         duration: 0
                     };
-                total.duration += activity.end_time.diff(activity.start_time);
-                maxTagDuration = Math.max(total.duration, maxTagDuration);
+                total.display = true;
+
+                if (include) {
+                    total.duration += activity.end_time.diff(activity.start_time);
+                    maxTagDuration = Math.max(total.duration, maxTagDuration);
+                }
             });
         });
         
@@ -70,9 +96,9 @@ timeit.TotalsView = Backbone.View.extend({
             return Math.round(hours * 10) / 10;
         }
 
-        function addBars ($container, totals, max) {
-            _.each(totals, function (total, name) {
-                if (total.duration == 0) {
+        function addBars ($container, type, max) {
+            _.each(view.totals[type], function (total, name) {
+                if (!total.display) {
                     if (total.$el) {
                         total.$el.remove();
                         total.$el = null;
@@ -91,11 +117,27 @@ timeit.TotalsView = Backbone.View.extend({
                     total.$el.append($caption);
 
                     $container.append(total.$el);
+
+                    total.$bar.mouseover(function () {
+                        total.$bar.addClass('hover');
+                    }).mouseout(function () {
+                        total.$bar.removeClass('hover');
+                    }).click(function () {
+                        if (_.include(view.filter[type], name)) {
+                            view.filter[type] = _.without(view.filter[type], name);
+                            total.$bar.removeClass('active');
+                        } else {
+                            view.filter[type].push(name);
+                            total.$bar.addClass('active');
+                        }
+                        view.render(view.activities);
+                    });
                 }
 
                 var maxWidth = total.$bar.parent().width();
+                var width = maxWidth * total.duration / max || 1;
                 total.$bar.animate({
-                    width: maxWidth * total.duration / max
+                    width: width
                 }, {
                     duration: view.animationDuration,
                     easing: 'swing'
@@ -104,8 +146,8 @@ timeit.TotalsView = Backbone.View.extend({
             });
         }
 
-        addBars(this.$('.ti-activities'), this.totals.activities, maxActivityDuration);
-        addBars(this.$('.ti-tags'), this.totals.tags, maxTagDuration);
+        addBars(this.$('.ti-activities'), 'activity', maxActivityDuration);
+        addBars(this.$('.ti-tags'), 'tag', maxTagDuration);
 
         this.$('.ti-total').text(ms2hours(absoluteTotal));
     },
