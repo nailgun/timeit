@@ -1,4 +1,6 @@
 timeit.TimeLineView = Backbone.View.extend({
+    className: 'TimeLineView',
+
     initialize: function () {
         this.fontSize = 10;
     },
@@ -20,6 +22,8 @@ timeit.TimeLineView = Backbone.View.extend({
         } else {
             this.renderIntervals(activities, moment.duration(1, 'weeks'), 'MMM D');
         }
+
+        return this;
     },
 
     renderIntervals: function (activities, intervalDuration, captionFormat) {

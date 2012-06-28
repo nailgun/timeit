@@ -41,7 +41,7 @@ timeit.OverviewView = Backbone.View.extend({
             })
 
         this.activityList = new timeit.ActivityListView({
-            el: this.$('.ti-activities'),
+            el: this.$('.ActivityListView'),
             groupByDate: true,
             allowEdit: true
         });
@@ -49,7 +49,7 @@ timeit.OverviewView = Backbone.View.extend({
             view.updateData();
         });
         this.timeline = new timeit.TimeLineView({
-            el: this.$('.ti-timeline')
+            el: this.$('.TimeLineView')
         });
         this.timeline.on('fall', function (newFrom, newTo) {
             if (newTo.diff(newFrom) > (moment.duration(1, 'days') - 1000)) {
@@ -57,6 +57,9 @@ timeit.OverviewView = Backbone.View.extend({
                 view.to = newTo;
                 view.onDateChange();
             }
+        });
+        this.totals = new timeit.TotalsView({
+            el: this.$('.TotalsView')
         });
         this.onDateChange();
     },
@@ -103,6 +106,7 @@ timeit.OverviewView = Backbone.View.extend({
             });
             view.activityList.render(activities);
             view.timeline.render(view.from, view.to, activities);
+            view.totals.render(activities);
         });
     },
 

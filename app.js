@@ -156,6 +156,7 @@ function installApplication() {
         'js/views/DateRangePicker.js',
         'js/views/ActivityList.js',
         'js/views/TimeLine.js',
+        'js/views/Totals.js',
         'js/version.js',
     ]);
 
