@@ -4,6 +4,9 @@ timeit.OverviewView = Backbone.View.extend({
 
     events: {
         'click .ti-date': 'onDateClick',
+        'click .ti-back': 'onBack',
+        'click .ti-forward': 'onForward',
+        'click .ti-home': 'onHome',
         'hide': 'hidePicker',
         'keyup .search-query': 'onSearchQueryChange',
         'submit form': 'forceSearch'
@@ -74,11 +77,12 @@ timeit.OverviewView = Backbone.View.extend({
             txt = this.from.format('MMM D, YYYY -') + this.to.format('MMM D, YYYY');
         }
         this.$('.ti-txt').text(txt);
-        this.$('.ti-preloader').show();
         this.updateData();
     },
 
     updateData: function () {
+        this.$('.ti-preloader').show();
+
         var view = this;
         timeit.get('log', {
             from: this.from.toDate(),
@@ -126,5 +130,32 @@ timeit.OverviewView = Backbone.View.extend({
         } else {
             this.$('.ti-preloader').hide();
         }
+    },
+
+    intervalProps: function () {
+        return timeit.utils.intervalProps(this.from, this.to);
+    },
+
+    onBack: function (e) {
+        e.preventDefault();
+        var diff = this.to.diff(this.from)+1;
+        this.from.subtract(diff);
+        this.to.subtract(diff);
+        this.onDateChange();
+    },
+
+    onForward: function (e) {
+        e.preventDefault();
+        var diff = this.to.diff(this.from)+1;
+        this.from.add(diff);
+        this.to.add(diff);
+        this.onDateChange();
+    },
+
+    onHome: function (e) {
+        e.preventDefault();
+        this.from = moment().sod();
+        this.to = moment().eod();
+        this.onDateChange();
     }
 }).mixin(Backbone.ViewMixins.Template);
