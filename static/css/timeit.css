@@ -1,47 +1,83 @@
+/* === BODY === */
 html, body {
+    height: 100%;
+}
+
+div.ti-body {
     height: 100%;
     margin: 0;
     padding: 0;
     text-align: center;
 }
 
-span.timeit-control {
+span.ti-control {
     height: 100%;
     vertical-align: middle;
     display: inline-block;
 }
 
-div.timeit-control {
+div.ti-control {
     vertical-align: middle;
     display: inline-block;
-    text-align: left;
 }
 
-div.timeit-normal {
-    text-align: left;
+/* === BOOTSTRAP CUSTOMIZTION === */
+.modal .form-horizontal {
+    margin: 0;
 }
 
-.row-template {
-    display: none;
+.dropdown-menu {
+    z-index: 1020;
 }
 
-.timeit-tracker .timeit-now {
-    cursor: pointer;
+.modal-open .dropdown-menu {
+    z-index: 2070;
+}
+
+.large {
+    font-size: 150%;
+}
+
+/* === VIEWS === */
+.TrackerView {
+    min-width: 220px;
     text-align: center;
-    position: relative;
 }
 
-.timeit-tracker .timeit-message {
-    position: absolute;
-    top: -50px;
-    width: 100%;
-    font-size: 150%;
+.TrackerView .ti-set-activity {
+    cursor: pointer;
 }
 
-.timeit-tracker .timeit-timer {
-    font-size: 150%;
+.ActivityListView {
+    cursor: default;
 }
 
+.ActivityListView a {
+    cursor: pointer;
+}
+
+.DateRangePickerView .form-horizontal .control-label {
+    width: 50px;
+}
+
+.DateRangePickerView .form-horizontal .controls {
+    margin-left: 70px;
+}
+
+.DateRangePickerView h4 {
+    text-align: center;
+    margin: 1em 0;
+}
+
+.OverviewView {
+    width: 640px;
+}
+
+.OverviewView .tab-content {
+    height: 300px;
+}
+
+/* === OLD === */
 .timeit-seltable {
     cursor: default;
 }
@@ -50,50 +86,6 @@ div.timeit-normal {
     cursor: pointer;
 }
 
-.timeit-set-activity-form .dash {
+.SetActivityFormView .dash {
     width: 1em;
-}
-
-#tools_div {
-    position: absolute;
-    right: 30px;
-    top: 30px;
-    margin: 0;
-}
-
-#version_div {
-    color: #aaa;
-    position: absolute;
-    right: 30px;
-    bottom: 30px;
-}
-
-#messages {
-    position: absolute;
-    top: 30px;
-    left: 50%;
-    width: 300px;
-    margin-left: -150px;
-    z-index: 10;
-}
-
-.modal .form-horizontal {
-    margin: 0;
-}
-
-.DateRangePicker .form-horizontal .control-label {
-    width: 50px;
-}
-
-.DateRangePicker .form-horizontal .controls {
-    margin-left: 70px;
-}
-
-.DateRangePicker h4 {
-    text-align: center;
-    margin: 1em 0;
-}
-
-.modal-open .dropdown-menu {
-    z-index: 2070;
 }

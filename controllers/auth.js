@@ -34,10 +34,6 @@ exports.links = loginRequired(function (req, res) {
     res.okJson(result);
 });
 
-exports.providers = function (req, res) {
-    res.okJson(auth.providers());
-};
-
 exports.unlink = loginRequired(function (req, res) {
     var provider = req.body.provider;
     if (provider) {
@@ -66,10 +62,3 @@ exports.removeAccount = loginRequired(function (req, res) {
         res.okJson();
     }));
 });
-
-exports.confirmAccount = loginRequired(function (req, res) {
-    req.user.confirmed = true;
-    req.user.save(noErr(function () {
-        res.okJson();
-    }));
-}, true);

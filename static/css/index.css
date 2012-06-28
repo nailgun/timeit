@@ -1,0 +1,39 @@
+div.ti-control > .tab-content {
+    text-align: left;
+}
+
+#nav {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    width: 300px;
+    margin-left: -150px;
+    text-align: center;
+}
+
+#nav > ul {
+    display: inline-block;
+}
+
+#messages {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    width: 300px;
+    margin-left: -150px;
+    z-index: 10;
+}
+
+#tools_div {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    margin: 0;
+}
+
+#version_div {
+    color: #aaa;
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+}

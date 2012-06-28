@@ -1,6 +1,6 @@
 timeit.EditActivityForm = Backbone.View.extend({
     template: 'edit_activity_form.html',
-    className: 'timeit-edit-activity-form timeit-normal',
+    className: 'EditActivityFormView',
 
     events: {
         'submit form': 'submit',

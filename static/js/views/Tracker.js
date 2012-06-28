@@ -1,19 +1,15 @@
 timeit.TrackerView = Backbone.View.extend({
     template: 'tracker.html',
-    className: 'timeit-tracker',
+    className: 'TrackerView',
 
     events: {
-        'click .timeit-now': function(e) {
+        'click .ti-set-activity': function(e) {
             e.preventDefault();
             timeit.valid && this.trigger('click');
         },
-        'click .timeit-add-earlier-btn': function(e) {
+        'click .ti-add-earlier-btn': function(e) {
             e.preventDefault();
             timeit.valid && this.trigger('addEarlier');
-        },
-        'click .timeit-overview-btn': function(e) {
-            e.preventDefault();
-            timeit.valid && this.trigger('overview');
         }
     },
 
@@ -39,19 +35,19 @@ timeit.TrackerView = Backbone.View.extend({
     update: function() {
         var activity = timeit.currentActivity();
         if (activity) {
-            this.$('.timeit-name').text(activity.name);
-            this.$('.timeit-subtext').text('');
+            this.$('.ti-name').text(activity.name);
+            this.$('.ti-subtext').text('');
             this.updateTimer();
         } else {
-            this.$('.timeit-name').text('No activity');
-            this.$('.timeit-subtext').text('Click here to set activity');
-            this.$('.timeit-timer').text('');
+            this.$('.ti-name').text('No activity');
+            this.$('.ti-subtext').text('Click here to set activity');
+            this.$('.ti-timer').text('');
         }
     },
 
     pending: function() {
-        this.$('.timeit-name').text('Working...');
-        this.$('.timeit-subtext').text('Please take a while');
+        this.$('.ti-name').text('Working...');
+        this.$('.ti-subtext').text('Please take a while');
     },
 
     updateTimer: function() {
@@ -59,7 +55,7 @@ timeit.TrackerView = Backbone.View.extend({
         if (activity) {
             var ms = timeit.timeElapsedMs();
             var text = new timeit.utils.TimeDelta(ms).format('%H:%0M:%0S')[0];
-            this.$('.timeit-timer').text(text);
+            this.$('.ti-timer').text(text);
         }
     }
 }).mixin(Backbone.ViewMixins.Template);

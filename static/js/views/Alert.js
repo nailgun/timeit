@@ -1,6 +1,6 @@
 timeit.AlertView = Backbone.View.extend({
     template: 'alert.html',
-    className: 'alert timeit-normal',
+    className: 'alert',
 
     initialize: function (opts) {
         this.title = opts.title || '';

@@ -1,18 +1,18 @@
 var _ = require('underscore'),
     fs = require('fs'),
+    url = require('url'),
     path = require('path'),
     async = require('async'),
     crypto = require('crypto'),
     uglify = require('uglify-js'),
     cleanCss = require('clean-css');
 
-module.exports = function(storePath, contentCache, opts) {
-    opts = opts || {};
-
+module.exports = function(opts) {
     var store = {
-        path: storePath,
-        contentCache: contentCache,
-        options: opts
+        assetRoot: opts.assetRoot,
+        assetUrl: opts.assetUrl,
+        contentCache: opts.contentCache,
+        compile: opts.compile,
     };
 
     var assets = {};
@@ -20,7 +20,7 @@ module.exports = function(storePath, contentCache, opts) {
     store.register = function (name, items) {
         var overwrite = name in assets;
         if (overwrite) {
-            contentCache.invalidate('asset', name);
+            store.contentCache.invalidate('asset', name);
         }
 
         var asset = assets[name] = {};
@@ -46,18 +46,18 @@ module.exports = function(storePath, contentCache, opts) {
         if (!assets[name]) {
             return callback(new Error('not registered'));
         }
-        if (!opts.compile) {
+        if (!store.compile) {
             return callback(new Error('not compiled'));
         }
 
-        contentCache.get('asset', name, function(err, content) {
+        store.contentCache.get('asset', name, function(err, content) {
             if (!err) {
                 callback(null, content);
             } else {
                 compile(name, function(err, content) {
                     callback(err, content);
                     if (!err) {
-                        contentCache.set('asset', name, content, function(err) {
+                        store.contentCache.set('asset', name, content, function(err) {
                             // TODO: warn on err
                         });
                     }
@@ -105,9 +105,12 @@ module.exports = function(storePath, contentCache, opts) {
     };
 
     function joinInclude (name, parts, callback) {
-        if (opts.compile) {
-            return callback(null, parts.prefix+name+'?'+assets[name].digest+parts.postfix);
-
+        if (store.compile) {
+            return callback(null,
+                    parts.prefix+
+                    path.join(store.assetUrl, name)+
+                    '?'+assets[name].digest+
+                    parts.postfix);
         } else {
             async.map(assets[name].items, function (item, callback) {
                 if (!_.isFunction(item)) {
@@ -135,8 +138,34 @@ module.exports = function(storePath, contentCache, opts) {
         opts.subDir = opts.subDir || '';
         opts.objectName = opts.objectName || 'templates';
 
-        return opts.compile ? [function (callback) {
+        return store.compile ? [function (callback) {
         }] : [];
+    };
+
+    store.middleware = function () {
+        var regexp = RegExp('^'+path.join('/', store.assetUrl, '(.+)')+'$');
+
+        return function (req, res, next) {
+            var pathname = url.parse(req.url).pathname;
+            var m = regexp.exec(pathname);
+            if (!m) {
+                return next();
+            }
+            var assetName = m[1];
+
+            if (assetName in assets) {
+                store.getContent(assetName, function (err, content) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        res.header('Content-Type', store.getContentType(assetName));
+                        res.end(content);
+                    }
+                });
+            } else {
+                next();
+            }
+        };
     };
 
     function compile(name, callback) {
@@ -185,7 +214,7 @@ module.exports = function(storePath, contentCache, opts) {
 
         async.map(items, function(item, callback) {
             if (!_.isFunction(item)) {
-                var filePath = path.join(storePath, item);
+                var filePath = path.join(store.assetRoot, item);
                 fs.readFile(filePath, 'utf8', callback);
             } else {
                 item(store, callback);

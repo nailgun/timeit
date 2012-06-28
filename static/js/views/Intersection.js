@@ -1,6 +1,5 @@
 timeit.IntersectionView = Backbone.View.extend({
     template: 'intersection.html',
-    className: 'timeit-normal',
 
     events: {
         'click .edit': 'onEdit'

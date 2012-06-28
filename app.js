@@ -102,19 +102,26 @@ function installApplication() {
     auth.install();
 
     app.contentCache = ContentCache(app.version);
-    app.assetStore = AssetStore(__dirname + '/static', app.contentCache, {
-        compile: !app.config.debug
+    app.assetStore = AssetStore({
+        assetRoot: __dirname + '/static',
+        assetUrl: 'assets',
+        contentCache: app.contentCache,
+        compile: !app.config.debug,
     });
     app.renderer = template.Renderer(__dirname + '/templates');
     app.renderer.contextExtensions.push(context_extensions.AssetCompiler(app.assetStore));
 
-    app.assetStore.register('app.css', [
+    app.assetStore.register('timeit.css', [
         'css/bootstrap.css',
         'css/datepicker.css',
         'css/timeit.css',
     ]);
 
-    app.assetStore.register('app.js', [
+    app.assetStore.register('index.css', [
+        'css/index.css',
+    ]);
+
+    app.assetStore.register('timeit.js', [
         'js/lib/jquery.js',
         'js/lib/jquery.favicon.js',
         'js/lib/underscore.js',
@@ -135,8 +142,6 @@ function installApplication() {
                 templateDir: 'templates',
                 objectName: 'timeit.loadTemplate'
         }),
-        'js/views/Login.js',
-        'js/views/Username.js',
         'js/views/Tracker.js',
         'js/views/SetActivityForm.js',
         'js/views/EditActivityForm.js',
@@ -150,7 +155,11 @@ function installApplication() {
         'js/views/DateRangePicker.js',
         'js/views/ActivityList.js',
         'js/views/TimeLine.js',
-        'js/ui.js'
+        'js/version.js',
+    ]);
+
+    app.assetStore.register('index.js', [
+        'js/index.js',
     ]);
 
     function redirectRoot(req, res, next) {
@@ -171,8 +180,17 @@ function installApplication() {
         next();
     }
 
+    var staticPath = path.join(__dirname, 'static');
+    var icoPath = path.join(path.dirname(require.resolve('everyauth')), 'media');
+
     app.use(redirectRoot);
-    app.use(express.static(__dirname + '/static', {maxAge: app.config.staticFilesMaxAge*1000}));
+    app.use(express.static(staticPath, {
+        maxAge: app.config.staticFilesMaxAge * 1000
+    }));
+    app.use('/ico', express.static(icoPath, {
+        maxAge: app.config.staticFilesMaxAge * 1000
+    }));
+    app.use(app.assetStore.middleware());
     app.use(myResponse);
     app.use(express.bodyParser());
     app.use(express.cookieParser());
@@ -189,8 +207,9 @@ function installApplication() {
     }));
 
     app.get ('/', c.index);
-    app.get ('/app.js', c.asset);
-    app.get ('/app.css', c.asset);
+    app.get ('/login', c.login);
+    app.get ('/confirm', c.getConfirm);
+    app.post('/confirm', c.postConfirm);
 
     app.get ('/today', c.activity.today);
     app.get ('/activity', c.activity.get);
@@ -205,10 +224,8 @@ function installApplication() {
     app.get ('/version', c.aux.getVersion);
     app.get ('/messages', c.aux.getMessages);
 
-    app.get ('/auth/providers', c.auth.providers);
     app.get ('/auth/status', c.auth.status);
     app.get ('/auth/links', c.auth.links);
     app.post('/auth/unlink', c.auth.unlink);
-    app.post('/auth/confirm', c.auth.confirmAccount);
     app.post('/auth/remove-account', c.auth.removeAccount);
 }

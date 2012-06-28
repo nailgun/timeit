@@ -1,6 +1,6 @@
 timeit.OverviewView = Backbone.View.extend({
     template: 'overview.html',
-    className: 'timeit-normal Overview',
+    className: 'OverviewView',
 
     events: {
         'click .ti-date': 'onDateClick',
@@ -85,5 +85,4 @@ timeit.OverviewView = Backbone.View.extend({
             view.timeline.render(view.from, view.to, activities);
         });
     }
-}).mixin(Backbone.ViewMixins.Template)
-  .mixin(Backbone.ViewMixins.Modal);
+}).mixin(Backbone.ViewMixins.Template);

@@ -9,8 +9,8 @@ exports.TemplateLoader = function (opts) {
     opts.objectName = opts.objectName || 'loadTemplate';
 
     return function (store, callback) {
-        if (store.options.compile) {
-            var dir = path.join(store.path, opts.templateDir);
+        if (store.compile) {
+            var dir = path.join(store.assetRoot, opts.templateDir);
 
             compileTemplates(dir, function(err, compiled) {
                 if (err) {
@@ -36,13 +36,24 @@ exports.TemplateLoader = function (opts) {
                 return callback(err);
             }
 
+            files = _.filter(files, function (file) {
+                return file[0] != '.';
+            });
+
             async.map(files, function(file, callback) {
                 fs.readFile(path.join(dir, file), 'utf8', function (err, source) {
                     if (err) {
                         return callback(err);
                     }
 
-                    var compiled = _.template(source).source;
+                    var compiled;
+                    try {
+                        compiled = _.template(source).source;
+                    } catch (err) {
+                        err.message = file + ': ' + err.message;
+                        throw err;
+                    }
+
                     return callback(null, '"'+file+'":'+compiled);
                 });
             }, function (err, compiled) {

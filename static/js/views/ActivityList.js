@@ -1,6 +1,6 @@
 timeit.ActivityListView = Backbone.View.extend({
     template: 'activity_list.html',
-    className: 'timeit-normal',
+    className: 'ActivityListView',
 
     events: {
         'click .edit': 'onEdit'

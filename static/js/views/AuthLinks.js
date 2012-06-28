@@ -1,6 +1,5 @@
 timeit.AuthLinksView = Backbone.View.extend({
     template: 'auth_links.html',
-    className: 'timeit-normal',
 
     events: {
         'click .ti-linked': 'onLinkedClicked'
@@ -12,11 +11,8 @@ timeit.AuthLinksView = Backbone.View.extend({
     
     context: function (callback) {
         timeit.get('auth/links').ok(function (providers) {
-            $.get('authicons.json').done(function (icons) {
-                callback({
-                    providers: providers,
-                    icons: icons
-                });
+            callback({
+                providers: providers
             });
         });
     },

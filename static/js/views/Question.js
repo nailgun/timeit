@@ -1,6 +1,5 @@
 timeit.QuestionView = Backbone.View.extend({
     template: 'question.html',
-    className: 'timeit-normal',
 
     events: {
         'click .ti-ok': 'onOk',

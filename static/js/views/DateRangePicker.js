@@ -1,6 +1,6 @@
 timeit.DateRangePickerView = Backbone.View.extend({
     template: 'date_range_picker.html',
-    className: 'timeit-normal DateRangePicker',
+    className: 'DateRangePickerView',
 
     events: {
         'submit form': 'onSubmit',
@@ -45,6 +45,7 @@ timeit.DateRangePickerView = Backbone.View.extend({
     },
 
     onPick: function (e) {
+        e.preventDefault();
         var pick = this[$(e.target).data('pick')];
         this.trigger('select', pick[0], pick[1]);
     },

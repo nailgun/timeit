@@ -94,6 +94,10 @@ exports.Renderer = function(templatesPath) {
     };
 
     renderer.render = function(name, context, callback) {
+        if (context.wrap === undefined) {
+            context = exports.Context(context);
+        }
+
         _.each(renderer.contextExtensions, function(ext) {
             context = ext(context);
         });

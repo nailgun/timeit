@@ -1,15 +1,21 @@
 timeit.SetActivityForm = Backbone.View.extend({
     template: 'set_activity_form.html',
-    className: 'timeit-set-activity-form timeit-normal',
+    className: 'SetActivityForm',
 
     events: {
         'submit form': 'submit',
 
-        'click .timeit-stop': function(e) {
+        'click .ti-stop': function(e) {
             e.preventDefault();
             timeit.currentActivity(null);
-            this.$el.modal('hide');
+            this.trigger('done');
         },
+
+        'click .ti-cancel': function(e) {
+            e.preventDefault();
+            this.trigger('done');
+        },
+
         'click table tr': function(e) {
             this.onTableClick(e);
         },
@@ -32,7 +38,7 @@ timeit.SetActivityForm = Backbone.View.extend({
 
     rendered: function () {
         this.$('input[name="name"]').focus();
-        this.$('.timeit-today').html(this.todayView.render().el);
+        this.$('.ti-today').html(this.todayView.render().el);
 
         var view = this;
         this.todayView.on('editClicked', function(activityId) {
@@ -51,7 +57,7 @@ timeit.SetActivityForm = Backbone.View.extend({
 
         var view = this;
         timeit.currentActivity(activity).ok(function() {
-            view.$el.modal('hide');
+            view.trigger('done');
         }).err(function(report) {
             timeit.utils.setFormErrors(view.$el, report);
         });
@@ -67,5 +73,4 @@ timeit.SetActivityForm = Backbone.View.extend({
         timeit.utils.formData(this.$('form'), activity);
     }
 }).mixin(Backbone.ViewMixins.Template)
-  .mixin(Backbone.ViewMixins.Modal)
   .mixin(Backbone.ViewMixins.ClearError);
