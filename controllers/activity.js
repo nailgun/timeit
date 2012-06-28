@@ -245,6 +245,9 @@ exports.getLog = loginRequired(function(req, res) {
             var searchTerms = '';
             if (form.data.search) {
                 searchTerms = form.data.search.toLowerCase().split(/\s/);
+                searchTerms = _.filter(searchTerms, function (term) {
+                    return !!term;
+                });
             }
 
             if (searchTerms) {
