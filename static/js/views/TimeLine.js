@@ -23,6 +23,7 @@ timeit.TimeLineView = Backbone.View.extend({
     },
 
     renderIntervals: function (activities, intervalDuration, captionFormat) {
+        var view = this;
         var intervalCount = this.to.diff(this.from) / intervalDuration;
 
         var intervals = [];
@@ -81,8 +82,26 @@ timeit.TimeLineView = Backbone.View.extend({
 
             this.paper.rect(x, this.paper.height - height, intervalWidth-2, height).attr({
                 fill: '#D4D3D2',
-                stroke: '#D4D3D2'
-            });
+                stroke: '#D4D3D2',
+                cursor: 'pointer'
+            }).mouseover(function () {
+                this.attr({
+                    fill: '#A8A7A7',
+                    stroke: '#A8A7A7'
+                });
+            }).mouseout(function () {
+                this.attr({
+                    fill: '#D4D3D2',
+                    stroke: '#D4D3D2'
+                });
+            }).click((function (intervalStart) {
+                return function () {
+                    view.trigger('fall',
+                        intervalStart,
+                        moment(intervalStart).add(intervalDuration-1)
+                    );
+                }
+            })(moment(intervalStart)));
 
             intervalStart.add(intervalDuration);
         }

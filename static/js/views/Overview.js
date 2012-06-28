@@ -51,6 +51,13 @@ timeit.OverviewView = Backbone.View.extend({
         this.timeline = new timeit.TimeLineView({
             el: this.$('.ti-timeline')
         });
+        this.timeline.on('fall', function (newFrom, newTo) {
+            if (newTo.diff(newFrom) > (moment.duration(1, 'days') - 1000)) {
+                view.from = newFrom;
+                view.to = newTo;
+                view.onDateChange();
+            }
+        });
         this.onDateChange();
     },
 
