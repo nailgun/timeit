@@ -252,3 +252,12 @@ exports.getLog = loginRequired(function(req, res) {
         }
     });
 });
+
+exports.remove = loginRequired(function(req, res) {
+    db.Activity.remove({
+        userId: req.user._id,
+        _id: req.body.id
+    }, noErr(function() {
+        res.okJson();
+    }));
+});

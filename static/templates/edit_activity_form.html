@@ -39,7 +39,12 @@
         </div>
     </div>
     <div class="modal-footer">
-        <a class="btn" data-dismiss="modal">Cancel</a>
+        <% if (activity._id) { %>
+        <div class="pull-left">
+            <a href="#" class="btn btn-danger ti-remove">Remove</a>
+        </div>
+        <% } %>
+        <a href="#" class="btn" data-dismiss="modal">Cancel</a>
         <button type="submit" class="btn btn-primary"><% if (!activity._id) { %>Add<% } else { %>Update<% } %></button>
     </div>
 </form>

@@ -132,6 +132,7 @@ function installApplication() {
         'js/lib/moment.js',
         'js/underscore.exttemplate.js',
         'js/jquery.time-slider.js',
+        'js/jquery.hold-button.js',
         'js/jquery.disableselection.js',
         'js/backbone.mixin.js',
         'js/backbone.template.js',
@@ -215,6 +216,7 @@ function installApplication() {
     app.get ('/activity', c.activity.get);
     app.get ('/log', c.activity.getLog);
     app.post('/activity', c.activity.edit);
+    app.post('/remove', c.activity.remove);
     app.post('/current', c.activity.setCurrent);
     app.post('/current/stop', c.activity.stop);
 

@@ -1,11 +1,12 @@
 timeit.EditActivityForm = Backbone.View.extend({
     template: 'edit_activity_form.html',
-    className: 'EditActivityFormView',
+    className: 'EditActivityForm',
 
     events: {
         'submit form': 'submit',
         'change input.ti-date,input.ti-time': 'updateSlider',
         'changeDate input.ti-date': 'updateSlider',
+        'trigger .ti-remove': 'removeActivity'
     },
 
     initialize: function (activityId) {
@@ -72,6 +73,8 @@ timeit.EditActivityForm = Backbone.View.extend({
             view.$('input.ti-end').attr('disabled', false);
             view.setTimes(moment(from), moment(to));
         });
+
+        this.$('.ti-remove').holdButton();
     },
 
     setTimes: function(from, to) {
@@ -121,6 +124,16 @@ timeit.EditActivityForm = Backbone.View.extend({
             } else if (descr.reason == 'intersection') {
                 new timeit.IntersectionView().show(descr.with);
             }
+        });
+    },
+
+    removeActivity: function () {
+        var view = this;
+        timeit.post('remove', {
+            id: this.activityId
+        }).ok(function() {
+            view.$el.modal('hide');
+            view.trigger('ok');
         });
     }
 }).mixin(Backbone.ViewMixins.Template)
