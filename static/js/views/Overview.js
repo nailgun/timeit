@@ -23,6 +23,7 @@ timeit.OverviewView = Backbone.View.extend({
     },
 
     rendered: function () {
+        var view = this;
         this.$('.ti-date')
             .popover({
                 title: 'Overview dates',
@@ -35,6 +36,9 @@ timeit.OverviewView = Backbone.View.extend({
             el: this.$('.ti-activities'),
             groupByDate: true,
             allowEdit: true
+        });
+        this.activityList.on('change', function () {
+            view.updateData();
         });
         this.timeline = new timeit.TimeLineView({
             el: this.$('.ti-timeline')
@@ -65,7 +69,10 @@ timeit.OverviewView = Backbone.View.extend({
             txt = this.from.format('MMM D, YYYY -') + this.to.format('MMM D, YYYY');
         }
         this.$('.ti-txt').text(txt);
+        this.updateData();
+    },
 
+    updateData: function () {
         var view = this;
         timeit.get('log', {
             from: this.from.toDate(),

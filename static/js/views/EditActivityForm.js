@@ -145,14 +145,15 @@ timeit.EditActivityForm = Backbone.View.extend({
   .mixin(Backbone.ViewMixins.ClearError);
 
 timeit.EditActivityFormModal = timeit.EditActivityForm.extend({
-    events: {
-        'done': function () {
-            this.$el.modal('hide');
-        }
-    },
+    events: timeit.EditActivityForm.prototype.events,
 
     initialize: function () {
         timeit.EditActivityForm.prototype.initialize.apply(this, arguments);
+
         this.modal = true;
+        var view = this;
+        this.on('done', function() {
+            view.$el.modal('hide');
+        });
     }
 }).mixin(Backbone.ViewMixins.Modal);
