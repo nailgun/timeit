@@ -4,13 +4,18 @@ timeit.OverviewView = Backbone.View.extend({
 
     events: {
         'click .ti-date': 'onDateClick',
-        'hide': 'hidePicker'
+        'hide': 'hidePicker',
+        'keyup .search-query': 'onSearchQueryChange',
+        'submit form': 'forceSearch'
     },
 
     initialize: function () {
         this.from = moment().sod();
         this.to = moment().eod();
         this.oneDay = true;
+        this.searchTimeout = null;
+        this.prevSearch = '';
+        this.search = '';
 
         var view = this;
         this.picker = new timeit.DateRangePickerView();
@@ -69,6 +74,7 @@ timeit.OverviewView = Backbone.View.extend({
             txt = this.from.format('MMM D, YYYY -') + this.to.format('MMM D, YYYY');
         }
         this.$('.ti-txt').text(txt);
+        this.$('.ti-preloader').show();
         this.updateData();
     },
 
@@ -76,8 +82,10 @@ timeit.OverviewView = Backbone.View.extend({
         var view = this;
         timeit.get('log', {
             from: this.from.toDate(),
-            to: this.to.toDate()
+            to: this.to.toDate(),
+            search: this.search
         }).ok(function (activities) {
+            this.$('.ti-preloader').hide();
             _.each(activities, function(a) {
                 a.start_time = moment(a.start_time);
                 a.end_time = moment(a.end_time);
@@ -85,5 +93,38 @@ timeit.OverviewView = Backbone.View.extend({
             view.activityList.render(activities);
             view.timeline.render(view.from, view.to, activities);
         });
+    },
+
+    onSearchQueryChange: function (e) {
+        if (e.which == 13) {
+            return;
+        }
+
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+        this.$('.ti-preloader').show();
+
+        var view = this;
+        this.searchTimeout = setTimeout(function () {
+            view.forceSearch();
+        }, 1000);
+    },
+
+    forceSearch: function (e) {
+        if (e) {
+            e.preventDefault();
+        }
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = null;
+        }
+        this.search = this.$('.search-query').val();
+        if (this.prevSearch != this.search) {
+            this.prevSearch = this.search;
+            this.updateData();
+        } else {
+            this.$('.ti-preloader').hide();
+        }
     }
 }).mixin(Backbone.ViewMixins.Template);

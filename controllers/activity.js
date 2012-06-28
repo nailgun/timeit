@@ -220,7 +220,10 @@ exports.get = loginRequired(function(req, res) {
 
 var fromToForm = forms2.create({
     from: forms2.fields.JSDateTime(),
-    to: forms2.fields.JSDateTime()
+    to: forms2.fields.JSDateTime(),
+    search: forms2.fields.String({
+        required: false
+    })
 }, function validate(form, callback) {
     if (form.data.from > form.data.to) {
         return callback('start must be earlier then end', 'from');
@@ -233,15 +236,54 @@ var fromToForm = forms2.create({
 exports.getLog = loginRequired(function(req, res) {
     fromToForm.handle(req, {
         success: function (form) {
-            db.Activity.find({
+            var query = {
                 userId: req.user._id,
                 start_time: {$lte: form.data.to},
                 end_time: {$gte: form.data.from},
-            }).select({userId: 0})
-              .sort('start_time', 1)
-              .exec(noErr(function(docs) {
-                res.okJson(docs);
-            }));
+            };
+
+            var searchTerms = '';
+            if (form.data.search) {
+                searchTerms = form.data.search.toLowerCase().split(/\s/);
+            }
+
+            if (searchTerms) {
+                var map = function () {
+                    if (searchTerms.some(function (term) {
+                        return this.name.toLowerCase().indexOf(term) != -1
+                            || this.tags.some(function (tag) {
+                                return tag.toLowerCase() == term;
+                            }, this);
+                    }, this)) {
+                        emit(this._id, this);
+                    }
+                };
+
+                var reduce = function (k, vals) {
+                    return vals;
+                };
+
+                db.Activity.collection.mapReduce(map, reduce, {
+                    out : {inline: 1},
+                    query: query,
+                    scope: {
+                        searchTerms: searchTerms,
+                    },
+                    verbose: true,
+                }, noErr(function(results, stats) {
+                    res.okJson(_.map(results, function (result) {
+                        return result.value;
+                    }));
+                }));
+            } else {
+                db.Activity
+                  .find(query)
+                  .select({userId: 0})
+                  .sort('start_time', 1)
+                  .exec(noErr(function(docs) {
+                    res.okJson(docs);
+                }));
+            }
         },
         error: function (form) {
             var report = {
