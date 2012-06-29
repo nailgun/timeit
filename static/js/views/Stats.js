@@ -26,15 +26,30 @@ timeit.StatsView = Backbone.View.extend({
             stats.activityMax = max(stats.activity) || 0;
             stats.tagMax = max(stats.tag) || 0;
             stats.weekdayMax = max(stats.weekday) || 0;
-            stats.activity = _.map(stats.activity, templatize);
-            stats.tag = _.map(stats.tag, templatize);
+            stats.activity = _.map(stats.activity, function (duration, name) {
+                return _.extend(templatize(duration, name), {
+                    start: stats.activity_start[name],
+                    end: stats.activity_end[name],
+                });
+            });
+            stats.tag = _.map(stats.tag, function (duration, name) {
+                return _.extend(templatize(duration, name), {
+                    start: stats.tag_start[name],
+                    end: stats.tag_end[name],
+                });
+            });
             stats.weekday = _.map(stats.weekday, function (duration, dayNo) {
-                return templatize(duration, moment.weekdaysShort[dayNo]);
+                return _.extend(templatize(duration, moment.weekdaysShort[dayNo]), {
+                    start: stats.weekday_start[dayNo],
+                    end: stats.weekday_end[dayNo]
+                });
             });
             stats.total = templatize(stats.total);
             stats.longest.duration = templatize(stats.longest.duration);
             stats.longest.activity.date = moment(stats.longest.activity.start_time).format('MMM DD, YYYY');
             stats.first.date = moment(stats.first.start_time).format('MMM DD, YYYY');
+            stats.HOUR = 60 * 60 * 1000;
+            stats.DAY = 24 * stats.HOUR;
             callback(stats);
         });
     }

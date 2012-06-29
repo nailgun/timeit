@@ -1,4 +1,3 @@
-* overview
 * massive edit
 * timezones
 * l10n, i18n

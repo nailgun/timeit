@@ -1,0 +1,36 @@
+<div>
+    <div class="ti-line">
+        <div class="ti-caption"></div>
+        <div>
+            <div class="ti-bar pull-left" style="width: 45%">
+            </div>
+            <div class="ti-bar pull-left" style="width: 45%; margin-left: 5%">
+                <span style="left: 0">0<sup>00</sup></span>
+                <span style="left: 25%">6<sup>00</sup></span>
+                <span style="left: 50%">12<sup>00</sup></span>
+                <span style="left: 75%">18<sup>00</sup></span>
+                <span style="left: 100%">24<sup>00</sup></span>
+            </div>
+        </div>
+    </div>
+    <% _.each(container, function (a) { %>
+    <div class="ti-line">
+        <div class="ti-caption"><%- a.name %></div>
+        <div>
+            <div class="ti-bar pull-left" style="width: 45%">
+                <div class="ti-single" style="width: <%- 100*a.ms/max %>%"><%- a.hours %>&nbsp;</div>
+            </div>
+            <div class="ti-bar pull-left" style="width: 45%; margin-left: 5%">
+                <% if (a.end) { %>
+                <div class="ti-double" style="left: <%- 100*a.start/DAY %>%; width: <%- 100*(a.end-a.start)/DAY %>%"></div>
+                <% } %>
+                <div class="ti-tick" style="left: 0"></div>
+                <div class="ti-tick" style="left: 25%"> </div>
+                <div class="ti-tick" style="left: 50%"> </div>
+                <div class="ti-tick" style="left: 75%"></div>
+                <div class="ti-tick" style="left: 100%"></div>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+</div>

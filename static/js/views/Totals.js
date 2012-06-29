@@ -107,14 +107,17 @@ timeit.TotalsView = Backbone.View.extend({
                 }
 
                 if (!total.$el) {
-                    var $caption = $('<span class="ti-caption"></span>');
+                    var $caption = $('<div class="ti-caption"></div>');
                     $caption.text(name);
+
+                    total.$bar = $('<div class="ti-single" style="width: 0"></div>');
+
                     var $bar = $('<div class="ti-bar"></div>');
-                    total.$bar = $('<div style="width: 0"></div>');
                     $bar.append(total.$bar);
+
                     total.$el = $('<div class="ti-line"></div>');
-                    total.$el.append($bar);
                     total.$el.append($caption);
+                    total.$el.append($bar);
 
                     $container.append(total.$el);
 
@@ -142,7 +145,7 @@ timeit.TotalsView = Backbone.View.extend({
                     duration: view.animationDuration,
                     easing: 'swing'
                 });
-                total.$bar.text(ms2hours(total.duration));
+                total.$bar.html(ms2hours(total.duration)+'&nbsp;');
             });
         }
 

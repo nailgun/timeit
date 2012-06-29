@@ -1,29 +1,15 @@
-<p class="pull-left" style="width: 45%">
-    <b><%- total.hours %></b> hours tracked total. There are <b><%- count %></b> records. Longest continuous work happened on <%- longest.activity.date %> and was <b><%- longest.duration.hours %></b> hours. First activity was recorded on <b><%- first.date %></b>.
+<p>
+    There are <b><%- count %></b> records.<br>
+    <b><%- total.hours %></b> hours tracked total.<br>
+    Longest continuous work happened on <%- longest.activity.date %> and was <b><%- longest.duration.hours %></b> hours.<br>
+    First activity was recorded on <b><%- first.date %></b>.
 </p>
 
-<div class="pull-left" style="width: 45%; margin-left: 5%">
-    <div>
-    <% _.each(weekday, function (a) { %>
-        <div class="ti-line"><div class="ti-bar"><div style="width: <%- 100*a.ms/weekdayMax %>%"><%- a.hours %></div></div><span class="ti-caption"><%- a.name %></span></div>
-    <% }) %>
-    </div>
-</div>
+<h4>Days</h4>
+<%= include('stats_bars.html', {container: weekday, max: weekdayMax}) %>
 
-<div class="pull-left" style="width: 45%">
-    <h4>Activities</h4>
-    <div>
-    <% _.each(activity, function (a) { %>
-        <div class="ti-line"><div class="ti-bar"><div style="width: <%- 100*a.ms/activityMax %>%"><%- a.hours %></div></div><span class="ti-caption"><%- a.name %></span></div>
-    <% }) %>
-    </div>
-</div>
+<h4>Activities</h4>
+<%= include('stats_bars.html', {container: activity, max: activityMax}) %>
 
-<div class="pull-left" style="width: 45%; margin-left: 5%">
-    <h4>Tags</h4>
-    <div>
-    <% _.each(tag, function (a) { %>
-        <div class="ti-line"><div class="ti-bar"><div style="width: <%- 100*a.ms/tagMax %>%"><%- a.hours %></div></div><span class="ti-caption"><%- a.name %></span></div>
-    <% }) %>
-    </div>
-</div>
+<h4>Tags</h4>
+<%= include('stats_bars.html', {container: tag, max: tagMax}) %>

@@ -79,6 +79,9 @@ div.ti-control {
 
 .StatsView {
     width: 640px;
+    height: 300px;
+    overflow-y: auto;
+    padding-right: 20px;
 }
 
 .ti-bar-graph .ti-line {
@@ -87,39 +90,66 @@ div.ti-control {
 }
 
 .ti-bar-graph .ti-caption {
-    float: right;
-    margin-right: 10px;
+    width: 140px;
+    text-align: right;
+    float: left;
+}
+
+.ti-bar-graph .ti-caption + div {
+    height: 100%;
+    margin-left: 160px;
 }
 
 .ti-bar-graph .ti-bar {
     height: 100%;
-    width: 60%;
-    float: right;
 }
 
-.ti-bar-graph .ti-bar div {
+.ti-bar-graph .ti-bar {
+    position: relative;
+}
+
+.ti-bar-graph .ti-bar > * {
+    position: absolute;
+}
+
+.ti-bar-graph .ti-bar .ti-single,
+.ti-bar-graph .ti-bar .ti-double {
     height: 100%;
     text-align: right;
-    padding-right: 4px;
+    cursor: pointer;
+    background-color: #D4D3D2;
+}
+
+.ti-bar-graph .ti-bar .ti-single {
     -webkit-border-top-right-radius: 2px;
     -webkit-border-bottom-right-radius: 2px;
     -moz-border-radius-topright: 2px;
     -moz-border-radius-bottomright: 2px;
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
-    background-color: #D4D3D2;
-    cursor: pointer;
 }
 
-.ti-bar-graph .ti-bar span.hover {
+.ti-bar-graph .ti-bar .ti-double {
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.ti-bar-graph .ti-bar .ti-tick {
+    width: 1px;
+    height: 100%;
+    background-color: #888;
+}
+
+.ti-bar-graph .ti-bar .ti-active.hover {
     background-color: #A8A7A7;
 }
 
-.ti-bar-graph .ti-bar span.active {
+.ti-bar-graph .ti-bar .ti-active.active {
     background-color: #08C;
 }
 
-.ti-bar-graph .ti-bar span.active.hover {
+.ti-bar-graph .ti-bar .ti-active.active.hover {
     background-color: #78B0CC;
 }
 
