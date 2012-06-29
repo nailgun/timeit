@@ -40,7 +40,7 @@ exports.setCurrent = loginRequired(function (req, res) {
         success: function(form) {
             var tags = parseTags(form.data.tags);
             db.Activity.update({
-                account: req.user._id,
+                userId: req.user._id,
                 end_time: null,
             }, {
                 $set: {end_time: new Date()}
@@ -470,4 +470,52 @@ exports.getStats = loginRequired(function(req, res) {
 
         res.okJson(report);
     }));
+});
+
+exports.getGroups = loginRequired(function (req, res) {
+    db.Activity.collection.group([
+        'name', 'tags'
+    ], {
+        userId: req.user._id
+    }, {
+        count: 0
+    }, function (obj, prev) {
+        prev.count++;
+    }, noErr(function (groups) {
+        res.okJson(groups);
+    }));
+});
+
+var updateGroupForm = forms2.create({
+    oldName: forms2.fields.String(),
+    oldTags: forms2.fields.String({required: false}),
+    newName: forms2.fields.String(),
+    newTags: forms2.fields.String({required: false}),
+});
+
+exports.updateGroup = loginRequired(function (req, res) {
+    updateGroupForm.handle(req, {
+        success: function(form) {
+            var oldTags = parseTags(form.data.oldTags);
+            var newTags = parseTags(form.data.newTags);
+
+            db.Activity.update({
+                userId: req.user._id,
+                name: form.data.oldName,
+                tags: oldTags,
+            }, {
+                $set: {
+                    name: form.data.newName,
+                    tags: newTags,
+                }
+            }, {
+                safe: true,
+                multi: true
+            }, noErr(function(result) {
+                console.log(result);
+                res.okJson();
+            }));
+        },
+        error: jsonDumpFormErrors(res)
+    });
 });

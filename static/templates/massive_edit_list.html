@@ -1,0 +1,11 @@
+qwe
+<table class="table">
+<% _.each(groups, function(group) { %>
+    <tr>
+        <td class="ti-name"><%- group.name %></td>
+        <td class="ti-tags"><%- group.tags.join(', ') %></td>
+        <td class="ti-count"><%- group.count %></td>
+        <td><a href="#" class="ti-edit">Edit</a></td>
+    </tr>
+<% }); %>
+</table>

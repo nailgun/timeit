@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <% if (this.modal) { %>
+    <button class="close" data-dismiss="modal">×</button>
+    <% } %>
+    <h3>Edit group of activities</h3>
+</div>
+
+<form class="form-horizontal">
+    <div class="modal-body">
+        <div class="control-group">
+            <label class="control-label">Activity</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" name="name" value="<%- name %>">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Tags</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" name="tags" value="<%- tags %>">
+                <p class="help-block">Tags, separated by comma.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="btn ti-cancel" href="#">Cancel</a>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+</form>

@@ -1,4 +1,3 @@
-* massive edit
 * timezones
 * l10n, i18n
 * activity name and tags autocompletion

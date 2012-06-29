@@ -84,6 +84,13 @@ div.ti-control {
     padding-right: 20px;
 }
 
+.MassiveEditListView {
+    width: 640px;
+    height: 300px;
+    overflow-y: auto;
+    padding-right: 20px;
+}
+
 .ti-bar-graph .ti-line {
     height: 20px;
     margin-bottom: 2px

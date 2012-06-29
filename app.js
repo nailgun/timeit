@@ -158,6 +158,8 @@ function installApplication() {
         'js/views/TimeLine.js',
         'js/views/Totals.js',
         'js/views/Stats.js',
+        'js/views/MassiveEditList.js',
+        'js/views/MassiveEditForm.js',
         'js/version.js',
     ]);
 
@@ -218,10 +220,12 @@ function installApplication() {
     app.get ('/activity', c.activity.get);
     app.get ('/log', c.activity.getLog);
     app.get ('/stats', c.activity.getStats);
+    app.get ('/groups', c.activity.getGroups);
     app.post('/activity', c.activity.edit);
     app.post('/remove', c.activity.remove);
     app.post('/current', c.activity.setCurrent);
     app.post('/current/stop', c.activity.stop);
+    app.post('/group', c.activity.updateGroup);
 
     app.get ('/settings', c.aux.getSettings);
     app.post('/settings', c.aux.setSettings);

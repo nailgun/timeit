@@ -55,6 +55,10 @@
         $('a[href="#stats"]').data('view', stats);
         $('#stats').html(stats.el);
 
+        var massiveEdit = new timeit.MassiveEditListView();
+        $('a[href="#massive"]').data('view', massiveEdit);
+        $('#massive').html(massiveEdit.el);
+
         $('.nav a').on('shown', function () {
             var view = $(this).data('view');
             if (view) {
