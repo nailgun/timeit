@@ -110,7 +110,7 @@ timeit.TotalsView = Backbone.View.extend({
                     var $caption = $('<div class="ti-caption"></div>');
                     $caption.text(name);
 
-                    total.$bar = $('<div class="ti-single" style="width: 0"></div>');
+                    total.$bar = $('<div class="ti-single ti-active" style="width: 0"></div>');
 
                     var $bar = $('<div class="ti-bar"></div>');
                     $bar.append(total.$bar);
