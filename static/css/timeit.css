@@ -77,23 +77,27 @@ div.ti-control {
     height: 300px;
 }
 
-.TotalsView .ti-line {
+.StatsView {
+    width: 640px;
+}
+
+.ti-bar-graph .ti-line {
     height: 20px;
     margin-bottom: 2px
 }
 
-.TotalsView .ti-caption {
+.ti-bar-graph .ti-caption {
     float: right;
     margin-right: 10px;
 }
 
-.TotalsView .ti-bar {
+.ti-bar-graph .ti-bar {
     height: 100%;
     width: 60%;
     float: right;
 }
 
-.TotalsView .ti-bar span {
+.ti-bar-graph .ti-bar div {
     height: 100%;
     text-align: right;
     padding-right: 4px;
@@ -107,15 +111,15 @@ div.ti-control {
     cursor: pointer;
 }
 
-.TotalsView .ti-bar span.hover {
+.ti-bar-graph .ti-bar span.hover {
     background-color: #A8A7A7;
 }
 
-.TotalsView .ti-bar span.active {
+.ti-bar-graph .ti-bar span.active {
     background-color: #08C;
 }
 
-.TotalsView .ti-bar span.active.hover {
+.ti-bar-graph .ti-bar span.active.hover {
     background-color: #78B0CC;
 }
 

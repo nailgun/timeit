@@ -48,10 +48,18 @@
         });
 
         var overview = new timeit.OverviewView();
-        $('#overview').html(overview.render().el);
+        $('a[href="#overview"]').data('view', overview);
+        $('#overview').html(overview.el);
 
-        $('a[href="#overview"]').on('shown', function () {
-            overview.render();
+        var stats = new timeit.StatsView();
+        $('a[href="#stats"]').data('view', stats);
+        $('#stats').html(stats.el);
+
+        $('.nav a').on('shown', function () {
+            var view = $(this).data('view');
+            if (view) {
+                view.render();
+            }
         });
 
         timeit.initActivity();

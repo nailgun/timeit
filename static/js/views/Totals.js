@@ -1,6 +1,6 @@
 timeit.TotalsView = Backbone.View.extend({
     template: 'totals.html',
-    className: 'TotalsView',
+    className: 'TotalsView ti-bar-graph',
 
     initialize: function () {
         this.totals = {
@@ -110,7 +110,7 @@ timeit.TotalsView = Backbone.View.extend({
                     var $caption = $('<span class="ti-caption"></span>');
                     $caption.text(name);
                     var $bar = $('<div class="ti-bar"></div>');
-                    total.$bar = $('<span style="width: 0"> </span>');
+                    total.$bar = $('<div style="width: 0"></div>');
                     $bar.append(total.$bar);
                     total.$el = $('<div class="ti-line"></div>');
                     total.$el.append($bar);

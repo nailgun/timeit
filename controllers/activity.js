@@ -272,8 +272,7 @@ exports.getLog = loginRequired(function(req, res) {
                     scope: {
                         searchTerms: searchTerms,
                     },
-                    verbose: true,
-                }, noErr(function(results, stats) {
+                }, noErr(function(results) {
                     res.okJson(_.map(results, function (result) {
                         return result.value;
                     }));
@@ -304,5 +303,128 @@ exports.remove = loginRequired(function(req, res) {
         _id: req.body.id
     }, noErr(function() {
         res.okJson();
+    }));
+});
+
+exports.getStats = loginRequired(function(req, res) {
+    var types = {
+        ACTIVITY: 'a',
+        TAG: 't',
+        META: 'm',
+        WEEKDAY_TOTAL: 'w',
+        WEEKDAY_START: 's',
+        WEEKDAY_END: 'e',
+    };
+    var DAY = 24 * 60 * 60 * 1000;
+
+    var map = function () {
+        function emitWeekday(i1, i2) {
+            var weekday = new Date(i1).getDay();
+            emit(types.WEEKDAY_TOTAL + weekday, i2 - i1);
+        }
+
+        function sod(date) {
+            date = new Date(date);
+            date.setHours(0);
+            date.setMinutes(0);
+            date.setSeconds(0);
+            date.setMilliseconds(0);
+            return date;
+        }
+
+        var startMs = this.start_time.getTime();
+        var endMs = this.end_time.getTime();
+        var i1 = startMs;
+        var i2 = sod(new Date(i1 + DAY)).getTime()
+        while (i2 < endMs) {
+            emitWeekday(i1, i2);
+            i1 = i2;
+            i2 += DAY;
+        }
+        i2 = endMs;
+        emitWeekday(i1, i2);
+
+        var duration = this.end_time.getTime() - this.start_time.getTime();
+        emit(types.ACTIVITY + this.name, duration);
+        this.tags.forEach(function (tag) {
+            emit(types.TAG + tag, duration);
+        }, this);
+        emit(types.META + 'total', duration);
+        emit(types.META + 'longest', [duration, this]);
+        emit(types.META + 'first', this);
+        emit(types.META + 'count', 1);
+    };
+
+    var reduce = function (key, values) {
+        if (key === types.META + 'longest') {
+            var maxDuration = 0;
+            var activity = null;
+            values.forEach(function (value) {
+                if (value[0] > maxDuration) {
+                    maxDuration = value[0];
+                    activity = value[1];
+                }
+            });
+            return {
+                duration: maxDuration,
+                activity: activity
+            };
+        } else if (key === types.META + 'first') {
+            var first = values[0];
+            values.slice(1).forEach(function (activity) {
+                if (activity.start_time < first.start_time) {
+                    first = activity;
+                }
+            });
+            return first;
+        } else {
+            var total = 0;
+            values.forEach(function (value) {
+                total += value;
+            });
+            return total;
+        }
+    };
+
+    db.Activity.collection.mapReduce(map, reduce, {
+        out : {
+            inline: 1
+        },
+        query: {
+            userId: req.user._id
+        },
+        scope: {
+            types: types,
+            DAY: DAY
+        }
+    }, noErr(function(results) {
+        var report = {
+            activity: {},
+            tag: {},
+            weekday: {},
+            total: 0
+        };
+
+        for(var i = 0; i < 7; i++) {
+            report.weekday[i] = 0;
+        }
+
+        _.each(results, function (entry) {
+            var type = entry._id[0];
+            var name = entry._id.slice(1);
+            var value = entry.value;
+
+            if (type === types.ACTIVITY) {
+                report.activity[name] = value;
+            } else if (type === types.TAG) {
+                report.tag[name] = value;
+            } else if (type === types.WEEKDAY_TOTAL) {
+                report.weekday[name] = value;
+            } else if (type === types.META) {
+                report[name] = value;
+            }
+        });
+
+        res.okJson(report);
     }));
 });

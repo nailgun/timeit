@@ -7,6 +7,7 @@ exports.throwOnErr = function(err) {
     }
 };
 
+// FIXME: rename to 'throws'
 exports.noErr = function(callback) {
     return function(err) {
         utils.throwOnErr(err);

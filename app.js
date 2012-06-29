@@ -157,6 +157,7 @@ function installApplication() {
         'js/views/ActivityList.js',
         'js/views/TimeLine.js',
         'js/views/Totals.js',
+        'js/views/Stats.js',
         'js/version.js',
     ]);
 
@@ -216,6 +217,7 @@ function installApplication() {
     app.get ('/today', c.activity.today);
     app.get ('/activity', c.activity.get);
     app.get ('/log', c.activity.getLog);
+    app.get ('/stats', c.activity.getStats);
     app.post('/activity', c.activity.edit);
     app.post('/remove', c.activity.remove);
     app.post('/current', c.activity.setCurrent);
