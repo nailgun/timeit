@@ -322,6 +322,10 @@ exports.getStats = loginRequired(function(req, res) {
     var DAY = 24 * 60 * 60 * 1000;
 
     var map = function () {
+        if (!this.end_time) {
+            return;
+        }
+
         function emitWeekday(i1, i2) {
             var weekday = new Date(i1).getDay();
             emit(types.WEEKDAY + weekday, i2 - i1);
