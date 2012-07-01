@@ -20,10 +20,10 @@ exports.loginRequired = function(view, noConfirm) {
             if (req.user.confirmed || noConfirm) {
                 view(req, res, next);
             } else {
-                res.redirect('/confirm', 302);
+                res.redirect('confirm', 307);
             }
         } else {
-            res.redirect('/login', 302);
+            res.redirect('login', 307);
         }
     }
 };
