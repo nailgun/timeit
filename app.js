@@ -130,6 +130,7 @@ function installApplication() {
         'js/lib/bootstrap-datepicker.js',
         'js/lib/raphael.js',
         'js/lib/moment.js',
+        'js/lib/async.js',
         'js/underscore.exttemplate.js',
         'js/jquery.time-slider.js',
         'js/jquery.hold-button.js',

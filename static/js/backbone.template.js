@@ -12,19 +12,13 @@
             }
 
            _.extTemplate(view.template, function(template) {
-                var html = null;
                 if (typeof view.context === 'object') {
-                    html = template.call(view, view.context);
+                    return template.call(view, view.context, setHtml);
                 } else if (typeof view.context === 'undefined') {
-                    html = template.call(view);
-                }
-
-                if (html !== null) {
-                    setHtml(html);
+                    return template.call(view, {}, setHtml);
                 } else if (typeof view.context === 'function') {
-                    var callback = function(context) {
-                        var html = template.call(view, context);
-                        setHtml(html);
+                    var callback = function (context) {
+                        template.call(view, context, setHtml);
                     };
 
                     var args2 = Array.prototype.slice.call(args);

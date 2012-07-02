@@ -5,79 +5,80 @@
     });
 
     var contextExtensions = {};
-    var enabledExtensions = {};
+    var enabledExtensions = [];
 
-    function extTemplate (name, callback) {
-        var useExtensions;
-        function wrapTemplate(template) {
-            var templateFunc = function(context) {
-                var templateThis = this;
-                context = context || {};
-                context._done = [];
-                _.each(useExtensions, function(ext) {
-                    context = ext.call(templateThis, context);
+    function createContext (jsContext, data) {
+        var context = data || {};
+        var placeholderId = 1;
+        context._this = jsContext;
+        context._done = [];
+        context._wrap = function (name, originalFunc) {
+            function wrapper () {
+                var args = Array.prototype.slice.call(arguments);
+                var id = placeholderId++;
+                var placeholder = '-+!__TI_PLACEHOLDER_'+id+'__!+-';
+
+                context._done.push(function (text, callback) {
+                    var replaceCallback = function (replacement) {
+                        callback(text.replace(placeholder, replacement));
+                    };
+
+                    args.unshift(replaceCallback);
+                    originalFunc.apply(context._this, args);
                 });
-                var result = template.call(templateThis, context);
-                _.each(context._done, function(callback) {
-                    callback(result);
-                });
-                return result;
+                return placeholder;
             }
-
-            callback(templateFunc);
-        }
-
-        if (name.slice(-5) == '.html') {
-            useExtensions = enabledExtensions.dom;
-            return domTemplate(name, wrapTemplate);
-        } else {
-            useExtensions = enabledExtensions.plain;
-            return _.extTemplateLoader(name, wrapTemplate);
-        }
-    };
-
-    function domTemplate (name, callback) {
-        return _.extTemplateLoader(name, function (template) {
-            function templateFunc(context) {
-                var html = template.call(this, context);
-                var $dom = $(html);
-                return $dom;
-            }
-            return callback(templateFunc);
-        });
-    };
-
-    extTemplate.setContextExtensions = function(which, what) {
-        var extensions = enabledExtensions[which] = [];
-        _.each(what, function (extName) {
-            extensions.push(contextExtensions[extName]);
-        });
-    };
-
-    contextExtensions.include = function (context) {
-        context._includeId = 1;
-
-        context.include = function(name, includeContext) {
-            includeContext = includeContext || {};
-
-            var includeId = context._includeId++;
-            var spanId = 'ti_include_'+includeId;
-            var span = '<span id="'+spanId+'"></span>';
-
-            context._done.push(function($dom) {
-                extTemplate(name, function (template) {
-                    var html = template(_.extend({}, context, includeContext));
-                    $dom.filter('#'+spanId).replaceWith(html);
-                    $dom.find('#'+spanId).replaceWith(html);
-                });
-            });
-
-            return span;
+            context[name] = wrapper;
         };
-
+        _.each(contextExtensions, function (ext) {
+            ext.call(context._this, context);
+        });
         return context;
     };
 
-    enabledExtensions.dom = [contextExtensions.include];
-    enabledExtensions.plain = [];
+    function extTemplate (name, callback) {
+        function templateLoaded (templateFuncSync) {
+            var templateFuncAsync = function (data, callback) {
+                var context = createContext(this, data);
+                var text = templateFuncSync.call(context._this, context);
+                context._done = _.map(context._done, function (done) {
+                    return function (text, callback) {
+                        done(text, function (text) {
+                            callback(null, text);
+                        });
+                    }
+                });
+                context._done.unshift(function (callback) {
+                    callback(null, text);
+                });
+                async.waterfall(context._done, function (err, text) {
+                    callback(text);
+                });
+            };
+
+            callback(templateFuncAsync);
+        }
+
+        return _.extTemplateLoader(name, templateLoaded);
+    };
+
+    extTemplate.contextExtensions = function (what) {
+        if (what === undefined) {
+            return enabledExtensions;
+        } else {
+            enabledExtensions = _.map(what, function (extName) {
+                return contextExtensions[extName];
+            });
+        }
+    };
+
+    contextExtensions.include = function (context) {
+        context._wrap('include', function (callback, name, includeContext) {
+            extTemplate(name, function (template) {
+                template(_.extend({}, context, includeContext), callback);
+            });
+        });
+    };
+
+    enabledExtensions = [contextExtensions.include];
 })();
