@@ -12,6 +12,7 @@
 * cache middleware, per-page cache
 * compress HTML
 * client-side memory usage
+* template 'extend'
 
 * node.js cluster
 * interface:
