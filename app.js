@@ -61,7 +61,7 @@ function configureApplication(config, done) {
         return app.installation.pathname + path;
     };
 
-    app.set('basepath', app.installation.pathname);
+    app.set('basepath', app.installation.pathname.slice(0, -1));
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
 
@@ -170,7 +170,7 @@ function installApplication() {
 
     function redirectRoot(req, res, next) {
         if (url.parse(req.url).pathname == '/' && req.originalUrl.slice(-1) != '/') {
-            res.redirect('', 301);
+            res.redirect('/', 301);
         } else {
             next();
         }
