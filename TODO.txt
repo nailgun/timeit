@@ -2,6 +2,9 @@
 * activity name and tags autocompletion
 * client-side form validation
 * ping status
+* stats:
+ * working days, weeks, monthes for project
+ * round clocks
 
 * auth error handling (handle UserError exceptions)
 * server-side error reporting (email, log)
