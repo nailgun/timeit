@@ -9,7 +9,7 @@
 	"Massive Edit": "Редактирование",
 	"Notifications": "Уведомления",
 	"Confirm registration": "Подтвердите регистрацию",
-	"This will create new account. Do you really want it?": "В результате будет создан новый аккаунтВы действительно это хотите?",
+	"This will create new account. Do you really want it?": "В результате будет создан новый аккаунт. Вы действительно это хотите?",
 	"Ok": "Ok",
 	"Cancel": "Отмена",
 	"No activity": "Нет активности",
@@ -79,5 +79,6 @@
 	"Links": "Связи",
 	"date is in feature": "дата в будущем",
 	"activity %s already in progress": "активность %s уже продолжается",
-	"start must be earlier then end": "начало должно быть раньше чем конец"
+	"start must be earlier then end": "начало должно быть раньше чем конец",
+	"Hold {0}...": "Держите {0}..."
 }

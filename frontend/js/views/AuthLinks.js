@@ -38,9 +38,20 @@ timeit.AuthLinksView = Backbone.View.extend({
                     var question = new timeit.QuestionView();
                     question.show(__('Remove account'),
                         __('This is your last link. Do you want to remove account?'));
-                    question.on('ok', function () {
-                        timeit.post('auth/remove-account').ok(function () {
-                            timeit.redirect('.');
+                    question.on('rendered', function () {
+                        var $ok = question.$('.ti-ok');
+                        var $hold = $('<span class="badge badge-info pull-left"></span>');
+                        $ok.parent().prepend($hold);
+                        $ok.holdButton({
+                            hold: $hold,
+                            holdText: function (countdown) {
+                                return __('Hold {0}...', countdown);
+                            }
+                        });
+                        $ok.on('trigger', function () {
+                            timeit.post('auth/remove-account').ok(function () {
+                                timeit.redirect('.');
+                            });
                         });
                     });
                 }

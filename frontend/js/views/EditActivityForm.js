@@ -79,7 +79,11 @@ timeit.EditActivityForm = Backbone.View.extend({
             view.setTimes(moment(from), moment(to));
         });
 
-        this.$('.ti-remove').holdButton();
+        this.$('.ti-remove').holdButton({
+            holdText: function (countdown) {
+                return __('Hold {0}...', countdown);
+            }
+        });
     },
 
     setTimes: function(from, to) {
