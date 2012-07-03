@@ -105,6 +105,7 @@ function installApplication() {
 
     auth.install();
     i18n.configure({
+        directory: localesPath,
         locales: ['en', 'ru']
     });
 
