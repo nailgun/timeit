@@ -4,20 +4,21 @@ var _ = require('underscore'),
     path = require('path'),
     async = require('async'),
     crypto = require('crypto'),
+    utils = require('./utils'),
     uglify = require('uglify-js'),
     cleanCss = require('clean-css');
 
 module.exports = function(opts) {
-    var store = {
-        assetRoot: opts.assetRoot,
-        assetUrl: opts.assetUrl,
-        contentCache: opts.contentCache,
-        compile: opts.compile,
-    };
+    var store = _.extend({
+        urlPrefix: 'assets',
+        contentCache: null,
+        compile: false,
+        uglifyOptions: {}
+    }, opts);
 
     var assets = {};
 
-    store.register = function (name, items) {
+    store.register = function (name, root, items) {
         var overwrite = name in assets;
         if (overwrite) {
             store.contentCache.invalidate('asset', name);
@@ -28,18 +29,42 @@ module.exports = function(opts) {
         if (!_.isArray(items)) {
             items = [items];
         }
-        asset.items = items;
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
 
-        var hash = crypto.createHash('md5');
-        hash.update(_.map(items, function(item) {
-            if (!_.isFunction(item)) {
-                return item;
-            } else {
-                // TODO: hash contents?
-                return 'function';
+            if (!_.isObject(item) && !_.isFunction(item)) {
+                items[i] = {
+                    url: item,
+                    file: item
+                };
             }
-        }).join(';'));
-        asset.digest = hash.digest('hex');
+        }
+        asset.name = name;
+        asset.items = items;
+        asset.root = root;
+        asset.digest = null;
+    };
+
+    store.registerDir = function (name, root) {
+        var regexp = /(\.js$)|(\.css$)/;
+
+        utils.fsFind(root, {
+            filter: function (entry) {
+                return regexp.test(entry.filename);
+            }
+        }, function (err, files) {
+            if (err) {
+                throw err;
+            }
+
+            _.each(files, function (filename) {
+                var url = path.join(name, filename);
+                store.register(url, root, [{
+                    url: url,
+                    file: filename
+                }]);
+            });
+        });
     };
 
     store.getContent = function (name, callback) {
@@ -105,16 +130,31 @@ module.exports = function(opts) {
     };
 
     function joinInclude (name, parts, callback) {
+        var asset = assets[name];
+
         if (store.compile) {
-            return callback(null,
-                    parts.prefix+
-                    path.join(store.assetUrl, name)+
-                    '?'+assets[name].digest+
-                    parts.postfix);
+            function onReady (err) {
+                if (err) {
+                    return callback(err);
+                }
+
+                var include = parts.prefix +
+                              path.join(store.urlPrefix, name) +
+                              '?' +
+                              asset.digest +
+                              parts.postfix;
+                callback(null, include);
+            }
+
+            if (asset.digest) {
+                onReady(null);
+            } else {
+                calcDigest(asset, onReady);
+            }
         } else {
-            async.map(assets[name].items, function (item, callback) {
+            async.map(asset.items, function (item, callback) {
                 if (!_.isFunction(item)) {
-                    return callback(null, parts.prefix + item + parts.postfix);
+                    return callback(null, parts.prefix + item.url + parts.postfix);
                 } else {
                     item(store, function (err, content) {
                         if (err) {
@@ -143,7 +183,7 @@ module.exports = function(opts) {
     };
 
     store.middleware = function () {
-        var regexp = RegExp('^'+path.join('/', store.assetUrl, '(.+)')+'$');
+        var regexp = RegExp('^'+path.join('/', store.urlPrefix, '(.+)')+'$');
 
         return function (req, res, next) {
             var pathname = url.parse(req.url).pathname;
@@ -169,34 +209,34 @@ module.exports = function(opts) {
     };
 
     function compile(name, callback) {
-        var items = assets[name].items;
+        var asset = assets[name];
 
         if (name.slice(-3) === '.js') {
-            compileJs(items, callback);
+            compileJs(asset, callback);
         } else if (name.slice(-4) === '.css') {
-            compileCss(items, callback);
+            compileCss(asset, callback);
         } else {
-            readAll(items, callback);
+            readAll(asset, callback);
         }
     };
 
-    function compileJs(items, callback) {
-        readAll(items, ';\n', function(err, code) {
+    function compileJs(asset, callback) {
+        readAll(asset, ';\n', function(err, code) {
             if (err) {
                 return callback(err);
             }
 
             var ast = uglify.parser.parse(code.toString());
-            ast = uglify.uglify.ast_mangle(ast);
-            ast = uglify.uglify.ast_squeeze(ast);
-            code = uglify.uglify.gen_code(ast);
+            ast = uglify.uglify.ast_mangle(ast, store.uglifyOptions);
+            ast = uglify.uglify.ast_squeeze(ast, store.uglifyOptions);
+            code = uglify.uglify.gen_code(ast, store.uglifyOptions);
 
             return callback(err, code);
         });
     };
 
-    function compileCss(items, callback) {
-        readAll(items, function(err, css) {
+    function compileCss(asset, callback) {
+        readAll(asset, function(err, css) {
             if (err) {
                 return callback(err);
             }
@@ -206,15 +246,15 @@ module.exports = function(opts) {
         });
     };
 
-    function readAll(items, separator, callback) {
+    function readAll(asset, separator, callback) {
         if (typeof separator === 'function' && typeof callback === 'undefined') {
             callback = separator;
             separator = '';
         }
 
-        async.map(items, function(item, callback) {
+        async.map(asset.items, function(item, callback) {
             if (!_.isFunction(item)) {
-                var filePath = path.join(store.assetRoot, item);
+                var filePath = path.join(asset.root, item.file);
                 fs.readFile(filePath, 'utf8', callback);
             } else {
                 item(store, callback);
@@ -226,6 +266,18 @@ module.exports = function(opts) {
             } else {
                 return callback(null, contents.join(separator));
             }
+        });
+    };
+
+    function calcDigest (asset, callback) {
+        store.getContent(asset.name, function (err, content) {
+            if (err) {
+                return callback(err);
+            }
+            var hash = crypto.createHash('md5');
+            hash.update(content);
+            asset.digest = hash.digest('hex');
+            callback(null);
         });
     };
 

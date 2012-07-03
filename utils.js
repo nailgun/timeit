@@ -1,5 +1,10 @@
-var child_process = require('child_process');
+var child_process = require('child_process'),
+    _ = require('underscore'),
+    async = require('async'),
+    path = require('path'),
+    fs = require('fs');
 var utils = exports;
+
 
 exports.throwOnErr = function(err) {
     if (err) {
@@ -32,5 +37,51 @@ exports.getGitVersion = function(callback) {
     }, function(err, stdout, stderr) {
         var version = stdout.toString().trim();
         callback(err, version);
+    });
+};
+
+exports.fsFind = function (dir, opts, callback) {
+    if (_.isFunction(opts)) {
+        callback = opts;
+        opts = {};
+    }
+    opts = _.extend({
+        filter: function () { return true; }
+    }, opts);
+
+    fs.readdir(dir, function (err, entries) {
+        async.map(entries, function (entry, callback) {
+            var filepath = path.join(dir, entry);
+            fs.stat(filepath, function (err, stats) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (stats.isDirectory()) {
+                    exports.fsFind(filepath, function (err, files) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        callback(null, _.map(files, function (file) {
+                            return path.join(entry, file);
+                        }));
+                    });
+                }
+
+                if (opts.filter({
+                    filename: entry,
+                    filepath: filepath,
+                    stats: stats
+                })) {
+                    return callback(null, [entry]);
+                }
+            });
+        }, function (err, fileLists) {
+            if (err) {
+                return callback(err);
+            }
+
+            return callback(null, _.flatten(fileLists, true));
+        });
     });
 };

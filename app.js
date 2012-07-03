@@ -94,6 +94,11 @@ function installApplication() {
 
     app.set('basepath', app.installation.pathname.slice(0, -1));
 
+    var frontendPath = path.join(__dirname, 'frontend');
+    var icoPath = path.join(path.dirname(require.resolve('everyauth')), 'media');
+    var localesPath = path.join(__dirname, 'locales');
+    var momentPath = path.join(path.dirname(require.resolve('moment')), 'lang');
+
     if (app.config.log_format) {
         app.use(express.logger(app.config.log_format));
     }
@@ -118,25 +123,21 @@ function installApplication() {
 
     app.contentCache = ContentCache(app.version);
     app.assetStore = AssetStore({
-        assetRoot: __dirname + '/frontend',
-        assetUrl: 'assets',
+        urlPrefix: 'assets',
         contentCache: app.contentCache,
         compile: !app.config.debug,
     });
     app.renderer = template.Renderer(__dirname + '/templates');
     app.renderer.contextExtensions.push(context_extensions.AssetCompiler(app.assetStore));
 
-    app.assetStore.register('timeit.css', [
+    app.assetStore.register('timeit.css', frontendPath, [
         'css/bootstrap.css',
         'css/datepicker.css',
         'css/timeit.css',
     ]);
 
-    app.assetStore.register('index.css', [
-        'css/index.css',
-    ]);
-
-    app.assetStore.register('timeit.js', [
+    // store.register('moment/ru.js', root, [{url: 'moment/ru.js', path: 'ru.js'}]);
+    app.assetStore.register('timeit.js', frontendPath, [
         'js/lib/jquery.js',
         'js/lib/jquery.favicon.js',
         'js/lib/underscore.js',
@@ -157,7 +158,8 @@ function installApplication() {
         'js/timeit.js',
         'js/timeit.utils.js',
         assets.TemplateLoader({
-                templateDir: 'templates',
+                templatesPath: path.join(frontendPath, 'templates'),
+                templatesUrl: 'templates',
                 objectName: 'timeit.loadTemplate'
         }),
         assets.Inline('(function() {timeit.debug = '+app.config.debug+';})()'),
@@ -181,9 +183,11 @@ function installApplication() {
         'js/version.js',
     ]);
 
-    app.assetStore.register('index.js', [
-        'js/index.js',
-    ]);
+    app.assetStore.registerDir('moment', momentPath);
+    //app.assetStore.registerDir('locales', localesPath);
+
+    app.assetStore.register('index.css', frontendPath, 'css/index.css');
+    app.assetStore.register('index.js', frontendPath, 'js/index.js');
 
     function redirectRoot(req, res, next) {
         if (url.parse(req.url).pathname == '/' && req.originalUrl.slice(-1) != '/') {
@@ -203,10 +207,6 @@ function installApplication() {
         next();
     }
 
-    var frontendPath = path.join(__dirname, 'frontend');
-    var icoPath = path.join(path.dirname(require.resolve('everyauth')), 'media');
-    var localesPath = path.join(__dirname, 'locales');
-
     app.use(redirectRoot);
     app.use(express.static(frontendPath, {
         maxAge: app.config.staticFilesMaxAge * 1000
@@ -215,6 +215,9 @@ function installApplication() {
         maxAge: app.config.staticFilesMaxAge * 1000
     }));
     app.use('/locales', express.static(localesPath, {
+        maxAge: app.config.staticFilesMaxAge * 1000
+    }));
+    app.use('/moment', express.static(momentPath, {
         maxAge: app.config.staticFilesMaxAge * 1000
     }));
     app.use(app.renderer.middleware());

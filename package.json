@@ -21,7 +21,8 @@
       "clean-css": "0.4.x",
       "everyauth": "0.2.x",
       "forms2": "0.0.1",
-      "i18n": "0.3.x"
+      "i18n": "0.3.x",
+      "moment": "1.6.x"
   },
   "devDependencies": {},
   "optionalDependencies": {},

@@ -1,18 +1,19 @@
 var path = require('path'),
     fs = require('fs'),
     _ = require('underscore'),
-    async = require('async');
+    async = require('async'),
+    utils = require('../utils');
 
 exports.TemplateLoader = function (opts) {
-    opts = opts || {};
-    opts.templateDir = opts.templateDir || '';
-    opts.objectName = opts.objectName || 'loadTemplate';
+    opts = _.extend({
+        templatesPath: undefined,
+        templatesUrl: '',
+        objectName: 'loadTemplate'
+    }, opts);
 
     return function (store, callback) {
         if (store.compile) {
-            var dir = path.join(store.assetRoot, opts.templateDir);
-
-            compileTemplates(dir, function(err, compiled) {
+            compileTemplates(opts.templatesPath, function(err, compiled) {
                 if (err) {
                     return callback(err);
                 }
@@ -25,13 +26,17 @@ exports.TemplateLoader = function (opts) {
         } else {
             renderScript('clientAjax.js.tmpl', {
                 objectName: opts.objectName,
-                templatePath: opts.templateDir
+                templatePath: opts.templatesUrl
             }, callback);
         }
     };
 
     function compileTemplates (dir, callback) {
-        listRecursive(dir, function (err, files) {
+        utils.fsFind(dir, {
+            filter: function (entry) {
+                return !entry.stats.isDirectory()
+            }
+        }, function (err, files) {
             if (err) {
                 return callback(err);
             }
@@ -62,37 +67,6 @@ exports.TemplateLoader = function (opts) {
                 }
 
                 callback(null, '{'+compiled.join(',')+'}');
-            });
-        });
-    };
-
-    function listRecursive (dir, callback) {
-        fs.readdir(dir, function (err, entries) {
-            async.map(entries, function(entry, callback) {
-                fs.stat(path.join(dir, entry), function(err, stats) {
-                    if (err) {
-                        return callback(err);
-                    }
-
-                    if (stats.isFile()) {
-                        return callback(null, [entry]);
-                    } else if (stats.isDirectory()) {
-                        listRecursive(path.join(dir, entry), function(err, files) {
-                            if (err) {
-                                return callback(err);
-                            }
-                            callback(null, _.map(files, function (file) {
-                                return path.join(entry, file);
-                            }));
-                        });
-                    }
-                });
-            }, function(err, fileLists) {
-                if (err) {
-                    return callback(err);
-                }
-
-                return callback(null, _.flatten(fileLists, true));
             });
         });
     };

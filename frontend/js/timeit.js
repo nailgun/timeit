@@ -45,6 +45,7 @@ window.timeit = (function() {
                         };
                     }
                     i18n.init(opts, callback);
+                    moment.lang(language);
                 });
             }
         ], callback);
