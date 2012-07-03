@@ -5,6 +5,7 @@
 * stats:
  * working days, weeks, monthes for project
  * round clocks
+ * spanned days (project from start to end)
 
 * auth error handling (handle UserError exceptions)
 * server-side error reporting (email, log)
