@@ -110,28 +110,6 @@
         return c.seconds+' secs';
     };
 
-    timeit.utils.formatDate = function(date, format) {
-        var total_ms = date.total_ms;
-        var str = format;
-
-        str = str.replace('%d', ('0'+date.getDate()).slice(-2));
-        str = str.replace('%e', date.getDate());
-        str = str.replace('%m', ('0'+(date.getMonth()+1)).slice(-2));
-        str = str.replace('%Y', date.getFullYear());
-        str = str.replace('%H', ('0'+date.getHours()).slice(-2));
-        str = str.replace('%I', ('0'+(date.getHours() % 12)).slice(-2));
-        str = str.replace('%M', ('0'+date.getMinutes()).slice(-2));
-        str = str.replace('%S', ('0'+date.getSeconds()).slice(-2));
-
-        return str;
-    };
-
-    timeit.utils.sameDay = function (date1, date2) {
-        return date1.getDate() == date2.getDate()
-            && date1.getMonth() == date2.getMonth()
-            && date1.getFullYear() == date2.getFullYear();
-    };
-
     timeit.utils.intervalProps = function (a, b) {
         var props = {};
         if (a.format('DDMMYYYY') === b.format('DDMMYYYY')) {

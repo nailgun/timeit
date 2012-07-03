@@ -1,4 +1,3 @@
-* cut out timeit.utils.Date utils
 * activity name and tags autocompletion
 * client-side form validation
 * ping status

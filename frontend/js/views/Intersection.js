@@ -1,30 +1,20 @@
 timeit.IntersectionView = Backbone.View.extend({
     template: 'intersection.html',
 
-    events: {
-        'click .edit': 'onEdit'
-    },
-
-    context: function (callback, activities) {
-        _.each(activities, function(a) {
-            var start = new Date(a.start_time);
-            var end = new Date(a.end_time);
-            a.start_time = timeit.utils.formatDate(start, '%d.%m.%Y %H:%M');
-            a.end_time = timeit.utils.formatDate(end, '%d.%m.%Y %H:%M');
-            a.tags = a.tags ? a.tags.join(', ') : '';
-            a.duration = new timeit.utils.TimeDelta(start, end).toShortString();
-        });
-
-        callback({
-            activities: activities
+    initialize: function () {
+        this.activityList = new timeit.ActivityListView({
+            groupByDate: true,
+            allowEdit: true
         });
     },
 
-    onEdit: function (e) {
-        e.preventDefault();
-        var activityId = $(e.target).data('activity');
-        new timeit.EditActivityFormModal(activityId).show();
-        this.$el.modal('hide');
+    rendered: function (activities) {
+        this.$('.ti-activities').html(this.activityList.render(activities).el);
+
+        var view = this;
+        this.activityList.on('change', function () {
+            view.hide();
+        });
     }
 }).mixin(Backbone.ViewMixins.Template)
   .mixin(Backbone.ViewMixins.Modal);

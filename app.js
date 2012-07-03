@@ -168,7 +168,6 @@ function installApplication() {
         'js/views/SetActivityForm.js',
         'js/views/EditActivityForm.js',
         'js/views/Intersection.js',
-        'js/views/Today.js',
         'js/views/AuthLinks.js',
         'js/views/Account.js',
         'js/views/Question.js',

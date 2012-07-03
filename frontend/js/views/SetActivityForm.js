@@ -27,7 +27,10 @@ timeit.SetActivityForm = Backbone.View.extend({
     },
 
     initialize: function() {
-        this.todayView = new timeit.TodayView();
+        this.recent = new timeit.ActivityListView({
+            groupByDate: true,
+            allowEdit: true
+        });
     },
 
     context: function (callback) {
@@ -36,17 +39,22 @@ timeit.SetActivityForm = Backbone.View.extend({
         });
     },
 
+    updateRecent: function () {
+        var view = this;
+        timeit.get('today').ok(function(activities) {
+            view.recent.render(activities);
+        });
+    },
+
     rendered: function () {
         this.$('input[name="name"]').focus();
-        this.$('.ti-today').html(this.todayView.render().el);
+
+        this.$('.ti-recent').html(this.recent.el);
+        this.updateRecent();
 
         var view = this;
-        this.todayView.on('editClicked', function(activityId) {
-            var editForm = new timeit.EditActivityFormModal(activityId);
-            editForm.on('ok', function() {
-                view.todayView.render();
-            });
-            editForm.show();
+        this.recent.on('change', function () {
+            view.updateRecent();
         });
     },
 
