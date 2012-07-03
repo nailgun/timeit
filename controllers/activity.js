@@ -5,6 +5,9 @@ var jsonDumpFormErrors = require('../utils').jsonDumpFormErrors;
 var _ = require('underscore');
 var forms2 = require('forms2');
 var db = require('../db');
+var i18n = require('i18n');
+var __ = i18n.__,
+    __n = i18n.__n;
 
 function parseTags(tagsString) {
     var tags = tagsString.split(/\s*,\s*/);
@@ -72,7 +75,7 @@ exports.edit = loginRequired(function (req, res) {
         start_time: forms2.fields.JSDateTime(),
         end_time: forms2.fields.JSDateTime({
             validators: [forms2.validators.Max(new Date())],
-            errorMessages: {'max_value': 'date is in feature'}
+            errorMessages: {'max_value': __('date is in feature')}
         }),
         in_progress: forms2.fields.Boolean({
             validators: [function (value, callback) {
@@ -87,7 +90,7 @@ exports.edit = loginRequired(function (req, res) {
                   .exec(noErr(function(doc) {
                     if (doc) {
                         return callback({
-                            message: 'activity '+doc.name+' already in progress'
+                            message: __('activity %s already in progress', doc.name)
                         });
                     } else {
                         return callback();
@@ -97,7 +100,7 @@ exports.edit = loginRequired(function (req, res) {
         })
     }, function validate(form, callback) {
         if (form.data.start_time > form.data.end_time) {
-            return callback('start must be earlier then end', 'start_time');
+            return callback(__('start must be earlier then end'), 'start_time');
         } else {
             return callback();
         }
@@ -226,7 +229,7 @@ var fromToForm = forms2.create({
     })
 }, function validate(form, callback) {
     if (form.data.from > form.data.to) {
-        return callback('start must be earlier then end', 'from');
+        return callback(__('start must be earlier then end'), 'from');
     } else {
         return callback();
     }

@@ -2,18 +2,18 @@
     start();
 
     function start () {
-        $(window).on('beforeunload', function() {
-            if (timeit.currentActivity()) {
-                return "Keeping activity on the go!";
-            }
-        });
-
         $(function() {
-            timeit.init(initSettings);
+            timeit.init(onTimeItInitialized);
         });
     }
 
-    function initSettings () {
+    function onTimeItInitialized () {
+        $(window).on('beforeunload', function() {
+            if (timeit.currentActivity()) {
+                return __('Keeping activity on the go!');
+            }
+        });
+
         timeit.fetchMessages();
 
         timeit.get('settings').ok(function(settings) {

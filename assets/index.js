@@ -98,6 +98,12 @@ exports.TemplateLoader = function (opts) {
     };
 };
 
+exports.Inline = function (content) {
+    return function (store, callback) {
+        return callback(null, content);
+    };
+};
+
 function renderScript (script, context, callback) {
     fs.readFile(path.join(__dirname, script), 'utf8', function (err, template) {
         if (err) {

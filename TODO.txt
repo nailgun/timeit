@@ -1,4 +1,4 @@
-* l10n, i18n
+* l10n
 * activity name and tags autocompletion
 * client-side form validation
 * ping status
@@ -26,3 +26,11 @@
   * animate activity name (zoom-in)
   * date and time pickers
   * no text selection in lists
+
+* i18n module:
+  * environment: production, dev (whether to update json files or not)
+  * update all json files, not just en.json
+  * link i18n locale to request
+  * override language by user
+  * client-side jQuery data-translate or class '__'
+  * non-english plurals

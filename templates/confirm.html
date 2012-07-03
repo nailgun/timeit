@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%- language %>">
     <head>
         <meta charset="utf-8">
-        <title>Welcome — TimeIt</title>
+        <title><%- __('Welcome') %> — TimeIt</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
@@ -24,18 +24,18 @@
         <div class="ti-body">
             <span class="ti-control"></span>
             <div class="ti-control">
-                <h1>Confirm registration</h1>
-                <p>This will create new account. Do you really want it?</p>
+                <h1><%- __('Confirm registration') %></h1>
+                <p><%- __('This will create new account. Do you really want it?') %></p>
                 <form method="post" action="confirm">
                     <input type="hidden" name="_csrf" value="<%- _csrf %>">
-                    <button type="submit" class="btn btn-primary">Ok</button>
-                    <a class="btn" href="auth/logout">Cancel</a>
+                    <button type="submit" class="btn btn-primary"><%- __('Ok') %></button>
+                    <a class="btn" href="auth/logout"><%- __('Cancel') %></a>
                 </form>
             </div>
         </div>
 
         <div id="version_div">
-            version: <span id="version">?</span>
+            <%- __('version') %>: <span id="version">?</span>
         </div>
 
         <%= asset('timeit.js') %>

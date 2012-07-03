@@ -39,15 +39,15 @@ timeit.TrackerView = Backbone.View.extend({
             this.$('.ti-subtext').text('');
             this.updateTimer();
         } else {
-            this.$('.ti-name').text('No activity');
-            this.$('.ti-subtext').text('Click here to set activity');
+            this.$('.ti-name').text(__('No activity'));
+            this.$('.ti-subtext').text(__('Click here to set activity'));
             this.$('.ti-timer').text('');
         }
     },
 
     pending: function() {
-        this.$('.ti-name').text('Working...');
-        this.$('.ti-subtext').text('Please take a while');
+        this.$('.ti-name').text(__('Working...'));
+        this.$('.ti-subtext').text(__('Please take a while'));
     },
 
     updateTimer: function() {

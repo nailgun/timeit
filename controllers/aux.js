@@ -2,6 +2,7 @@ var decors = require('./decors');
 var app = require('../app');
 var loginRequired = decors.loginRequiredAjax;
 var noErr = require('../utils').noErr;
+var i18n = require('i18n');
 
 exports.getSettings = loginRequired(function (req, res) {
     res.okJson(req.user.settings);
@@ -52,4 +53,40 @@ exports.getMessages = function (req, res) {
     }
 
     res.okJson(messages);
+};
+
+exports.getLanguage = function (req, res) {
+    res.okJson(req.language);
+};
+
+// Translate via ajax (for locale population in development);
+exports.translate = function (req, res) {
+    var data = req.query;
+    var singular = data.singular;
+    var plural = data.plural;
+    var count = data.count;
+
+    if (!singular) {
+        res.statusCode = 404;
+        return res.end('Not found');
+    }
+
+    var translation;
+    if (!plural) {
+        translation = i18n.__(singular);
+    } else {
+        if (!count) {
+            res.statusCode = 401;
+            return res.end('Invalid count');
+        }
+        count = new Number(count);
+        if (isNaN(count)) {
+            res.statusCode = 401;
+            return res.end('Invalid count');
+        }
+        translation = i18n.__n(singular, plural, count);
+    }
+
+
+    res.okJson(translation);
 };

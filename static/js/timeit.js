@@ -1,4 +1,7 @@
 window.timeit = (function() {
+    window.__ = i18n.__;
+    window.__n = i18n.__n;
+
     var timeit = {
         notificationsRequested: false,
         notificationInterval: 10 * 60 * 1000,
@@ -13,12 +16,38 @@ window.timeit = (function() {
     // ===============
 
     timeit.init = function(callback) {
-        _.extTemplateLoader = timeit.loadTemplate;
-
-        $.get('csrf-token').done(function(token) {
-            timeit.csrfToken = token;
-            callback();
+        _.extTemplate.loader = timeit.loadTemplate;
+        _.extTemplate.extensions.push(function (context) {
+            context.__ = __,
+            context.__n = __n
         });
+
+        async.parallel([
+            function (callback) {
+                $.get('csrf-token').done(function(token) {
+                    timeit.csrfToken = token;
+                    callback();
+                });
+            },
+            function (callback) {
+                timeit.get('language').ok(function (language) {
+                    var opts = {
+                        language: language,
+                        localesPath: 'locales'
+                    };
+                    if (timeit.debug) {
+                        opts.missingCallback = function (singular, plural, number) {
+                            timeit.get('translate', {
+                                singular: singular,
+                                plural: plural,
+                                count: 0
+                            });
+                        };
+                    }
+                    i18n.init(opts, callback);
+                });
+            }
+        ], callback);
     };
 
     timeit.initActivity = function() {
@@ -88,7 +117,7 @@ window.timeit = (function() {
     };
 
     timeit.on('activityChanging', function() {
-        document.title = 'Working... — TimeIt';
+        document.title = __('Working...')+' — TimeIt';
     });
 
     timeit.on('activityChanged', function() {
@@ -96,7 +125,7 @@ window.timeit = (function() {
         if (activity) {
             document.title = activity.name + ' — TimeIt';
         } else {
-            document.title = 'No activity — TimeIt';
+            document.title = __('No activity')+' — TimeIt';
         }
 
         restartNotifications();
@@ -110,7 +139,7 @@ window.timeit = (function() {
         function notify() {
             if (timeit.notificationsAllowed()) {
                 var activity = timeit.currentActivity();
-                var text = activity ? activity.name : 'No activity';
+                var text = activity ? activity.name : __('No activity');
                 var popup = window.webkitNotifications.createNotification('', 'TimeIt', text);
                 popup.show();
                 setTimeout(function() {
@@ -195,7 +224,7 @@ window.timeit = (function() {
             if (xhr.status == 401) {
                 timeit.redirect('.');
             } else {
-                var msg = 'Request failed ('+xhr.status;
+                var msg = __('Request failed')+' ('+xhr.status;
                 if (xhr.statusText) {
                     msg += ' '+xhr.statusText;
                 }

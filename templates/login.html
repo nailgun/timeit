@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%- language %>">
     <head>
         <meta charset="utf-8">
-        <title>Welcome — TimeIt</title>
+        <title><%- __('Welcome') %> — TimeIt</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
@@ -24,8 +24,8 @@
         <div class="ti-body">
             <span class="ti-control"></span>
             <div class="ti-control">
-                <h1>TimeIt time tracker</h1>
-                <h3>Login with...</h3>
+                <h1><%- __('TimeIt time tracker') %></h1>
+                <h3><%- __('Login with...') %></h3>
                 <p>
                     <% _.each(providers, function(provider) { %>
                         <a class="btn" href="auth/<%- provider %>"><img src="ico/<%- provider %>.ico"></a>
@@ -35,7 +35,7 @@
         </div>
 
         <div id="version_div">
-            version: <span id="version">?</span>
+            <%- __('version') %>: <span id="version">?</span>
         </div>
 
         <%= asset('timeit.js') %>

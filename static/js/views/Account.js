@@ -21,7 +21,7 @@ timeit.AccountView = Backbone.View.extend({
         
         this.$('.ti-username')
             .popover({
-                title: 'Links',
+                title: __('Links'),
                 placement: 'bottom',
                 trigger: 'manual',
                 content: this.authLinksView.el

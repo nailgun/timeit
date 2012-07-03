@@ -12,7 +12,8 @@ var express = require('express'),
     AssetStore = require('./asset_store'),
     template = require('./template'),
     context_extensions = require('./context_extensions'),
-    assets = require('./assets');
+    assets = require('./assets'),
+    i18n = require('i18n');
 
 var app = module.exports = express.createServer();
 app.configure = configureApplication;
@@ -61,14 +62,6 @@ function configureApplication(config, done) {
         return app.installation.pathname + path;
     };
 
-    app.set('basepath', app.installation.pathname.slice(0, -1));
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-
-    if (app.config.log_format) {
-        app.use(express.logger(app.config.log_format));
-    }
-
     async.parallel([
         function(callback) {
             utils.getGitVersion(function(err, version) {
@@ -99,7 +92,29 @@ function installApplication() {
     var c = require('./controllers');
     var auth = require('./auth');
 
+    app.set('basepath', app.installation.pathname.slice(0, -1));
+
+    if (app.config.log_format) {
+        app.use(express.logger(app.config.log_format));
+    }
+
     auth.install();
+    i18n.configure({
+        locales: ['en', 'ru']
+    });
+
+    app.helpers({
+        __: i18n.__,
+        __n: i18n.__n,
+    });
+    app.dynamicHelpers({
+        _csrf: function (req, res) {
+            return req.session._csrf;
+        },
+        language: function (req, res) {
+            return req.language;
+        },
+    });
 
     app.contentCache = ContentCache(app.version);
     app.assetStore = AssetStore({
@@ -138,12 +153,14 @@ function installApplication() {
         'js/backbone.mixin.js',
         'js/backbone.template.js',
         'js/backbone.bootstrap.js',
+        'js/i18n.js',
         'js/timeit.js',
         'js/timeit.utils.js',
         assets.TemplateLoader({
                 templateDir: 'templates',
                 objectName: 'timeit.loadTemplate'
         }),
+        assets.Inline('(function() {timeit.debug = '+app.config.debug+';})()'),
         'js/views/Tracker.js',
         'js/views/SetActivityForm.js',
         'js/views/EditActivityForm.js',
@@ -188,6 +205,7 @@ function installApplication() {
 
     var staticPath = path.join(__dirname, 'static');
     var icoPath = path.join(path.dirname(require.resolve('everyauth')), 'media');
+    var localesPath = path.join(__dirname, 'locales');
 
     app.use(redirectRoot);
     app.use(express.static(staticPath, {
@@ -196,6 +214,11 @@ function installApplication() {
     app.use('/ico', express.static(icoPath, {
         maxAge: app.config.staticFilesMaxAge * 1000
     }));
+    app.use('/locales', express.static(localesPath, {
+        maxAge: app.config.staticFilesMaxAge * 1000
+    }));
+    app.use(app.renderer.middleware());
+    app.use(i18n.init);
     app.use(app.assetStore.middleware());
     app.use(myResponse);
     app.use(express.bodyParser());
@@ -233,6 +256,10 @@ function installApplication() {
     app.get ('/csrf-token', c.aux.getCsrfToken);
     app.get ('/version', c.aux.getVersion);
     app.get ('/messages', c.aux.getMessages);
+    app.get ('/language', c.aux.getLanguage);
+    if (app.config.debug) {
+        app.get ('/translate', c.aux.translate);
+    }
 
     app.get ('/auth/status', c.auth.status);
     app.get ('/auth/links', c.auth.links);

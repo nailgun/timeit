@@ -119,5 +119,23 @@ exports.Renderer = function(templatesPath) {
         }));
     };
 
+    renderer.middleware = function () {
+        return function (req, res, next) {
+            res.render = function (name, context) {
+                if (res.app) {
+                    context = _.extend({},
+                        context || {},
+                        res.app._locals
+                    );
+                    _.each(res.app.dynamicViewHelpers, function (helper, name) {
+                        context[name] = helper(req, res);
+                    })
+                }
+                renderer.renderToRes(res, name, context);
+            };
+            next();
+        };
+    };
+
     return renderer;
 };

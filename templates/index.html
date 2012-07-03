@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%- language %>">
     <head>
         <meta charset="utf-8">
-        <title>Welcome — TimeIt</title>
+        <title><%- __('Welcome') %> — TimeIt</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
@@ -37,16 +37,16 @@
         <div id="nav">
             <ul class="nav nav-pills">
                 <li class="active">
-                    <a href="#tracker" data-toggle="tab">Tracker</a>
+                    <a href="#tracker" data-toggle="tab"><%- __('Tracker') %></a>
                 </li>
                 <li>
-                    <a href="#overview" data-toggle="tab">Overview</a>
+                    <a href="#overview" data-toggle="tab"><%- __('Overview') %></a>
                 </li>
                 <li>
-                    <a href="#stats" data-toggle="tab">Statistics</a>
+                    <a href="#stats" data-toggle="tab"><%- __('Statistics') %></a>
                 </li>
                 <li>
-                    <a href="#massive" data-toggle="tab">Massive Edit</a>
+                    <a href="#massive" data-toggle="tab"><%- __('Massive Edit') %></a>
                 </li>
             </ul>
         </div>
@@ -55,12 +55,12 @@
 
         <div id="tools_div" class="btn-toolbar hide">
             <div class="btn-group">
-                <a id="toggle_notify" class="btn">Notifications</a>
+                <a id="toggle_notify" class="btn"><%- __('Notifications') %></a>
             </div>
         </div>
 
         <div id="version_div">
-            version: <span id="version">?</span>
+            <%- __('version') %>: <span id="version">?</span>
         </div>
 
         <%= asset('timeit.js') %>

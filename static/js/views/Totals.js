@@ -152,6 +152,6 @@ timeit.TotalsView = Backbone.View.extend({
         addBars(this.$('.ti-activities'), 'activity', maxActivityDuration);
         addBars(this.$('.ti-tags'), 'tag', maxTagDuration);
 
-        this.$('.ti-total').text(ms2hours(absoluteTotal));
+        this.$('.ti-total').html(__n('<b>One</b> hour tracked total', '<b>{0}</b> hours tracked total', ms2hours(absoluteTotal)));
     },
 }).mixin(Backbone.ViewMixins.Template);

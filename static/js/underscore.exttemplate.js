@@ -1,11 +1,7 @@
 (function() {
     _.mixin({
-        extTemplate: extTemplate,
-        extTemplateLoader: null
+        extTemplate: extTemplate
     });
-
-    var contextExtensions = {};
-    var enabledExtensions = [];
 
     function createContext (jsContext, data) {
         var context = data || {};
@@ -30,7 +26,10 @@
             }
             context[name] = wrapper;
         };
-        _.each(contextExtensions, function (ext) {
+        _.each(extTemplate.extensions, function (ext) {
+            if (typeof ext === 'string') {
+                ext = defaultExtensions[ext];
+            }
             ext.call(context._this, context);
         });
         return context;
@@ -59,20 +58,13 @@
             callback(templateFuncAsync);
         }
 
-        return _.extTemplateLoader(name, templateLoaded);
+        return extTemplate.loader(name, templateLoaded);
     };
 
-    extTemplate.contextExtensions = function (what) {
-        if (what === undefined) {
-            return enabledExtensions;
-        } else {
-            enabledExtensions = _.map(what, function (extName) {
-                return contextExtensions[extName];
-            });
-        }
-    };
+    var defaultExtensions = {};
 
-    contextExtensions.include = function (context) {
+    defaultExtensions.include = function (context) {
+        // TODO: return function
         context._wrap('include', function (callback, name, includeContext) {
             extTemplate(name, function (template) {
                 template(_.extend({}, context, includeContext), callback);
@@ -80,5 +72,5 @@
         });
     };
 
-    enabledExtensions = [contextExtensions.include];
+    extTemplate.extensions = _.keys(defaultExtensions);
 })();

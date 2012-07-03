@@ -1,15 +1,16 @@
 <p>
-    There are <b><%- count %></b> records.<br>
-    <b><%- total.hours %></b> hours tracked total.<br>
-    Longest continuous work happened on <%- longest.activity.date %> and was <b><%- longest.duration.hours %></b> hours.<br>
-    First activity was recorded on <b><%- first.date %></b>.
+    <%= __n('There is <b>one</b> record.', 'There are <b>{0}</b> records.', count) %><br>
+    <%= __n('<b>One</b> hour tracked total.', '<b>{0}</b> hours tracked total.', total.hours) %><br>
+    <%= __('Longest continuous work happened on {0} ', longest.activity.date)+
+    __n('and was one hour.', 'and was <b>{0}</b> hours.', longest.duration.hours) %><br>
+    <%= __('First activity was recorded on <b>{0}</b>', first.date) %>.
 </p>
 
-<h4>Days</h4>
+<h4><%- __('Days') %></h4>
 <%= include('stats_bars.html', {container: weekday, max: weekdayMax}) %>
 
-<h4>Activities</h4>
+<h4><%- __('Activities') %></h4>
 <%= include('stats_bars.html', {container: activity, max: activityMax}) %>
 
-<h4>Tags</h4>
+<h4><%- __('Tags') %></h4>
 <%= include('stats_bars.html', {container: tag, max: tagMax}) %>

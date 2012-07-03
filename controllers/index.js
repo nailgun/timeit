@@ -10,19 +10,17 @@ exports.auth = require('./auth');
 exports.aux = require('./aux');
 
 exports.index = loginRequired(function(req, res) {
-    app.renderer.renderToRes(res, 'index.html');
+    res.render('index.html');
 });
 
 exports.login = function(req, res) {
-    app.renderer.renderToRes(res, 'login.html', {
+    res.render('login.html', {
         providers: auth.providers()
     });
 };
 
 exports.getConfirm = loginRequired(function(req, res) {
-    app.renderer.renderToRes(res, 'confirm.html', {
-        _csrf: req.session._csrf
-    });
+    res.render('confirm.html');
 }, true);
 
 exports.postConfirm = loginRequired(function (req, res) {
