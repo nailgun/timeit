@@ -12,7 +12,13 @@
 * cache middleware, per-page cache
 * compress HTML
 * client-side memory usage
-* template 'extend'
+* LESS
+* template engine:
+ * inheritance (extend)
+ * async
+ * include
+ * clean syntax
+ * escaping by default (overriden by filter)
 
 * node.js cluster
 * interface:
