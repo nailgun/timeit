@@ -326,7 +326,7 @@ exports.getStats = loginRequired(function(req, res) {
 
     var map = function () {
         if (!this.end_time) {
-            return;
+            this.end_time = new Date();
         }
 
         function emitWeekday(i1, i2) {
