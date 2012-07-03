@@ -1,18 +1,31 @@
 (function($) {
-$.fn.holdButton = function () {
+$.fn.holdButton = function (opts) {
+    opts = $.extend({
+        hold: null,
+        holdText: 'Hold...'
+    }, opts);
+
     return this.each(function () {
         var $btn = $(this);
-        var $hold = $('<span class="badge badge-info"></span>');
+
+        var $hold = opts.hold;
+        if (!$hold) {
+            $hold = $('<span class="badge badge-info"></span>');
+            $btn.after($hold);
+            $btn.after('&nbsp;');
+        }
         $hold.hide();
-        $btn.after($hold);
-        $btn.after('&nbsp;');
 
         var interval = null;
 
         $btn.on('mousedown', function () {
             var countDown = 3;
             function updateLabel () {
-                $hold.text('Hold '+countDown+'...');
+                if (typeof opts.holdText === 'function') {
+                    $hold.text(opts.holdText(countDown));
+                } else {
+                    $hold.text(opts.holdText);
+                }
             }
 
             interval = setInterval(function () {
