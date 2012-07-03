@@ -19,6 +19,7 @@
  * include
  * clean syntax
  * escaping by default (overriden by filter)
+ * __ shortcut
 
 * node.js cluster
 * interface:
