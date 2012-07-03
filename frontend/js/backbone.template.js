@@ -6,6 +6,7 @@
 
             function setHtml(html) {
                 view.$el.html(html);
+                view.trigger('rendered', args);
                 if (view.rendered !== undefined) {
                     view.rendered.apply(view, args);
                 }
