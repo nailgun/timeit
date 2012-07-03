@@ -203,12 +203,12 @@ function installApplication() {
         next();
     }
 
-    var staticPath = path.join(__dirname, 'static');
+    var frontendPath = path.join(__dirname, 'frontend');
     var icoPath = path.join(path.dirname(require.resolve('everyauth')), 'media');
     var localesPath = path.join(__dirname, 'locales');
 
     app.use(redirectRoot);
-    app.use(express.static(staticPath, {
+    app.use(express.static(frontendPath, {
         maxAge: app.config.staticFilesMaxAge * 1000
     }));
     app.use('/ico', express.static(icoPath, {
