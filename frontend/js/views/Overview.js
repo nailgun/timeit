@@ -78,13 +78,13 @@ timeit.OverviewView = Backbone.View.extend({
         var props = timeit.utils.intervalProps(this.from, this.to);
         var txt;
         if (props.sameDay) {
-            txt = this.from.format('MMM D, YYYY');
+            txt = this.from.format('L');
         } else if (props.sameMonth) {
-            txt = this.from.format('MMM D-') + this.to.format('D, YYYY');
+            txt = this.from.format(__('MMM D-')) + this.to.format(__('D, YYYY'));
         } else if (props.sameYear) {
-            txt = this.from.format('MMM D -') + this.to.format(' MMM D, YYYY');
+            txt = this.from.format(__('MMM D -')) + this.to.format(__(' MMM D, YYYY'));
         } else {
-            txt = this.from.format('MMM D, YYYY -') + this.to.format('MMM D, YYYY');
+            txt = this.from.format(__('MMM D, YYYY -')) + this.to.format(__(' MMM D, YYYY'));
         }
         this.$('.ti-txt').text(txt);
         this.updateData();

@@ -46,8 +46,8 @@ timeit.StatsView = Backbone.View.extend({
             });
             stats.total = templatize(stats.total);
             stats.longest.duration = templatize(stats.longest.duration);
-            stats.longest.activity.date = moment(stats.longest.activity.start_time).format('MMM DD, YYYY');
-            stats.first.date = moment(stats.first.start_time).format('MMM DD, YYYY');
+            stats.longest.activity.date = moment(stats.longest.activity.start_time).calendar();
+            stats.first.date = moment(stats.first.start_time).calendar();
             stats.HOUR = 60 * 60 * 1000;
             stats.DAY = 24 * stats.HOUR;
             callback(stats);

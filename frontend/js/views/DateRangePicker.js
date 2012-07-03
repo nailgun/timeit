@@ -15,17 +15,17 @@ timeit.DateRangePickerView = Backbone.View.extend({
         var props = timeit.utils.intervalProps(this.week[0], this.week[1]);
         var weekTxt;
         if (props.sameMonth) {
-            weekTxt = this.week[0].format('MMM D-') + this.week[1].format('D, YYYY');
+            weekTxt = this.week[0].format(__('MMM D-')) + this.week[1].format(__('D, YYYY'));
         } else if (props.sameYear) {
-            weekTxt = this.week[0].format('MMM D -') + this.week[1].format(' MMM D, YYYY');
+            weekTxt = this.week[0].format(__('MMM D -')) + this.week[1].format(__(' MMM D, YYYY'));
         } else {
-            weekTxt = this.week[0].format('MMM D, YYYY -') + this.week[1].format('MMM D, YYYY');
+            weekTxt = this.week[0].format(__('MMM D, YYYY -')) + this.week[1].format(__(' MMM D, YYYY'));
         }
 
         callback({
-            day: this.day[0].format('MMM D, YYYY'),
+            day: this.day[0].format('L'),
             week: weekTxt,
-            month: this.month[0].format('MMM D-') + this.month[1].format('D, YYYY'),
+            month: this.month[0].format(__('MMM D-')) + this.month[1].format(__('D, YYYY')),
             from: from.format('DD.MM.YYYY'),
             to: to.format('DD.MM.YYYY'),
         });

@@ -20,7 +20,7 @@ timeit.TimeLineView = Backbone.View.extend({
         } else if (props.sameMonth) {
             this.renderIntervals(activities, moment.duration(1, 'days'), 'D');
         } else {
-            this.renderIntervals(activities, moment.duration(1, 'weeks'), 'MMM D');
+            this.renderIntervals(activities, moment.duration(1, 'weeks'), __('MMM, D'));
         }
 
         return this;

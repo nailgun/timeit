@@ -27,21 +27,21 @@ timeit.ActivityListView = Backbone.View.extend({
             a.duration = moment.humanizeDuration(a.end.diff(a.start));
 
             if (groupByDate && (grouped.length === 0 || !sameDay(grouped[grouped.length-1].end, a.start))) {
-                a.day = a.start.format('MMM D, YYYY');
+                a.day = a.start.format('L');
             }
 
-            a.start_time = a.start.format('HH:mm');
+            a.start_time = a.start.format('LT');
             if (sameDay(a.start, a.end)) {
-                a.end_time = a.end.format('HH:mm');
+                a.end_time = a.end.format('LT');
                 grouped.push(a);
             } else {
                 a.end_time = '';
                 grouped.push(a);
 
                 var a2 = _.extend({}, a);
-                a2.day = a2.end.format('MMM D, YYYY');
+                a2.day = a2.end.format('L');
                 a2.start_time = '';
-                a2.end_time = a2.end.format('HH:mm');
+                a2.end_time = a2.end.format('LT');
                 grouped.push(a2);
             }
         });

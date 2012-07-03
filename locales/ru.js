@@ -80,5 +80,11 @@
 	"date is in feature": "дата в будущем",
 	"activity %s already in progress": "активность %s уже продолжается",
 	"start must be earlier then end": "начало должно быть раньше чем конец",
-	"Hold {0}...": "Держите {0}..."
+	"Hold {0}...": "Держите {0}...",
+	"MMM D-": "D-",
+	"D, YYYY": "D MMM YYYY",
+	"MMM D -": "D MMM -",
+	"MMM D, YYYY -": "D MMM YYYY -",
+	" MMM D, YYYY": " D MMM YYYY",
+	"MMM, D": "D MMM"
 }
