@@ -13,19 +13,17 @@
 * compress HTML
 * client-side memory usage
 * LESS
-* template engine:
- * inheritance (extend)
- * async
- * include
- * clean syntax
- * escaping by default (overriden by filter)
- * __ shortcut
 
 * node.js cluster
 * interface:
   * animate activity name (zoom-in)
   * date and time pickers
   * no text selection in lists
+
+NodeWare
+========
+
+* form error i18n
 
 * i18n module:
   * environment: production, dev (whether to update json files or not)
@@ -34,3 +32,11 @@
   * override language by user
   * client-side jQuery data-translate or class '__'
   * non-english plurals
+
+* template engine:
+ * inheritance (extend)
+ * async
+ * include
+ * clean syntax
+ * escaping by default (overriden by filter)
+ * __ shortcut
