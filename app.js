@@ -118,7 +118,7 @@ function installApplication() {
 
     app.contentCache = ContentCache(app.version);
     app.assetStore = AssetStore({
-        assetRoot: __dirname + '/static',
+        assetRoot: __dirname + '/frontend',
         assetUrl: 'assets',
         contentCache: app.contentCache,
         compile: !app.config.debug,
