@@ -19,13 +19,6 @@ exports.login = function(req, res) {
     });
 };
 
-exports.getConfirm = loginRequired(function(req, res) {
+exports.confirm = loginRequired(function(req, res) {
     res.render('confirm.html');
-}, true);
-
-exports.postConfirm = loginRequired(function (req, res) {
-    req.user.confirmed = true;
-    req.user.save(utils.noErr(function () {
-        res.redirect('/', 307);
-    }));
 }, true);

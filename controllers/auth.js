@@ -62,3 +62,10 @@ exports.removeAccount = loginRequired(function (req, res) {
         res.okJson();
     }));
 });
+
+exports.confirmAccount = loginRequired(function (req, res) {
+    req.user.confirmed = true;
+    req.user.save(utils.noErr(function () {
+        res.redirect('/', 303);
+    }));
+}, true);

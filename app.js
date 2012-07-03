@@ -236,9 +236,8 @@ function installApplication() {
     }));
 
     app.get ('/', c.index);
-    app.get ('/login', c.login);
-    app.get ('/confirm', c.getConfirm);
-    app.post('/confirm', c.postConfirm);
+    app.get ('/login.html', c.login);
+    app.get ('/confirm.html', c.confirm);
 
     app.get ('/today', c.activity.today);
     app.get ('/activity', c.activity.get);
@@ -265,4 +264,5 @@ function installApplication() {
     app.get ('/auth/links', c.auth.links);
     app.post('/auth/unlink', c.auth.unlink);
     app.post('/auth/remove-account', c.auth.removeAccount);
+    app.post('/confirm', c.auth.confirmAccount);
 }
