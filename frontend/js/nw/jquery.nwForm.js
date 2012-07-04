@@ -3,7 +3,7 @@
 var methods = {};
 
 function Form (opts, $form) {
-    form = opts;
+    var form = opts;
 
     form.$ = $form;
     form.handler = nw.forms.create(form.fields, form.validate);
