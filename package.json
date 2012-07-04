@@ -8,6 +8,7 @@
     "type": "git",
     "url": "git://github.com/nailgun/timeit.git"
   },
+  "private": true,
   "main": "app",
   "dependencies": {
       "express": "2.5.x",
