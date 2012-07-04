@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>NodeWare browser test suite</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="Dmitry Bashkatov">
+
+        <link rel="stylesheet" href="test/lib/mocha.css" />
+        <style>
+            .hide {
+                display: none;
+            }
+        </style>
+
+        <!-- Libraries -->
+        <script src="lib/jquery.js"></script>
+        <script src="lib/underscore.js"></script>
+
+        <!-- What's being tested -->
+        <script src="nw/jquery.nwForm.js"></script>
+
+        <!-- Test Framework -->
+        <script src="test/lib/expect.js"></script>
+        <script src="test/lib/mocha.js"></script>
+        <script src="test/lib/sinon.js"></script>
+        <script>mocha.setup('bdd')</script>
+
+        <!-- Tests -->
+        <script src="test/nw.js"></script>
+        <script src="test/jquery.nwForm.js"></script>
+
+        <script>
+            $(function () {
+                mocha.run().globals(['alert']);
+            });
+        </script>
+    </head>
+
+    <body>
+        <div id="mocha"></div>
+
+        <div id="classes" class="hide">
+            <form class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label">text</label>
+                    <div class="controls">
+                        <input type="text" name="text" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">checkbox</label>
+                    <div class="controls">
+                        <input type="checkbox" name="checkbox" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">select</label>
+                    <div class="controls">
+                        <select name="select">
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">textarea</label>
+                    <div class="controls">
+                        <textarea name="textarea">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">radio</label>
+                    <div class="controls">
+                        <input type="radio" name="radio" value="1" />
+                        <input type="radio" name="radio" value="2" />
+                        <input type="radio" name="radio" value="3" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="instances" class="hide"></div>
+    </body>
+</html>
