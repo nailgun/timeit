@@ -1,15 +1,23 @@
 describe('nw', function () {
     var mocks = [];
+    var defaultBody = 'mock body';
 
-    function mockAjax (callback) {
+    beforeEach(function () {
         mocks.push(sinon.stub($, 'ajax', function (url, options) {
             var deferred = $.Deferred();
             setTimeout(function () {
-                callback(deferred);
+                if ($.ajax.mockResolve) {
+                    $.ajax.mockResolve(deferred);
+                } else {
+                    deferred.resolve({
+                        status: 'ok',
+                        body: defaultBody
+                    });
+                }
             }, 0);
             return deferred;
         }));
-    };
+    });
 
     afterEach(function () {
         _.each(mocks, function (mock) {
@@ -29,8 +37,6 @@ describe('nw', function () {
         };
 
         it('should call jQuery.ajax with right options', function () {
-            mocks.push(sinon.spy($, 'ajax'));
-
             nw.rpc(url, options);
 
             expect($.ajax.calledOnce).to.be.ok();
@@ -46,32 +52,32 @@ describe('nw', function () {
         });
 
         it('should redirect to login when unauthorized', function (done) {
-            mockAjax(function (deferred) {
+            $.ajax.mockResolve = function (deferred) {
                 deferred.reject({
                     status: 401,
                     statusText: 'unathorized'
                 });
-            });
-
+            };
             mocks.push(sinon.stub(nw, 'redirect'));
+
             nw.rpc(url, options);
 
             setTimeout(function () {
                 expect(nw.redirect.calledOnce).to.be.ok();
-                nw.redirect.lastCall.args[0].to.be('.');
+                expect(nw.redirect.lastCall.args[0]).to.be('.');
                 done();
             }, 100);
         });
 
         it('should alert on failure', function (done) {
-            mockAjax(function (deferred) {
+            $.ajax.mockResolve = function (deferred) {
                 deferred.reject({
                     status: 500,
                     statusText: 'server error'
                 });
-            });
-
+            };
             mocks.push(sinon.stub(window, 'alert'));
+
             nw.rpc(url, options);
 
             setTimeout(function () {
@@ -81,22 +87,22 @@ describe('nw', function () {
         });
 
         it('should parse error response', function (done) {
-            mockAjax(function (deferred) {
+            $.ajax.mockResolve = function (deferred) {
                 deferred.resolve({
                     status: 'err',
                     body: 'error body'
                 });
-            });
+            };
 
             var doneCallback = sinon.spy();
             var failCallback = sinon.spy();
 
-            nw.rpc(url, options)
+            var deferred = nw.rpc(url, options)
                 .done(doneCallback)
                 .fail(function (err) {
                     expect(err).to.be('error body');
                     failCallback();
-                });
+                })
             
             setTimeout(function () {
                 expect(doneCallback.called).to.not.be.ok();
@@ -106,20 +112,13 @@ describe('nw', function () {
         });
 
         it('should parse ok response', function (done) {
-            mockAjax(function (deferred) {
-                deferred.resolve({
-                    status: 'ok',
-                    body: 'response body'
-                });
-            });
-
             var doneCallback = sinon.spy();
             var failCallback = sinon.spy();
 
             nw.rpc(url, options)
                 .fail(failCallback)
                 .done(function (body) {
-                    expect(body).to.be('response body');
+                    expect(body).to.be(defaultBody);
                     doneCallback();
                 });
             
@@ -131,12 +130,12 @@ describe('nw', function () {
         });
 
         it('should alert on unexpected error', function (done) {
-            mockAjax(function (deferred) {
+            $.ajax.mockResolve = function (deferred) {
                 deferred.resolve({
                     status: 'err',
                     body: 'error body'
                 });
-            });
+            };
 
             nw.rpc(url, options).done(function () {});
             mocks.push(sinon.stub(window, 'alert'));
@@ -151,18 +150,28 @@ describe('nw', function () {
     describe('#post()', function () {
         it('should call #rpc() with post type', function () {
             mocks.push(sinon.spy(nw, 'rpc'));
-            nw.post('mock');
+            var data = {
+                a: 1,
+                b: 2
+            };
+            nw.post('mock', data);
             expect(nw.rpc.calledOnce).to.be.ok();
             expect(nw.rpc.lastCall.args[1].type).to.be('post');
+            expect(nw.rpc.lastCall.args[1].data).to.be(data);
         });
     });
 
     describe('#get()', function () {
         it('should call #rpc() with get type', function () {
             mocks.push(sinon.spy(nw, 'rpc'));
-            nw.get('mock');
+            var data = {
+                a: 1,
+                b: 2
+            };
+            nw.get('mock', data);
             expect(nw.rpc.calledOnce).to.be.ok();
             expect(nw.rpc.lastCall.args[1].type).to.be('get');
+            expect(nw.rpc.lastCall.args[1].data).to.be(data);
         });
     });
 });
