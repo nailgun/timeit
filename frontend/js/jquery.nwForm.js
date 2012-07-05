@@ -12,7 +12,7 @@ function Form (opts, $form) {
         var data = form.data();
 
         function onFail (errors) {
-            $form.trigger('error', errors);
+            $form.trigger('submitError', [errors]);
             form.setErrors(errors);
         }
 
@@ -22,7 +22,7 @@ function Form (opts, $form) {
             }
 
             function onDone (data) {
-                $form.trigger('submitted', data || bound.data);
+                $form.trigger('submitSuccess', bound.data);
             }
 
             if (typeof opts.method === 'function') {

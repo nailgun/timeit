@@ -9,17 +9,13 @@ describe('jQuery.nwForm', function () {
     };
 
     beforeEach(function () {
-        sinon.stub(nw, 'rpc', function () {
-            var deferred = $.Deferred();
-            setTimeout(function () {
-                deferred.resolve({});
-            });
-            return deferred;
-        });
+        testUtils.mockAjax();
+        sinon.spy(nw, 'rpc');
     });
 
     afterEach(function () {
         nw.rpc.restore();
+        $.ajax.restore();
     });
 
     beforeEach(function () {
@@ -86,7 +82,7 @@ describe('jQuery.nwForm', function () {
                 method: 'post'
             }).nwForm('data', values);
 
-            $form.on('submitted', function (data) {
+            $form.on('submitSuccess', function (data) {
                 expect(nw.rpc.calledOnce).to.be.ok();
                 var call = nw.rpc.lastCall;
                 expect(call.args[0]).to.be('mock');
@@ -103,7 +99,7 @@ describe('jQuery.nwForm', function () {
                 method: 'get'
             }).nwForm('data', values);
 
-            $form.on('submitted', function (data) {
+            $form.on('submitSuccess', function (data) {
                 expect(nw.rpc.calledOnce).to.be.ok();
                 var call = nw.rpc.lastCall;
                 expect(call.args[0]).to.be('mock');
@@ -132,7 +128,7 @@ describe('jQuery.nwForm', function () {
                 validate: validator2
             }).nwForm('data', values);
 
-            $form.on('submitted', function () {
+            $form.on('submitSuccess', function () {
                 expect(validator1.calledOnce).to.be.ok();
                 expect(validator2.calledOnce).to.be.ok();
                 done();
@@ -159,7 +155,6 @@ describe('jQuery.nwForm', function () {
                 },
                 method: function (data) {
                     expect(this[0] === $form[0]).to.be.ok();
-
                     $.each(values, function (name, value) {
                         expect(data[name]).to.be(value);
                     });
@@ -170,15 +165,74 @@ describe('jQuery.nwForm', function () {
         });
 
         it('should trigger error event when validation fails', function (done) {
-            fail();
+            $form.nwForm({
+                url: 'mock',
+                validate: function (bound, callback) {
+                    callback('form error');
+                }
+            });
+
+            var successSpy = sinon.spy();
+            $form.on('submitSuccess', successSpy);
+            $form.on('submitError', function (e, errors) {
+                expect(errors).to.have.property('_noField');
+                setTimeout(function () {
+                    expect(successSpy.called).to.not.be.ok();
+                    done();
+                }, 100);
+            });
+            $form.submit();
         });
 
         it('should trigger error event when submit fails', function (done) {
-            fail();
+            $.ajax.mockResolve = function (deferred) {
+                deferred.resolve({
+                    status: 'err',
+                    body: {
+                        _noField: ['error']
+                    }
+                });
+            };
+            $form.nwForm({
+                url: 'mock'
+            });
+
+            var successSpy = sinon.spy();
+            $form.on('submitSuccess', successSpy);
+            $form.on('submitError', function (e, errors) {
+                expect(errors).to.have.property('_noField');
+                setTimeout(function () {
+                    expect(successSpy.called).to.not.be.ok();
+                    done();
+                }, 100);
+            });
+            $form.submit();
         });
 
         it('should trigger error event when custom method fails', function (done) {
-            fail();
+            $form.nwForm({
+                url: 'mock',
+                method: function (data) {
+                    var deferred = $.Deferred();
+                    setTimeout(function () {
+                        deferred.reject({
+                            _custom: ['error']
+                        });
+                    });
+                    return deferred;
+                }
+            });
+
+            var successSpy = sinon.spy();
+            $form.on('submitSuccess', successSpy);
+            $form.on('submitError', function (e, errors) {
+                expect(errors).to.have.property('_custom');
+                setTimeout(function () {
+                    expect(successSpy.called).to.not.be.ok();
+                    done();
+                }, 100);
+            });
+            $form.submit();
         });
 
         it('should show errors when validation fails', function (done) {
@@ -194,11 +248,55 @@ describe('jQuery.nwForm', function () {
         });
 
         it('should trigger submitted event when submit successes', function (done) {
-            fail();
+            $form.nwForm({
+                url: 'mock',
+                fields: {
+                    text: nw.forms.StringField()
+                }
+            }).nwForm('data', {
+                text: 'value'
+            });
+
+            var errorSpy = sinon.spy();
+            $form.on('submitError', errorSpy);
+            $form.on('submitSuccess', function (e, data) {
+                expect(data.text).to.be('value');
+                setTimeout(function () {
+                    expect(errorSpy.called).to.not.be.ok();
+                    done();
+                }, 100);
+            });
+
+            $form.submit();
         });
 
         it('should trigger submitted event when custom method successes', function (done) {
-            fail();
+            $form.nwForm({
+                fields: {
+                    text: nw.forms.StringField()
+                },
+                method: function (data) {
+                    var deferred = $.Deferred();
+                    setTimeout(function () {
+                        deferred.resolve();
+                    });
+                    return deferred;
+                }
+            }).nwForm('data', {
+                text: 'value'
+            });
+
+            var errorSpy = sinon.spy();
+            $form.on('submitError', errorSpy);
+            $form.on('submitSuccess', function (e, data) {
+                expect(data.text).to.be('value');
+                setTimeout(function () {
+                    expect(errorSpy.called).to.not.be.ok();
+                    done();
+                }, 100);
+            });
+
+            $form.submit();
         });
     });
 });
