@@ -7,7 +7,7 @@ describe('nw.forms', function () {
 
             form.handle({}, function (bound) {
                 expect(bound.isValid()).to.not.be.ok();
-                expect(bound.errors).to.have.property('_nonField');
+                expect(bound.errors).to.have.property('_noField');
                 done();
             });
         });

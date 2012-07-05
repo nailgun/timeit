@@ -29,9 +29,8 @@ function Form (opts, $form) {
                 opts.method.call($form, bound.data).fail(onFail)
                                                    .done(onDone);
             } else {
-                nw.rpc({
-                    method: opts.method,
-                    url: form.url,
+                nw.rpc(opts.url, {
+                    type: opts.method,
                     data: bound.data
                 }).fail(onFail)
                   .done(onDone);
@@ -76,9 +75,9 @@ function Form (opts, $form) {
         $form.find('.control-group').removeClass('error');
 
         $.each(errors, function (fieldName, fieldErrors) {
-            //if (fieldName === '_nonField') {
-            //    return;
-            //}
+            if (fieldName === '_noField') {
+                return;
+            }
 
             var msg = nw.utils.capitalize(fieldErrors.join(', ')) + '.';
             var $control = $form.find('[name="'+fieldName+'"]');
@@ -88,7 +87,19 @@ function Form (opts, $form) {
             $controls.append($('<p class="help-block error-help">'+msg+'</p>'));
         });
 
-        // TODO: non field errors
+        if (errors._noField) {
+            var msg = nw.utils.capitalize(errors._noField.join(', ')) + '.';
+
+            var $formError = $form.find('.form-error');
+            if (!$formError.length) {
+                $formError = $('<div class="form-error"></div>');
+                $form.prepend($formError);
+            }
+            var $span = $('<span class="error error-help"></span>');
+            $formError.append($span);
+            $span.text(msg);
+        }
+
         return $form;
     };
 

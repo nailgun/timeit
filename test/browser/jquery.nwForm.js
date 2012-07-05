@@ -72,8 +72,9 @@ describe('jQuery.nwForm', function () {
             expect($form.find('.error')).to.not.be.empty();
 
             var errorTexts = _.flatten(_.values(errors));
+            var formText = $form.text().toLowerCase();
             _.each(errorTexts, function (errText) {
-                expect($form.find(':contains("'+errText+'")')).to.not.be.empty();
+                expect(formText).to.contain(errText);
             });
         });
     });
@@ -121,7 +122,7 @@ describe('jQuery.nwForm', function () {
                 validator2 = sinon.spy(validator);
 
             $form.nwForm({
-                url: mock,
+                url: 'mock',
                 fields: {
                     text: nw.forms.StringField({
                         required: false,
@@ -131,7 +132,7 @@ describe('jQuery.nwForm', function () {
                 validate: validator2
             }).nwForm('data', values);
 
-            $form.on('submitted', function (done) {
+            $form.on('submitted', function () {
                 expect(validator1.calledOnce).to.be.ok();
                 expect(validator2.calledOnce).to.be.ok();
                 done();
@@ -156,11 +157,11 @@ describe('jQuery.nwForm', function () {
                     textarea: nw.forms.StringField(),
                     radio: nw.forms.NumberField()
                 },
-                method: function (bound) {
+                method: function (data) {
                     expect(this[0] === $form[0]).to.be.ok();
 
                     $.each(values, function (name, value) {
-                        expect(bound.data[name]).to.be(value);
+                        expect(data[name]).to.be(value);
                     });
                     done();
                 }

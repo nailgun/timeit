@@ -48,8 +48,8 @@ exports.create = function (fields, validate) {
                                 bound.errors[field] = bound.errors[field] || [];
                                 bound.errors[field].push(err);
                             } else {
-                                bound.errors._nonField = bound.errors._nonField || [];
-                                bound.errors._nonField.push(err);
+                                bound.errors._noField = bound.errors._noField || [];
+                                bound.errors._noField.push(err);
                             }
                             isValid = false;
                         }
