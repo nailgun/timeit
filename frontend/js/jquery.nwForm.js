@@ -12,8 +12,8 @@ function Form (opts, $form) {
         var data = form.data();
 
         function onFail (errors) {
-            $form.trigger('submitError', [errors]);
             form.setErrors(errors);
+            $form.trigger('submitError', [errors]);
         }
 
         validator.handle(data, function (bound) {

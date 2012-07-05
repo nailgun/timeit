@@ -159,6 +159,7 @@ describe('jQuery.nwForm', function () {
                         expect(data[name]).to.be(value);
                     });
                     done();
+                    return $.Deferred();
                 }
             }).nwForm('data', values);
             $form.submit();
@@ -236,15 +237,59 @@ describe('jQuery.nwForm', function () {
         });
 
         it('should show errors when validation fails', function (done) {
-            fail();
+            $form.nwForm({
+                url: 'mock',
+                validate: function (bound, callback) {
+                    callback('myerror');
+                }
+            });
+
+            $form.on('submitError', function () {
+                expect($form.text().toLowerCase()).to.contain('myerror');
+                done();
+            });
+            $form.submit();
         });
 
         it('should show errors when submit fails', function (done) {
-            fail();
+            $.ajax.mockResolve = function (deferred) {
+                deferred.resolve({
+                    status: 'err',
+                    body: {
+                        _noField: ['myerror']
+                    }
+                });
+            };
+            $form.nwForm({
+                url: 'mock'
+            });
+
+            $form.on('submitError', function () {
+                expect($form.text().toLowerCase()).to.contain('myerror');
+                done();
+            });
+            $form.submit();
         });
 
         it('should show errors when custom method fails', function (done) {
-            fail();
+            $form.nwForm({
+                url: 'mock',
+                method: function (data) {
+                    var deferred = $.Deferred();
+                    setTimeout(function () {
+                        deferred.reject({
+                            text: ['myerror']
+                        });
+                    });
+                    return deferred;
+                }
+            });
+
+            $form.on('submitError', function () {
+                expect($form.text().toLowerCase()).to.contain('myerror');
+                done();
+            });
+            $form.submit();
         });
 
         it('should trigger submitted event when submit successes', function (done) {
