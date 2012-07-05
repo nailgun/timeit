@@ -2,18 +2,24 @@ describe('jQuery.nwForm', function () {
     var $form;
     var values = {
         text: 'Text Value',
-        checkbox: '1',
+        checkbox: 'on',
         select: '3',
         textarea: 'Textarea Value',
         radio: '3'
     };
 
     beforeEach(function () {
-        //sinon.spy(nw, 'rpc');
+        sinon.stub(nw, 'rpc', function () {
+            var deferred = $.Deferred();
+            setTimeout(function () {
+                deferred.resolve({});
+            });
+            return deferred;
+        });
     });
 
     afterEach(function () {
-        //nw.rpc.restore();
+        nw.rpc.restore();
     });
 
     beforeEach(function () {
@@ -23,12 +29,12 @@ describe('jQuery.nwForm', function () {
     });
 
     describe("#('data')", function () {
-        it('should return form data for all inputs', function () {
+        it('should get form data from all inputs', function () {
             $form.find('[name="text"]').val(values.text);
             $form.find('[name="checkbox"]').attr('checked', true);
             $form.find('[name="select"]').val(values.select);
             $form.find('[name="textarea"]').val(values.textarea);
-            $form.find('[name="radio"]').val(values.radio);
+            $form.find('[name="radio"]').filter('[value="'+values.radio+'"]').attr('checked', true);
 
             $form.nwForm({url: 'mock'});
 
@@ -72,40 +78,126 @@ describe('jQuery.nwForm', function () {
         });
     });
 
-    it('should be able to do POST request on submit', function () {
-        $form.nwForm({
-            url: 'mock/post',
-            method: 'post'
-        }).nwForm('data', values);
-        $form.submit();
+    describe("#('submit')", function () {
+        it('should be able to do POST request on submit', function (done) {
+            $form.nwForm({
+                url: 'mock',
+                method: 'post'
+            }).nwForm('data', values);
 
-        expect(nw.rpc.calledOnce).to.be.ok();
-        var call = nw.rpc.lastCall;
-    });
-
-    it('should be able to do GET request on submit', function () {
-        $form.nwForm({
-            url: 'mock/post',
-            method: 'get'
-        }).nwForm('data', values);
-        $form.submit();
-
-        expect(nw.rpc.calledOnce).to.be.ok();
-        var call = nw.rpc.lastCall;
-    });
-
-    it('should be able to call custom function on submit', function (done) {
-        $form.nwForm({
-            method: function (data) {
-                expect(this).to.be($form);
-
-                $.each(values, function (name, value) {
-                    expect(data[name]).to.be(value);
-                });
+            $form.on('submitted', function (data) {
+                expect(nw.rpc.calledOnce).to.be.ok();
+                var call = nw.rpc.lastCall;
+                expect(call.args[0]).to.be('mock');
+                expect(call.args[1].type).to.be('post');
                 done();
-            }
+            });
+
+            $form.submit();
         });
 
-        $form.nwForm('data', values);
+        it('should be able to do GET request on submit', function (done) {
+            $form.nwForm({
+                url: 'mock',
+                method: 'get'
+            }).nwForm('data', values);
+
+            $form.on('submitted', function (data) {
+                expect(nw.rpc.calledOnce).to.be.ok();
+                var call = nw.rpc.lastCall;
+                expect(call.args[0]).to.be('mock');
+                expect(call.args[1].type).to.be('get');
+                done();
+            });
+
+            $form.submit();
+        });
+
+        it('should call underlying validators', function (done) {
+            function validator (value, callback) {
+                callback();
+            }
+            var validator1 = sinon.spy(validator),
+                validator2 = sinon.spy(validator);
+
+            $form.nwForm({
+                url: mock,
+                fields: {
+                    text: nw.forms.StringField({
+                        required: false,
+                        validators: [validator1]
+                    })
+                },
+                validate: validator2
+            }).nwForm('data', values);
+
+            $form.on('submitted', function (done) {
+                expect(validator1.calledOnce).to.be.ok();
+                expect(validator2.calledOnce).to.be.ok();
+                done();
+            });
+
+            $form.submit();
+        });
+
+        it('should be able to call custom function on submit', function (done) {
+            var values = {
+                text: 'Text Value',
+                checkbox: true,
+                select: 3,
+                textarea: 'Textarea Value',
+                radio: 3
+            };
+            $form.nwForm({
+                fields: {
+                    text: nw.forms.StringField(),
+                    checkbox: nw.forms.BooleanField(),
+                    select: nw.forms.NumberField(),
+                    textarea: nw.forms.StringField(),
+                    radio: nw.forms.NumberField()
+                },
+                method: function (bound) {
+                    expect(this[0] === $form[0]).to.be.ok();
+
+                    $.each(values, function (name, value) {
+                        expect(bound.data[name]).to.be(value);
+                    });
+                    done();
+                }
+            }).nwForm('data', values);
+            $form.submit();
+        });
+
+        it('should trigger error event when validation fails', function (done) {
+            fail();
+        });
+
+        it('should trigger error event when submit fails', function (done) {
+            fail();
+        });
+
+        it('should trigger error event when custom method fails', function (done) {
+            fail();
+        });
+
+        it('should show errors when validation fails', function (done) {
+            fail();
+        });
+
+        it('should show errors when submit fails', function (done) {
+            fail();
+        });
+
+        it('should show errors when custom method fails', function (done) {
+            fail();
+        });
+
+        it('should trigger submitted event when submit successes', function (done) {
+            fail();
+        });
+
+        it('should trigger submitted event when custom method successes', function (done) {
+            fail();
+        });
     });
 });

@@ -116,14 +116,15 @@ exports.StringField = function (opt) {
 exports.NumberField = function (opt) {
     var field = exports.BaseField(opt);
     field.parse = function (raw_data, callback) {
-        var value = NaN;
-        if (raw_data !== null || raw_data !== '') {
-            value = Number(raw_data);
-        }
-        if (isNaN(value)) {
-            callback(ValidationError('invalid', field.errorMessages));
+        if (raw_data === null || raw_data === '' || typeof raw_data === 'undefined') {
+            callback(null, null);
         } else {
-            callback(null, value);
+            var value = Number(raw_data);
+            if (isNaN(value)) {
+                callback(ValidationError('invalid', field.errorMessages));
+            } else {
+                callback(null, value);
+            }
         }
     };
     return field;
@@ -140,11 +141,15 @@ exports.BooleanField = function (opt) {
 exports.DateTimeField = function (opt) {
     var field = exports.BaseField(opt);
     field.parse = function (raw_data, callback) {
-        var value = new Date(raw_data);
-        if (isNaN(value)) {
-            callback(ValidationError('invalid', field.errorMessages));
+        if (raw_data === null || raw_data === '' || typeof raw_data === 'undefined') {
+            callback(null, null);
         } else {
-            callback(null, value);
+            var value = new Date(raw_data);
+            if (isNaN(value)) {
+                callback(ValidationError('invalid', field.errorMessages));
+            } else {
+                callback(null, value);
+            }
         }
     }
     return field;

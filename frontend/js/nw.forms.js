@@ -24,35 +24,32 @@ exports.create = function (fields, validate) {
 
         bound.clean = function (callback) {
             bound.data = {};
-            bound.field_errors = {};
-            bound.errors = [];
+            bound.errors = {};
 
             async.forEach(Object.keys(bound.fields), function (k, callback) {
                 bound.fields[k].clean(function(errs, value) {
                     if (!errs) {
                         bound.data[k] = value;
                     } else {
-                        bound.field_errors[k] = [];
+                        bound.errors[k] = [];
                         errs.forEach(function(err) {
-                            bound.field_errors[k].push(err.message);
+                            bound.errors[k].push(err.message);
                         });
                     }
                     callback();
                 });
 
             }, function () {
-                isValid = !Object.keys(bound.field_errors).length;
+                isValid = !Object.keys(bound.errors).length;
                 if (isValid && bound.validate) {
                     bound.validate(bound, function(err, field) {
                         if (err) {
                             if (field) {
-                                if (!bound.field_errors[field]) {
-                                    bound.field_errors[field] = [err];
-                                } else {
-                                    bound.field_errors[field].push(err);
-                                }
+                                bound.errors[field] = bound.errors[field] || [];
+                                bound.errors[field].push(err);
                             } else {
-                                bound.errors.push(err);
+                                bound.errors._nonField = bound.errors._nonField || [];
+                                bound.errors._nonField.push(err);
                             }
                             isValid = false;
                         }
