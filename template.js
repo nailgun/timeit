@@ -4,7 +4,7 @@ var _= require('underscore'),
     async = require('async'),
     path = require('path'),
     fs = require('fs'),
-    utils = require('./utils'),
+    checkErr = require('nw.utils').checkErr,
     crypto = require('crypto');
 
 exports.template = function(source, context, callback) {
@@ -59,7 +59,7 @@ exports.Context = function(initial) {
     return context;
 };
 
-exports.renderToResponse = function(res, templateFile, context, opts) {
+exports.renderToResponse = function(res, templateFile, context, opts, next) {
     opts = opts || {};
 
     if (opts.cache) {
@@ -75,11 +75,11 @@ exports.renderToResponse = function(res, templateFile, context, opts) {
     }
 
     function render() {
-        fs.readFile(templateFile, utils.noErr(function (data) {
-            exports.template(data.toString(), context, utils.noErr(function (data) {
+        fs.readFile(templateFile, checkErr(next, function (data) {
+            exports.template(data.toString(), context, checkErr(next, function (data) {
                 res.end(data);
                 if (opts.cache) {
-                    cache.set('template:'+templateFile, data, utils.noErr(function() {
+                    cache.set('template:'+templateFile, data, checkErr(next, function() {
                     }));
                 }
             }));
@@ -112,9 +112,9 @@ exports.Renderer = function(templatesPath) {
         });
     };
 
-    renderer.renderToRes = function(res, name, context) {
+    renderer.renderToRes = function(res, name, context, next) {
         context = context || exports.Context();
-        renderer.render(name, context, utils.noErr(function(content) {
+        renderer.render(name, context, checkErr(next, function(content) {
             res.end(content);
         }));
     };
@@ -131,7 +131,7 @@ exports.Renderer = function(templatesPath) {
                         context[name] = helper(req, res);
                     })
                 }
-                renderer.renderToRes(res, name, context);
+                renderer.renderToRes(res, name, context, next);
             };
             next();
         };

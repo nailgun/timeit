@@ -56,7 +56,7 @@ exports.TemplateLoader = function (opts) {
                         compiled = _.template(source).source;
                     } catch (err) {
                         err.message = file + ': ' + err.message;
-                        throw err;
+                        return callback(err);
                     }
 
                     return callback(null, '"'+file+'":'+compiled);

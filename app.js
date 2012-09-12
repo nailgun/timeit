@@ -4,7 +4,7 @@ var express = require('express'),
     path = require('path'),
     MongoStore = require('connect-mongodb'),
     utils = require('./utils'),
-    noErr = utils.noErr,
+    throws = require('nw.utils').throws,
     fs = require('fs'),
     db = require('./db'),
     cache = require('./cache'),
@@ -82,7 +82,7 @@ function configureApplication(config, done) {
                 });
             });
         }
-    ], noErr(function() {
+    ], throws(function() {
         installApplication();
         done();
     }));
@@ -183,7 +183,7 @@ function installApplication() {
         'js/version.js',
     ]);
 
-    app.assetStore.registerDir('moment', momentPath);
+    app.assetStore.registerDir('moment', momentPath, throws());
     //app.assetStore.registerDir('locales', localesPath);
 
     app.assetStore.register('index.css', frontendPath, 'css/index.css');

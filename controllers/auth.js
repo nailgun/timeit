@@ -2,8 +2,7 @@ var _ = require('underscore'),
     auth = require('../auth'),
     db = require('../db'),
     decors = require('./decors'),
-    utils = require('../utils'),
-    noErr = utils.noErr,
+    checkErr = require('nw.utils').checkErr,
     loginRequired = decors.loginRequiredAjax;
 
 exports.status = function (req, res) {
@@ -34,7 +33,7 @@ exports.links = loginRequired(function (req, res) {
     res.okJson(result);
 });
 
-exports.unlink = loginRequired(function (req, res) {
+exports.unlink = loginRequired(function (req, res, next) {
     var provider = req.body.provider;
     if (provider) {
         if (_.keys(req.user.links).length > 1) {
@@ -45,7 +44,7 @@ exports.unlink = loginRequired(function (req, res) {
                 _id: req.user._id
             }, {
                 $unset: dataset
-            }, noErr(function () {
+            }, checkErr(next, function () {
                 delete req.user.links[provider];
                 res.okJson();
             }));
@@ -57,15 +56,15 @@ exports.unlink = loginRequired(function (req, res) {
     }
 });
 
-exports.removeAccount = loginRequired(function (req, res) {
-    req.user.remove(noErr(function () {
+exports.removeAccount = loginRequired(function (req, res, next) {
+    req.user.remove(checkErr(next, function () {
         res.okJson();
     }));
 });
 
-exports.confirmAccount = loginRequired(function (req, res) {
+exports.confirmAccount = loginRequired(function (req, res, next) {
     req.user.confirmed = true;
-    req.user.save(utils.noErr(function () {
+    req.user.save(checkErr(next, function () {
         res.redirect('/', 303);
     }));
 }, true);

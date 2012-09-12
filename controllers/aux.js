@@ -1,14 +1,14 @@
 var decors = require('./decors');
 var app = require('../app');
 var loginRequired = decors.loginRequiredAjax;
-var noErr = require('../utils').noErr;
+var checkErr = require('nw.utils').checkErr;
 var i18n = require('i18n');
 
 exports.getSettings = loginRequired(function (req, res) {
     res.okJson(req.user.settings);
 });
 
-exports.setSettings = loginRequired(function (req, res) {
+exports.setSettings = loginRequired(function (req, res, next) {
     var username = req.body['username'];
     var notifications = req.body['notifications'];
     if (username === '') {
@@ -28,7 +28,7 @@ exports.setSettings = loginRequired(function (req, res) {
         req.user.settings.notifications = parseInt(notifications) ? true : false;
     }
 
-    req.user.save(noErr(function() {
+    req.user.save(checkErr(next, function() {
         res.okJson();
     }));
 });

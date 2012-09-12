@@ -5,22 +5,6 @@ var child_process = require('child_process'),
     fs = require('fs');
 var utils = exports;
 
-
-exports.throwOnErr = function(err) {
-    if (err) {
-        throw err;
-    }
-};
-
-// FIXME: rename to 'throws'
-exports.noErr = function(callback) {
-    return function(err) {
-        utils.throwOnErr(err);
-        var args = Array.prototype.slice.call(arguments, 1)
-        return callback.apply(this, args);
-    }
-};
-
 exports.jsonDumpFormErrors = function(res) {
     return function(form) {
         var report = {};

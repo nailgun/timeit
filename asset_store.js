@@ -6,7 +6,8 @@ var _ = require('underscore'),
     crypto = require('crypto'),
     utils = require('./utils'),
     uglify = require('uglify-js'),
-    cleanCss = require('clean-css');
+    cleanCss = require('clean-css'),
+    checkErr = require('nw.utils').checkErr;
 
 module.exports = function(opts) {
     var store = _.extend({
@@ -21,7 +22,11 @@ module.exports = function(opts) {
     store.register = function (name, root, items) {
         var overwrite = name in assets;
         if (overwrite) {
-            store.contentCache.invalidate('asset', name);
+            store.contentCache.invalidate('asset', name, function (err) {
+                if (err) {
+                    // TODO: warn
+                }
+            });
         }
 
         var asset = assets[name] = {};
@@ -45,18 +50,14 @@ module.exports = function(opts) {
         asset.digest = null;
     };
 
-    store.registerDir = function (name, root) {
+    store.registerDir = function (name, root, callback) {
         var regexp = /(\.js$)|(\.css$)/;
 
         utils.fsFind(root, {
             filter: function (entry) {
                 return regexp.test(entry.filename);
             }
-        }, function (err, files) {
-            if (err) {
-                throw err;
-            }
-
+        }, checkErr(callback, function (files) {
             _.each(files, function (filename) {
                 var url = path.join(name, filename);
                 store.register(url, root, [{
@@ -64,7 +65,9 @@ module.exports = function(opts) {
                     file: filename
                 }]);
             });
-        });
+
+            callback && callback();
+        }));
     };
 
     store.getContent = function (name, callback) {

@@ -23,7 +23,8 @@
       "everyauth": "0.2.x",
       "forms2": "0.0.1",
       "i18n": "0.3.x",
-      "moment": "1.6.x"
+      "moment": "1.6.x",
+      "nw.utils": "0.0.x"
   },
   "devDependencies": {},
   "optionalDependencies": {},

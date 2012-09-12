@@ -1,6 +1,6 @@
 var decors = require('./decors');
 var loginRequired = decors.loginRequiredAjax;
-var noErr = require('../utils').noErr;
+var checkErr = require('nw.utils').checkErr;
 var jsonDumpFormErrors = require('../utils').jsonDumpFormErrors;
 var _ = require('underscore');
 var forms2 = require('forms2');
@@ -15,7 +15,7 @@ function parseTags(tagsString) {
 }
 
 // FIXME: respect user timezone
-exports.today = loginRequired(function(req, res) {
+exports.today = loginRequired(function (req, res, next) {
     var end = new Date();
     end.setHours(23);
     end.setMinutes(59);
@@ -28,7 +28,7 @@ exports.today = loginRequired(function(req, res) {
         end_time: {$gte: start, $lte: end},
     }).select('name', 'start_time', 'end_time', 'tags')
       .sort('end_time', -1)
-      .exec(noErr(function(docs) {
+      .exec(checkErr(next, function(docs) {
         res.okJson(docs);
     }));
 });
@@ -38,7 +38,7 @@ var currentActivityForm = forms2.create({
     tags: forms2.fields.String({required: false}),
 });
 
-exports.setCurrent = loginRequired(function (req, res) {
+exports.setCurrent = loginRequired(function (req, res, next) {
     currentActivityForm.handle(req, {
         success: function(form) {
             var tags = parseTags(form.data.tags);
@@ -50,7 +50,7 @@ exports.setCurrent = loginRequired(function (req, res) {
             }, {
                 safe: true,
                 multi: true
-            }, noErr(function() {
+            }, checkErr(next, function() {
                 var activity = new db.Activity({
                     userId: req.user._id,
                     name: form.data.name,
@@ -59,7 +59,7 @@ exports.setCurrent = loginRequired(function (req, res) {
                     end_time: null
                 });
 
-                activity.save(noErr(function() {
+                activity.save(checkErr(next, function() {
                     res.okJson();
                 }));
             }));
@@ -68,7 +68,7 @@ exports.setCurrent = loginRequired(function (req, res) {
     });
 });
 
-exports.edit = loginRequired(function (req, res) {
+exports.edit = loginRequired(function (req, res, next) {
     var form = forms2.create({
         name: forms2.fields.String(),
         tags: forms2.fields.String({required: false}),
@@ -87,7 +87,7 @@ exports.edit = loginRequired(function (req, res) {
                     userId: req.user._id,
                     end_time: null
                 }).select('name')
-                  .exec(noErr(function(doc) {
+                  .exec(checkErr (next, function(doc) {
                     if (doc) {
                         return callback({
                             message: __('activity %s already in progress', doc.name)
@@ -141,7 +141,7 @@ exports.edit = loginRequired(function (req, res) {
             // check for intersection
             db.Activity.find(query, {
                 userId: 0
-            }).sort('end_time', 1).exec(noErr(function(docs) {
+            }).sort('end_time', 1).exec(checkErr(next, function (docs) {
                 if (docs.length) {
                     res.errJson({
                         reason: 'intersection',
@@ -162,7 +162,7 @@ exports.edit = loginRequired(function (req, res) {
 
                     // insert/update
                     if (isNew) {
-                        new db.Activity(data).save(noErr(function () {
+                        new db.Activity(data).save(checkErr(next, function () {
                             res.okJson();
                         }));
                     } else {
@@ -170,7 +170,7 @@ exports.edit = loginRequired(function (req, res) {
                             _id: req.body._id
                         }, {
                             $set: data
-                        }, noErr(function() {
+                        }, checkErr(next, function() {
                             res.okJson();
                         }));
                     }
@@ -190,7 +190,7 @@ exports.edit = loginRequired(function (req, res) {
     });
 });
 
-exports.stop = loginRequired(function (req, res) {
+exports.stop = loginRequired(function (req, res, next) {
     db.Activity.update({
         userId: req.user._id,
         end_time: null,
@@ -199,12 +199,12 @@ exports.stop = loginRequired(function (req, res) {
     }, {
         safe: true,
         multi: true
-    }, noErr(function(docs) {
+    }, checkErr(next, function(docs) {
         res.okJson();
     }));
 });
 
-exports.get = loginRequired(function(req, res) {
+exports.get = loginRequired(function(req, res, next) {
     var query = {
         userId: req.user._id
     };
@@ -216,7 +216,7 @@ exports.get = loginRequired(function(req, res) {
 
     db.Activity.findOne(query, {
         userId: 0
-    }, noErr(function(doc) {
+    }, checkErr(next, function(doc) {
         res.okJson(doc);
     }));
 });
@@ -236,7 +236,7 @@ var fromToForm = forms2.create({
 });
 
 // FIXME: respect user timezone
-exports.getLog = loginRequired(function(req, res) {
+exports.getLog = loginRequired(function(req, res, next) {
     fromToForm.handle(req, {
         success: function (form) {
             var query = {
@@ -275,7 +275,7 @@ exports.getLog = loginRequired(function(req, res) {
                     scope: {
                         searchTerms: searchTerms,
                     },
-                }, noErr(function(results) {
+                }, checkErr(next, function (results) {
                     res.okJson(_.map(results, function (result) {
                         return result.value;
                     }));
@@ -285,7 +285,7 @@ exports.getLog = loginRequired(function(req, res) {
                   .find(query)
                   .select({userId: 0})
                   .sort('start_time', 1)
-                  .exec(noErr(function(docs) {
+                  .exec(checkErr(next, function (docs) {
                     res.okJson(docs);
                 }));
             }
@@ -300,16 +300,16 @@ exports.getLog = loginRequired(function(req, res) {
     });
 });
 
-exports.remove = loginRequired(function(req, res) {
+exports.remove = loginRequired(function (req, res, next) {
     db.Activity.remove({
         userId: req.user._id,
         _id: req.body.id
-    }, noErr(function() {
+    }, checkErr(next, function() {
         res.okJson();
     }));
 });
 
-exports.getStats = loginRequired(function(req, res) {
+exports.getStats = loginRequired(function(req, res, next) {
     var types = {
         ACTIVITY: 'a',
         ACTIVITY_START: 'b',
@@ -434,7 +434,7 @@ exports.getStats = loginRequired(function(req, res) {
             types: types,
             DAY: DAY
         }
-    }, noErr(function(results) {
+    }, checkErr(next, function(results) {
         var report = {
             activity: {},
             tag: {},
@@ -479,7 +479,7 @@ exports.getStats = loginRequired(function(req, res) {
     }));
 });
 
-exports.getGroups = loginRequired(function (req, res) {
+exports.getGroups = loginRequired(function (req, res, next) {
     db.Activity.collection.group([
         'name', 'tags'
     ], {
@@ -488,7 +488,7 @@ exports.getGroups = loginRequired(function (req, res) {
         count: 0
     }, function (obj, prev) {
         prev.count++;
-    }, noErr(function (groups) {
+    }, checkErr(next, function (groups) {
         res.okJson(groups);
     }));
 });
@@ -500,7 +500,7 @@ var updateGroupForm = forms2.create({
     newTags: forms2.fields.String({required: false}),
 });
 
-exports.updateGroup = loginRequired(function (req, res) {
+exports.updateGroup = loginRequired(function (req, res, next) {
     updateGroupForm.handle(req, {
         success: function(form) {
             var oldTags = parseTags(form.data.oldTags);
@@ -518,7 +518,7 @@ exports.updateGroup = loginRequired(function (req, res) {
             }, {
                 safe: true,
                 multi: true
-            }, noErr(function(result) {
+            }, checkErr(next, function (result) {
                 console.log(result);
                 res.okJson();
             }));
