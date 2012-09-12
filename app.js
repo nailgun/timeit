@@ -229,6 +229,11 @@ function installApplication() {
     app.use(express.session({
         secret: app.config.secret,
         store: new MongoStore({db: db.mongo}),
+        cookie: {
+            path: '/',
+            httpOnly: true,
+            maxAge: 28800000
+        },
     }));
     app.use(auth.middleware());
     app.use(express.csrf());
