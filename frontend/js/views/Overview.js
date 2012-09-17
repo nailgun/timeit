@@ -19,6 +19,7 @@ timeit.OverviewView = Backbone.View.extend({
         this.searchTimeout = null;
         this.prevSearch = '';
         this.search = '';
+        this.activities = [];
 
         var view = this;
         this.picker = new timeit.DateRangePickerView();
@@ -60,6 +61,12 @@ timeit.OverviewView = Backbone.View.extend({
         });
         this.totals = new timeit.TotalsView({
             el: this.$('.TotalsView')
+        });
+        this.$('a[href="#totals_tab"]').on('shown', function (e) {
+            view.totals.render(view.activities);
+        });
+        this.$('a[href="#activities_tab"]').on('shown', function (e) {
+            view.activityList.render(view.activities);
         });
         this.onDateChange();
     },
@@ -104,9 +111,14 @@ timeit.OverviewView = Backbone.View.extend({
                 a.start_time = moment(a.start_time);
                 a.end_time = moment(a.end_time);
             });
-            view.activityList.render(activities);
+            view.activities = activities;
             view.timeline.render(view.from, view.to, activities);
-            view.totals.render(activities);
+            if (view.activityList.$el.is(':visible')) {
+                view.activityList.render(view.activities);
+            }
+            if (view.totals.$el.is(':visible')) {
+                view.totals.render(view.activities);
+            }
         });
     },
 
