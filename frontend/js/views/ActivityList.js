@@ -56,9 +56,10 @@ timeit.ActivityListView = Backbone.View.extend({
         e.preventDefault();
         var view = this;
 
-        var editForm = new timeit.EditActivityFormModal($(e.target).data('activity'));
+        var activityId = $(e.target).data('activity');
+        var editForm = new timeit.EditActivityFormModal(activityId);
         editForm.on('ok', function() {
-            view.trigger('change', $(this).data('activity'));
+            view.trigger('change', activityId);
         });
         editForm.show();
     }

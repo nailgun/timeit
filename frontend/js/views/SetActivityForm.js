@@ -53,8 +53,13 @@ timeit.SetActivityForm = Backbone.View.extend({
         this.updateRecent();
 
         var view = this;
-        this.recent.on('change', function () {
+        this.recent.on('change', function (activityId) {
             view.updateRecent();
+            timeit.activity(activityId).ok(function (activity) {
+                if (!activity.end_time) {
+                    view.trigger('done');
+                }
+            });
         });
     },
 
