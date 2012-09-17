@@ -15,19 +15,17 @@ function parseTags(tagsString) {
 }
 
 // FIXME: respect user timezone
-exports.today = loginRequired(function (req, res, next) {
-    var end = new Date();
-    end.setHours(23);
-    end.setMinutes(59);
-    end.setSeconds(59);
-    end.setMilliseconds(999);
-    var start = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+exports.recent = loginRequired(function (req, res, next) {
+    var limit = req.query.limit || 10;
+    if (limit > 50) {
+        limit = 50;
+    }
 
     db.Activity.find({
-        userId: req.user._id,
-        end_time: {$gte: start, $lte: end},
+        userId: req.user._id
     }).select('name', 'start_time', 'end_time', 'tags')
       .sort('end_time', -1)
+      .limit(limit)
       .exec(checkErr(next, function(docs) {
         res.okJson(docs);
     }));

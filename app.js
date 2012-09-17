@@ -247,7 +247,7 @@ function installApplication() {
     app.get ('/login.html', c.login);
     app.get ('/confirm.html', c.confirm);
 
-    app.get ('/today', c.activity.today);
+    app.get ('/recent', c.activity.recent);
     app.get ('/activity', c.activity.get);
     app.get ('/log', c.activity.getLog);
     app.get ('/stats', c.activity.getStats);

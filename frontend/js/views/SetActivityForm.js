@@ -41,7 +41,7 @@ timeit.SetActivityForm = Backbone.View.extend({
 
     updateRecent: function () {
         var view = this;
-        timeit.get('today').ok(function(activities) {
+        timeit.get('recent?limit=5').ok(function(activities) {
             view.recent.render(activities);
         });
     },
