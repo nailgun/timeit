@@ -10,7 +10,7 @@ timeit.DateRangePickerView = Backbone.View.extend({
     context: function (callback, from, to) {
         this.day = [to.sod(), to.eod()];
         this.week = [moment(to).day(1).sod(), moment(to).day(7).eod()];
-        this.month = [moment(to).date(1).sod(), moment(to).month(to.month()+1).date(0).eod()];
+        this.month = [moment(to).date(1).sod(), moment(to).month(to.month()+1).date(0).eod(), true];
 
         var props = timeit.utils.intervalProps(this.week[0], this.week[1]);
         var weekTxt;
@@ -47,7 +47,7 @@ timeit.DateRangePickerView = Backbone.View.extend({
     onPick: function (e) {
         e.preventDefault();
         var pick = this[$(e.target).data('pick')];
-        this.trigger('select', pick[0], pick[1]);
+        this.trigger('select', pick[0], pick[1], pick[2]);
     },
 
     pickRange: function () {

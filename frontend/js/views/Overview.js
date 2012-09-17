@@ -15,17 +15,18 @@ timeit.OverviewView = Backbone.View.extend({
     initialize: function () {
         this.from = moment().sod();
         this.to = moment().eod();
-        this.oneDay = true;
         this.searchTimeout = null;
         this.prevSearch = '';
         this.search = '';
         this.activities = [];
+        this.byMonth = false;
 
         var view = this;
         this.picker = new timeit.DateRangePickerView();
-        this.picker.on('select', function (from, to) {
+        this.picker.on('select', function (from, to, byMonth) {
             view.from = from;
             view.to = to;
+            view.byMonth = byMonth;
             view.hidePicker();
             view.onDateChange();
         });
@@ -161,17 +162,31 @@ timeit.OverviewView = Backbone.View.extend({
 
     onBack: function (e) {
         e.preventDefault();
-        var diff = this.to.diff(this.from)+1;
-        this.from.subtract(diff);
-        this.to.subtract(diff);
+        if (!this.byMonth) {
+            var diff = this.to.diff(this.from)+1;
+            this.from.subtract(diff);
+            this.to.subtract(diff);
+        } else {
+            this.from.subtract('days', 1);
+            this.from.startOf('month');
+            this.to = moment(this.from);
+            this.to.endOf('month');
+        }
         this.onDateChange();
     },
 
     onForward: function (e) {
         e.preventDefault();
-        var diff = this.to.diff(this.from)+1;
-        this.from.add(diff);
-        this.to.add(diff);
+        if (!this.byMonth) {
+            var diff = this.to.diff(this.from)+1;
+            this.from.add(diff);
+            this.to.add(diff);
+        } else {
+            this.to.add('days', 1);
+            this.to.endOf('month');
+            this.from = moment(this.to);
+            this.from.startOf('month');
+        }
         this.onDateChange();
     },
 
