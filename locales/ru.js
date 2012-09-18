@@ -86,5 +86,9 @@
 	"MMM D -": "D MMM -",
 	"MMM D, YYYY -": "D MMM YYYY -",
 	" MMM D, YYYY": " D MMM YYYY",
-	"MMM, D": "D MMM"
+	"MMM, D": "D MMM",
+	"Enable notifications": "Включить уведомления",
+	"Disable notifications": "Выключить уведомления",
+	"Help": "Помощь",
+	"Version": "Версия"
 }

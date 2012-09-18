@@ -168,7 +168,6 @@ function installApplication() {
         'js/views/SetActivityForm.js',
         'js/views/EditActivityForm.js',
         'js/views/Intersection.js',
-        'js/views/AuthLinks.js',
         'js/views/Account.js',
         'js/views/Question.js',
         'js/views/Alert.js',
@@ -180,7 +179,7 @@ function installApplication() {
         'js/views/Stats.js',
         'js/views/MassiveEditList.js',
         'js/views/MassiveEditForm.js',
-        'js/version.js',
+        'js/views/Help.js',
     ]);
 
     app.assetStore.registerDir('moment', momentPath, throws());

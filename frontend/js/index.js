@@ -23,8 +23,7 @@
 
     function initUi (settings) {
         var account = new timeit.AccountView(settings.username);
-        $('#tools_div').append(account.render().el);
-        $('#tools_div').show();
+        $('#nav').append(account.render().el);
 
         var tracker = new timeit.TrackerView();
         $('#tracker').html(tracker.render().el);
@@ -59,6 +58,10 @@
         $('a[href="#massive"]').data('view', massiveEdit);
         $('#massive').html(massiveEdit.el);
 
+        var help = new timeit.HelpView();
+        $('a[href="#help"]').data('view', help);
+        $('#help').html(help.el);
+
         $('.nav a').on('shown', function () {
             var view = $(this).data('view');
             if (view) {
@@ -74,9 +77,6 @@
         } else {
             timeit.setNotifications(false);
         }
-        $('#toggle_notify').click(function() {
-            timeit.setNotifications(!$(this).hasClass('active'));
-        });
     }
 
     function tick() {

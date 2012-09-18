@@ -3,24 +3,6 @@ html, body {
     height: 100%;
 }
 
-div.ti-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-}
-
-span.ti-control {
-    height: 100%;
-    vertical-align: middle;
-    display: inline-block;
-}
-
-div.ti-control {
-    vertical-align: middle;
-    display: inline-block;
-}
-
 /* === BOOTSTRAP CUSTOMIZTION === */
 .modal .form-horizontal {
     margin: 0;
@@ -38,8 +20,24 @@ div.ti-control {
     font-size: 150%;
 }
 
+.full-height {
+    height: 100%;
+}
+
+span.middle-centered {
+    height: 100%;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+div.middle-centered {
+    vertical-align: middle;
+    display: inline-block;
+}
+
 /* === VIEWS === */
 .TrackerView {
+    height: 100%;
     min-width: 220px;
     text-align: center;
 }
@@ -69,26 +67,10 @@ div.ti-control {
     margin: 1em 0;
 }
 
-.OverviewView {
-    width: 640px;
-}
-
-.OverviewView .tab-content {
-    height: 300px;
-}
-
-.StatsView {
-    width: 640px;
-    height: 300px;
-    overflow-y: auto;
-    padding-right: 20px;
-}
-
-.MassiveEditListView {
-    width: 640px;
-    height: 300px;
-    overflow-y: auto;
-    padding-right: 20px;
+.OverviewView .nav-tabs {
+    background-color: #fff;
+    margin-bottom: 0;
+    padding-bottom: 14px;
 }
 
 .ti-bar-graph .ti-line {
@@ -158,13 +140,4 @@ div.ti-control {
 
 .ti-bar-graph .ti-bar .ti-active.active.hover {
     background-color: #78B0CC;
-}
-
-/* === OLD === */
-.timeit-seltable {
-    cursor: default;
-}
-
-.timeit-seltable a {
-    cursor: pointer;
 }

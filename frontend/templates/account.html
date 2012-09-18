@@ -1,2 +1,26 @@
-<a class="btn btn-info ti-username"><%- username %></a>
-<a class="btn btn-danger" href="auth/logout"><%- __('Logout') %></a>
+<a href="#" class="dropdown-toggle" data-toggle="dropdown"><%- username %><b class="caret"></b></a>
+<ul id="account_btn" class="dropdown-menu">
+    <% if (supportNotifications) { %>
+    <li><a class="ti-notifications" href="#"></a></li>
+    <% } %>
+    <li><a href="auth/logout"><%- __('Logout') %></a></li>
+    <li class="divider"></li>
+    <li class="nav-header"><%- __('Linked with') %></li>
+    <% _.each(providers.linked, function(provider) { %>
+    <li>
+        <a class="ti-linked" data-provider="<%- provider %>" href="#"><img src="ico/<%- provider %>.ico">
+        <%- provider %></a>
+    </li>
+    <% }); %>
+
+<% if (providers.not_linked.length) { %>
+    <li class="divider"></li>
+    <li class="nav-header"><%- __('Link more') %></li>
+    <% _.each(providers.not_linked, function(provider) { %>
+    <li>
+        <a href="auth/<%- provider %>"><img src="ico/<%- provider %>.ico">
+        <%- provider %></a>
+    </li>
+    <% }); %>
+<% } %>
+</ul>

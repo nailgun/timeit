@@ -15,19 +15,23 @@
 
 <div class="TimeLineView"></div>
 
-<div class="tabbable tabs-below">
+<div class="tabbable">
     <div class="tab-content">
         <div class="ActivityListView tab-pane active" id="activities_tab">
         </div>
         <div class="TotalsView ti-bar-graph tab-pane" id="totals_tab">
         </div>
     </div>
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a href="#activities_tab" data-toggle="tab"><%- __('Activities') %></a>
-        </li>
-        <li>
-            <a href="#totals_tab" data-toggle="tab"><%- __('Totals') %></a>
-        </li>
-    </ul>
+    <div class="navbar-fixed-bottom">
+        <div class="container tabs-below">
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#activities_tab" data-toggle="tab"><%- __('Activities') %></a>
+                </li>
+                <li>
+                    <a href="#totals_tab" data-toggle="tab"><%- __('Totals') %></a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>

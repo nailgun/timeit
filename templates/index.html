@@ -22,46 +22,39 @@
     </head>
 
     <body>
-        <div class="ti-body">
-            <span class="ti-control"></span>
-            <div class="ti-control tabbable">
-                <div class="tab-content">
-                    <div class="tab-pane active" id="tracker"></div>
-                    <div class="tab-pane" id="overview"></div>
-                    <div class="tab-pane" id="stats"></div>
-                    <div class="tab-pane" id="massive"></div>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <ul id="nav" class="nav">
+                        <li class="active">
+                            <a href="#tracker" data-toggle="tab"><%- __('Tracker') %></a>
+                        </li>
+                        <li>
+                            <a href="#overview" data-toggle="tab"><%- __('Overview') %></a>
+                        </li>
+                        <li>
+                            <a href="#stats" data-toggle="tab"><%- __('Statistics') %></a>
+                        </li>
+                        <li>
+                            <a href="#massive" data-toggle="tab"><%- __('Massive Edit') %></a>
+                        </li>
+                        <li>
+                            <a href="#help" data-toggle="tab"><%- __('Help') %></a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <div id="nav">
-            <ul class="nav nav-pills">
-                <li class="active">
-                    <a href="#tracker" data-toggle="tab"><%- __('Tracker') %></a>
-                </li>
-                <li>
-                    <a href="#overview" data-toggle="tab"><%- __('Overview') %></a>
-                </li>
-                <li>
-                    <a href="#stats" data-toggle="tab"><%- __('Statistics') %></a>
-                </li>
-                <li>
-                    <a href="#massive" data-toggle="tab"><%- __('Massive Edit') %></a>
-                </li>
-            </ul>
+        <div id="content" class="container tab-content">
+            <div class="tab-pane active full-height" id="tracker"></div>
+            <div class="tab-pane" id="overview"></div>
+            <div class="tab-pane" id="stats"></div>
+            <div class="tab-pane" id="massive"></div>
+            <div class="tab-pane" id="help"></div>
         </div>
 
         <div id="messages"></div>
-
-        <div id="tools_div" class="btn-toolbar hide">
-            <div class="btn-group">
-                <a id="toggle_notify" class="btn"><%- __('Notifications') %></a>
-            </div>
-        </div>
-
-        <div id="version_div">
-            <%- __('version') %>: <span id="version">?</span>
-        </div>
 
         <%= asset('timeit.js') %>
         <%= asset('moment/'+language+'.js') %>

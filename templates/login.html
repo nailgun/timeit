@@ -20,22 +20,16 @@
         <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
     </head>
 
-    <body>
-        <div class="ti-body">
-            <span class="ti-control"></span>
-            <div class="ti-control">
-                <h1><%- __('TimeIt time tracker') %></h1>
-                <h3><%- __('Login with...') %></h3>
-                <p>
-                    <% _.each(providers, function(provider) { %>
-                        <a class="btn" href="auth/<%- provider %>"><img src="ico/<%- provider %>.ico"></a>
-                    <% }); %>
-                </p>
-            </div>
-        </div>
-
-        <div id="version_div">
-            <%- __('version') %>: <span id="version">?</span>
+    <body style="text-align: center">
+        <span class="middle-centered"></span>
+        <div class="middle-centered">
+            <h1><%- __('TimeIt time tracker') %></h1>
+            <h3><%- __('Login with...') %></h3>
+            <p>
+                <% _.each(providers, function(provider) { %>
+                    <a class="btn" href="auth/<%- provider %>"><img src="ico/<%- provider %>.ico"></a>
+                <% }); %>
+            </p>
         </div>
 
         <%= asset('timeit.js') %>

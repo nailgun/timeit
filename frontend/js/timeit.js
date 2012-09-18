@@ -138,7 +138,7 @@ window.timeit = (function() {
         }
 
         function notify() {
-            if (timeit.notificationsAllowed()) {
+            if (timeit.notificationsEnabled()) {
                 var activity = timeit.currentActivity();
                 var text = activity ? activity.name : __('No activity');
                 var popup = window.webkitNotifications.createNotification('', 'TimeIt', text);
@@ -162,19 +162,13 @@ window.timeit = (function() {
         }
 
         if (window.webkitNotifications) {
-            function updateToggle() {
-                if (timeit.notificationsAllowed()) {
-                    $('#toggle_notify').addClass('active');
-                } else {
-                    $('#toggle_notify').removeClass('active');
-                }
+            function emit() {
+                timeit.trigger('notificationsSwitched');
             }
 
-            updateToggle();
-            window.webkitNotifications.requestPermission(updateToggle);
+            emit();
+            window.webkitNotifications.requestPermission(emit);
 
-        } else {
-            $('#toggle_notify').remove();
         }
     };
 
@@ -182,7 +176,7 @@ window.timeit = (function() {
         return new Date().getTime() - timeit.currentActivity().start_time.getTime();
     };
 
-    timeit.notificationsAllowed = function() {
+    timeit.notificationsEnabled = function() {
         return timeit.notificationsRequested
             && window.webkitNotifications.checkPermission() == 0;
     };
