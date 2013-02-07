@@ -134,6 +134,9 @@ module.exports = function(opts) {
 
     function joinInclude (name, parts, callback) {
         var asset = assets[name];
+        if (!asset) {
+            return callback(null, '');
+        }
 
         if (store.compile) {
             function onReady (err) {
