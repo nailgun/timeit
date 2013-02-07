@@ -2,7 +2,7 @@
   "author": "Dmitry Bashkatov <dbashkatov@gmail.com>",
   "name": "timeit",
   "description": "Time tracking web application",
-  "version": "1.1.0-rc1",
+  "version": "1.1.0-rc2",
   "homepage": "https://github.com/nailgun/timeit",
   "repository": {
     "type": "git",
