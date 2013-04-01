@@ -1,7 +1,6 @@
 {
     "install_url": "http://time.it:3000/",
     "listen_port": null,
-    "unixSocketMode": "0777",
     "secret": "DO NOT FORGET YOUR SECRET HERE!!!",
     "log_format": "dev",
     "db": "mongodb://localhost/timeit",
