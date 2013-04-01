@@ -37,15 +37,34 @@ function main() {
         if (!app.config.listen_port) {
             app.config.listen_port = app.installation.port;
         }
-        server.listen(app.config.listen_port, function() {
-            var isUnixSocket = parseInt(app.config.listen_port) != app.config.listen_port;
-            if (isUnixSocket && typeof app.config.unixSocketMode !== 'undefined') {
-                fs.chmodSync(app.config.listen_port, app.config.unixSocketMode);
-            }
-            if (app.config.log_format) {
-                console.log('TimeIt is running on '+app.installation.href);
-            }
-        });
+
+        var isUnixSocket = parseInt(app.config.listen_port) != app.config.listen_port;
+        if (isUnixSocket) {
+            fs.exists(app.config.listen_port, function (exists) {
+                if (exists) {
+                    fs.unlink(app.config.listen_port, function (err) {
+                        if (err) throw err;
+                        start();
+                    });
+                } else {
+                    start();
+                }
+            });
+        } else {
+            start();
+        }
+
+        function start () {
+            server.listen(app.config.listen_port, function() {
+                if (isUnixSocket) {
+                    fs.chmodSync(app.config.listen_port, '0777');
+                }
+
+                if (app.config.log_format) {
+                    console.log('TimeIt is running on '+app.installation.href);
+                }
+            });
+        }
     });
 }
 
